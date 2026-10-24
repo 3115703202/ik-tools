@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>失控进化 · 房型库</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;color:#fff;padding:20px}
+h1{text-align:center;font-size:28px;margin:20px 0 10px}
+.sub{text-align:center;opacity:0.8;margin-bottom:30px}
+.card{background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);border-radius:16px;padding:20px;margin-bottom:15px}
+.card h2{font-size:18px;margin-bottom:8px}
+.card p{font-size:14px;opacity:0.9;line-height:1.6}
+input{width:100%;padding:14px;border:none;border-radius:12px;font-size:16px;margin-bottom:15px}
+button{width:100%;padding:14px;border:none;border-radius:12px;background:#fff;color:#667eea;font-size:16px;font-weight:bold;cursor:pointer}
+.result{margin-top:15px;padding:15px;background:rgba(0,0,0,0.2);border-radius:12px;display:none}
+</style>
+</head>
+<body>
+<h1>🏠 失控进化房型库</h1>
+<p class="sub">Rust房型检索 · 输入房型名搜索</p>
+<div class="card">
+<input type="text" id="search" placeholder="输入房型名，如：2x2、3x3、bin">
+<button onclick="search()">搜索房型</button>
+<div class="result" id="result"></div>
+</div>
+<div class="card">
+<h2>热门房型</h2>
+<p>2x2 扩编 · 3x3 中圈 · 4x4 大圈 · Bin 房 · 双层钢圈 · 三角房</p>
+</div>
+<script>
+const data={
+"2x2":"基础2x2：2层墙+1个门，适合单人生存",
+"3x3":"中圈3x3：3层墙+2个门，小队基地标配",
+"4x4":"大圈4x4：4层墙+3个门，团队基地",
+"bin":"Bin房：集装箱改造，低成本快速建造",
+"三角":"三角房：利用地形减少一面墙材料",
+"双层":"双层钢圈：内外两圈墙，防 raid 必备"
+};
+function search(){
+const q=document.getElementById('search').value.toLowerCase();
+const r=document.getElementById('result');
+r.style.display='block';
+if(data[q]){r.innerHTML='<b>'+q+'</b><br>'+data[q];}
+else{r.innerHTML='未找到「'+q+'」，试试：2x2、3x3、4x4、bin、三角、双层';}
+}
+</script>
+</body>
+</html>
