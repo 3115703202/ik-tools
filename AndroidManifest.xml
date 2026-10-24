@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.roomarchive.server"
+    android:versionCode="140"
+    android:versionName="4.0.2">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="moe.shizuku.privileged.permission.API_V23" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.flash" android:required="false" />
+
+    <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="29" />
+
+    <application
+        android:name=".App"
+        android:label="IK工具箱"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar"
+        android:allowBackup="false"
+        android:extractNativeLibs="true"
+        android:resizeableActivity="true"
+        android:usesCleartextTraffic="true">
+
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:configChanges="orientation|screenSize|keyboardHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden">
+        </activity>
+
+        <activity android:name=".ServerActivity" android:exported="false" />
+        <activity android:name=".ZipToolActivity" android:exported="false" />
+        <activity android:name=".ImageToolActivity" android:exported="false" />
+        <activity android:name=".VideoToolActivity" android:exported="false" />
+        <activity android:name=".AiChatActivity" android:exported="false" />
+        <activity android:name=".BrowserActivity" android:exported="false" />
+        <activity android:name=".ShikongActivity" android:exported="false" />
+        <activity android:name=".WebAppsActivity" android:exported="false" />
+        <activity android:name=".FpsActivity" android:screenOrientation="landscape" />
+        <activity android:name=".WebAppViewerActivity" android:exported="false" />
+        <activity android:name=".TextEditorActivity" android:exported="false" />
+        <activity android:name=".MyFilesActivity" android:exported="false" />
+        <activity android:name=".AppListActivity" android:exported="false" />
+        <activity android:name=".WallpaperActivity" android:exported="false" />
+        <activity android:name=".DeviceInfoActivity" android:exported="false" />
+        <activity android:name=".AboutActivity" android:exported="false" />
+        <activity android:name=".FavoritesActivity" android:exported="false" />
+        <activity android:name=".UserCenterActivity" android:exported="false" />
+        <activity android:name=".HistoryTodayActivity" android:exported="false" />
+        <activity android:name=".TimeCalculatorActivity" android:exported="false" />
+        <activity android:name=".HandBulletActivity" android:exported="false"
+            android:screenOrientation="landscape" />
+        <activity android:name=".AudioDecibelActivity" android:exported="false" />
+        <activity android:name=".ObjectDetectActivity" android:exported="false" />
+        <activity android:name=".DownloadActivity" android:exported="false" />
+        <activity android:name=".NetDiskActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".GameWebActivity" android:exported="false" />
+        <activity android:name=".SnakeGameActivity" android:exported="false" />
+        <activity android:name=".Game2048Activity" android:exported="false" />
+        <activity android:name=".TetrisGameActivity" android:exported="false" />
+        <activity android:name=".SystemInfoActivity" android:exported="false" />
+        <activity android:name=".TranslateActivity" android:exported="false" />
+        <activity android:name=".WeatherActivity" android:exported="false" />
+        <activity android:name=".ExpressActivity" android:exported="false" />
+        <activity android:name=".ScreenRecordActivity" android:exported="false" />
+        <activity android:name=".AutoClickActivity" android:exported="false" />
+        <service android:name=".ScreenRecordActivity$RecorderService" android:exported="false" android:foregroundServiceType="mediaProjection" />
+        <service android:name=".AutoClickActivity$AutoClickService" android:exported="false" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter><action android:name="android.accessibilityservice.AccessibilityService" /></intent-filter>
+            <meta-data android:name="android.accessibilityservice" android:resource="@xml/accessibility_config" />
+        </service>
+        <activity android:name=".QRCodeActivity" android:exported="false" />
+        <activity android:name=".QrScanActivity" android:exported="false" />
+        <activity android:name=".PerformanceActivity" android:exported="false" />
+        <activity android:name=".SensorToolsActivity" android:exported="false" />
+        <activity android:name=".WirelessDebugActivity" android:exported="false" />
+        <activity android:name=".AIGobangActivity" android:exported="false" />
+        <activity android:name=".RetroArcadeActivity" android:exported="false" />
+        <activity android:name=".PixelJumpActivity" android:exported="false" />
+        <activity android:name=".NaWaActivity" android:exported="false" />
+        <activity android:name=".HackerSystemActivity" android:exported="false" />
+        <activity android:name=".AlipaySoundActivity" android:exported="false" />
+        <activity android:name=".DuoActivity" android:exported="false" />
+        <activity android:name=".DailyYouActivity" android:exported="false" />
+        <activity android:name=".UpdateActivity" android:exported="false" />
+
+        <service
+            android:name=".IKWallpaperService"
+            android:exported="true"
+            android:label="IK 3D壁纸"
+            android:permission="android.permission.BIND_WALLPAPER">
+            <intent-filter>
+                <action android:name="android.service.wallpaper.WallpaperService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.wallpaper"
+                android:resource="@xml/wallpaper_info" />
+        </service>
+
+        <service
+            android:name=".TunnelService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <provider
+            android:name=".IkFileProvider"
+            android:authorities="com.roomarchive.server.files"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="com.roomarchive.server.shizuku"
+            android:multiprocess="false"
+            android:enabled="true"
+            android:exported="true" />
+    </application>
+</manifest>

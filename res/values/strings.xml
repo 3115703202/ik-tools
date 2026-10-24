@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_desc">IK工具箱自动点击器，用于模拟屏幕点击</string>
+</resources>

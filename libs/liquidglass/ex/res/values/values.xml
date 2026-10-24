@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LiquidGlassView">
+        
+        <attr format="float" name="displacementScale"/>
+        <attr format="float" name="blurAmount"/>
+        <attr format="float" name="saturation"/>
+        <attr format="float" name="aberrationIntensity"/>
+        <attr format="float" name="elasticity"/>
+        <attr format="dimension" name="cornerRadius"/>
+
+        
+        <attr format="enum" name="glassMaterial">
+            <enum name="regular" value="0"/>
+            <enum name="clear" value="1"/>
+        </attr>
+        <attr format="dimension" name="bevelWidth"/>
+        <attr format="dimension" name="refractionHeight"/>
+        <attr format="float" name="dispersionStrength"/>
+        <attr format="boolean" name="sensorHighlight"/>
+        <attr format="boolean" name="adaptiveTint"/>
+    </declare-styleable>
+</resources>
