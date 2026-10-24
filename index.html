@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IK工具箱 - 26 合 1 安卓实用工具集 · 永久免费无广告</title>
+<meta name="description" content="IK工具箱：26 合 1 安卓实用工具集，离线运行、永久免费、无广告、不收集数据。含娱乐工具、系统工具、服务器与内网穿透、AI 聊天等。">
+<!-- IK-OTA:VER=v4.1.0|CODE=140|URL=https://aka.doubaocdn.com/s/2RM2jdY473 -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%233b82f6'/%3E%3Cpath d='M16 22h32M16 32h22M16 42h28' stroke='%23fff' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg1:#eef4ff; --bg2:#e6edff; --bg3:#f3ecff;
+    --ink:#182033; --ink2:#5b6685; --line:rgba(255,255,255,.85);
+    --brand:#3b82f6; --brand2:#7c3aed; --ok:#16a34a;
+    --glass:rgba(255,255,255,.62); --glass-strong:rgba(255,255,255,.82);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","HarmonyOS Sans SC","Noto Sans SC","Microsoft YaHei",sans-serif;
+    color:var(--ink); min-height:100vh; overflow-x:hidden;
+    background:linear-gradient(150deg,var(--bg1),var(--bg2) 46%,var(--bg3));
+    -webkit-font-smoothing:antialiased;
+  }
+  /* 背景光斑：呼应 App 玻璃拟态 */
+  .glow{position:fixed;border-radius:50%;filter:blur(70px);pointer-events:none;z-index:0}
+  .g1{width:420px;height:420px;background:rgba(56,189,248,.35);top:-120px;left:-100px}
+  .g2{width:380px;height:380px;background:rgba(147,163,255,.38);top:120px;right:-120px}
+  .g3{width:400px;height:400px;background:rgba(240,143,216,.32);bottom:-140px;left:24%}
+  .wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:0 20px 60px}
+  /* 顶部导航 */
+  .topnav{position:sticky;top:12px;z-index:9;max-width:640px;margin:12px auto 0;padding:0 20px}
+  .nav-card{
+    display:flex;align-items:center;gap:10px;
+    background:var(--glass-strong);border:1px solid var(--line);
+    border-radius:20px;padding:10px 16px;box-shadow:0 8px 24px rgba(59,84,160,.14);
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  }
+  .nav-logo{width:34px;height:34px;border-radius:10px;flex:0 0 auto;
+    background:linear-gradient(135deg,var(--brand),var(--brand2));
+    display:flex;align-items:center;justify-content:center}
+  .nav-logo svg{width:20px;height:20px}
+  .nav-name{font-weight:700;font-size:16px;letter-spacing:.5px}
+  .nav-ver{margin-left:auto;font-size:12px;color:var(--ink2);background:rgba(59,130,246,.12);
+    border:1px solid rgba(59,130,246,.25);padding:4px 10px;border-radius:999px;white-space:nowrap}
+  /* Hero */
+  .hero{margin-top:34px;text-align:center}
+  .hero-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ok);
+    background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.28);
+    padding:5px 12px;border-radius:999px;font-weight:600}
+  .hero h1{font-size:40px;line-height:1.15;margin:18px 0 12px;font-weight:800;letter-spacing:1px;
+    background:linear-gradient(90deg,#1d4ed8,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p{font-size:15px;color:var(--ink2);line-height:1.7;max-width:460px;margin:0 auto}
+  /* 下载区 */
+  .dl{margin-top:26px;display:flex;flex-direction:column;gap:12px}
+  .dl-main{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    background:linear-gradient(135deg,var(--brand),var(--brand2));
+    color:#fff;text-decoration:none;font-size:17px;font-weight:700;
+    border-radius:18px;padding:16px;box-shadow:0 12px 28px rgba(80,60,220,.35);
+    transition:transform .12s ease;
+  }
+  .dl-main:active{transform:scale(.97)}
+  .dl-main svg{width:20px;height:20px}
+  .dl-sub{display:flex;gap:10px}
+  .dl-sub a{
+    flex:1;text-align:center;font-size:13px;color:var(--ink2);text-decoration:none;
+    background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:11px;
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  }
+  .dl-sub a:active{transform:scale(.97)}
+  .dl-meta{margin-top:10px;text-align:center;font-size:12px;color:var(--ink2);line-height:1.8}
+  /* 区块 */
+  section{margin-top:40px}
+  .sec-title{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:700;margin-bottom:14px}
+  .sec-title::before{content:"";width:5px;height:18px;border-radius:3px;
+    background:linear-gradient(180deg,var(--brand),var(--brand2))}
+  /* 特性玻璃卡 */
+  .feat{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .card{
+    background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:16px 14px;
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    box-shadow:0 6px 18px rgba(59,84,160,.08);
+  }
+  .card b{display:flex;align-items:center;gap:8px;font-size:15px;margin-bottom:6px}
+  .card span{font-size:12px;color:var(--ink2);line-height:1.6}
+  .ico{width:34px;height:34px;border-radius:10px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+  .ico svg{width:18px;height:18px}
+  .c-blue{background:rgba(59,130,246,.14)} .c-blue svg{stroke:#3b82f6}
+  .c-purple{background:rgba(124,58,237,.14)} .c-purple svg{stroke:#7c3aed}
+  .c-green{background:rgba(22,163,74,.14)} .c-green svg{stroke:#16a34a}
+  .c-orange{background:rgba(245,158,11,.16)} .c-orange svg{stroke:#f59e0b}
+  .c-pink{background:rgba(236,72,153,.13)} .c-pink svg{stroke:#ec4899}
+  .c-cyan{background:rgba(6,182,212,.14)} .c-cyan svg{stroke:#06b6d4}
+  /* 版本记录 */
+  .ver-list{background:var(--glass);border:1px solid var(--line);border-radius:18px;overflow:hidden;
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+  .ver-row{display:flex;align-items:center;gap:12px;padding:13px 16px;font-size:13px}
+  .ver-row + .ver-row{border-top:1px solid rgba(59,84,160,.08)}
+  .ver-tag{font-weight:700;font-size:12px;color:#fff;background:linear-gradient(135deg,var(--brand),var(--brand2));
+    border-radius:8px;padding:3px 9px;flex:0 0 auto}
+  .ver-tag.new{background:linear-gradient(135deg,#16a34a,#4ade80)}
+  .ver-note{color:var(--ink2);flex:1;min-width:0}
+  .ver-date{color:#9aa3bd;font-size:12px;flex:0 0 auto}
+  /* 说明 */
+  .note{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .note div{font-size:12px;color:var(--ink2);background:var(--glass);border:1px solid var(--line);
+    border-radius:14px;padding:12px;text-align:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .note b{display:block;font-size:13px;color:var(--ink);margin-bottom:4px}
+  footer{margin-top:44px;text-align:center;font-size:12px;color:#9aa3bd;line-height:1.9}
+  footer a{color:var(--ink2)}
+  @media (max-width:400px){
+    .feat{grid-template-columns:1fr}
+    .hero h1{font-size:34px}
+  }
+</style>
+</head>
+<body>
+  <div class="glow g1" aria-hidden="true"></div>
+  <div class="glow g2" aria-hidden="true"></div>
+  <div class="glow g3" aria-hidden="true"></div>
+
+  <!-- ===== 顶部导航 ===== -->
+  <nav class="topnav">
+    <div class="nav-card">
+      <div class="nav-logo">
+        <svg viewBox="0 0 64 64" fill="none"><path d="M18 22h28M18 32h18M18 42h24" stroke="#fff" stroke-width="6" stroke-linecap="round"/></svg>
+      </div>
+      <div class="nav-name">IK工具箱</div>
+      <div class="nav-ver">最新 v4.1.0</div>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <!-- ===== Hero ===== -->
+    <header class="hero">
+      <div class="hero-badge">永久免费 · 无广告 · 离线运行</div>
+      <h1>IK工具箱</h1>
+      <p>26 合 1 安卓实用工具集：服务器与内网穿透、AI 聊天、图片视频处理、系统优化、娱乐小游戏，一个 App 全搞定。</p>
+    </header>
+
+    <!-- ===== 下载区 ===== -->
+    <div class="dl">
+      <a class="dl-main" href="https://aka.doubaocdn.com/s/3GQ8E1KIdD">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 21h16"/></svg>
+        下载最新版 APK（v4.1.0）
+      </a>
+      <div class="dl-sub">
+        <a href="https://github.com/3115703202/ik-tools/releases" target="_blank" rel="noopener">GitHub 下载</a>
+        <a href="https://github.com/3115703202/ik-tools/releases/download/v4.1.0/IK-Toolbox-v4.1.0.apk">GitHub 直链下载</a>
+        <a href="#guide">安装说明</a>
+        <a href="#versions">版本记录</a>
+      </div>
+      <div class="dl-meta">
+        安卓 7.0+ 通用 · 约 15MB · 固定签名，可覆盖升级<br>
+        GitHub：<code>github.com/3115703202/ik-tools</code> · 国内直连：<code>aka.doubaocdn.com/s/ViHaU1Ki10</code>
+      </div>
+    </div>
+
+    <!-- ===== 特性 ===== -->
+    <section>
+      <div class="sec-title">核心能力</div>
+      <div class="feat">
+        <div class="card"><b><span class="ico c-blue"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M18 20a6 6 0 0 0-12 0M12 10a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></span></b><span class="card-name">房型库共享服务器</span><span>局域网 HTTP 服务 + 一键公网穿透，朋友随时访问</span></div>
+        <div class="card"><b><span class="ico c-purple"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6M9 13h4"/></svg></span></b><span class="card-name">金龙 AI-Pro</span><span>联网大模型问答，内置浏览器直达网页</span></div>
+        <div class="card"><b><span class="ico c-green"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M14.5 4h-9a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><path d="M17 7l3-3v13l-3-3"/></svg></span></b><span class="card-name">图片视频工具</span><span>压缩、转码、抠图、提取封面与音频</span></div>
+        <div class="card"><b><span class="ico c-orange"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 3l7 4v5c0 4-3 7-7 8-4-1-7-4-7-8V7l7-4z"/><path d="M9 12l2 2 4-4"/></svg></span></b><span class="card-name">系统工具</span><span>应用管理、性能跑分、设备检测、壁纸</span></div>
+        <div class="card"><b><span class="ico c-pink"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 20a8 8 0 1 0-8-8 8 8 0 0 0 8 8z"/><path d="M9 11v2M15 11v2"/></svg></span></b><span class="card-name">娱乐小游戏</span><span>像素跳跃、怀旧街机、双人乒乓、弹幕机</span></div>
+        <div class="card"><b><span class="ico c-cyan"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></span></b><span class="card-name">26 合 1 全家桶</span><span>工具、娱乐、系统分类清晰，搜索直达</span></div>
+      </div>
+    </section>
+
+    <!-- ===== 版本记录 ===== -->
+    <section id="versions">
+      <div class="sec-title">版本记录</div>
+      <div class="ver-list">
+        <div class="ver-row"><span class="ver-tag new">v4.1.0</span><span class="ver-note">物体识别阈值提至0.6；检查更新联网对比；APK提取上传分享；全量bug修复</span><span class="ver-date">2026-10-24</span></div>
+        <div class="ver-row"><span class="ver-tag">v4.0.3</span><span class="ver-note">检查更新合并到关于页；无线调试加ADB有线启动指引；底部导航三页统一</span><span class="ver-date">2026-10-24</span></div>
+        <div class="ver-row"><span class="ver-tag">v4.0.0</span><span class="ver-note">物体识别阈值提升减少误报；底部导航图标固定；检查更新合并到版本号</span><span class="ver-date">2026-10-24</span></div>
+        <div class="ver-row"><span class="ver-tag">v3.9.4</span><span class="ver-note">底部导航图标固定不压缩；检查更新合并到版本号；百度网盘不再报错</span><span class="ver-date">2026-10-24</span></div>
+        <div class="ver-row"><span class="ver-tag">v3.9.3</span><span class="ver-note">Shizuku无线调试全面修复：主动拉取binder+自动授权+弹窗引导；底部导航图标修复；网盘/视频解析自动下载</span><span class="ver-date">2026-10-24</span></div>
+        <div class="ver-row"><span class="ver-tag">v3.9.0</span><span class="ver-note">Shizuku主动检测引导；百度网盘明确提示需登录；检查更新合并到关于页</span><span class="ver-date">2026-10-24</span></div>
+        <div class="ver-row"><span class="ver-tag">v3.8.2</span><span class="ver-note">网盘解析接NFD云解析真实直链下载；视频解析支持抖音/B站/快手/小红书/TikTok无水印提取；自动跳转下载器高速下载；修复翻译/录屏/文件目录等bug</span><span class="ver-date">2026-10-24</span></div>
+        <div class="ver-row"><span class="ver-tag">v3.7.0</span><span class="ver-note">新增录屏（MP4保存到我的文件）；新增自动点击器（无障碍+悬浮窗）；新增系统信息/翻译/天气/物流查询</span><span class="ver-date">2026-10-24</span></div>
+        <div class="ver-row"><span class="ver-tag">v3.5.0</span><span class="ver-note">网盘解析接真实API（蓝奏云/123云盘直链）；分享面板集成；剪贴板自动弹窗；物体识别阈值优化；新增贪吃蛇/2048/俄罗斯方块</span><span class="ver-date">2026-10-23</span></div>
+        <div class="ver-row"><span class="ver-tag">v3.3.0</span><span class="ver-note">剪贴板自动监听；下载与文件打通；新增3个HTML5游戏；深色模式；全局搜索</span><span class="ver-date">2026-10-23</span></div>
+        <div class="ver-row"><span class="ver-tag">v3.2.0</span><span class="ver-note">新增网盘解析工具：粘贴链接自动识别全平台，支持历史/收藏/剪贴板</span><span class="ver-date">2026-10-23</span></div>
+        <div class="ver-row"><span class="ver-tag">v3.1.9</span><span class="ver-note">Shizuku sticky receiver 自动授权，和MT管理器一样一打开就弹框</span><span class="ver-date">2026-10-23</span></div>
+        <div class="ver-row"><span class="ver-tag">v3.1.8</span><span class="ver-note">Shizuku 连不上根因修复；收藏/我的页底部导航统一4项白卡风格</span><span class="ver-date">2026-10-23</span></div>
+        <div class="ver-row"><span class="ver-tag new">v3.1.4</span><span class="ver-note">新增传感器工具箱（指南针/水平仪/手电筒）；二维码扫码识别；无线调试专项引导页；开屏公告液态玻璃重做</span><span class="ver-date">2026-10-22</span></div>
+        <div class="ver-row"><span class="ver-tag new">v3.1.3</span><span class="ver-note">3D枪战引擎升级：俯仰角视角+后坐力上抬+距离雾化+右半屏滑动瞄准；Shizuku API 升级至 13.1.5；底部导航收窄紧凑化</span><span class="ver-date">2026-10-21</span></div>
+        <div class="ver-row"><span class="ver-tag new">v3.1.2</span><span class="ver-note">修复 Shizuku 无线调试授权：补充 API_V23 权限声明，激活后静默停用/卸载、深度设备信息即可正常使用</span><span class="ver-date">2026-10-21</span></div>
+        <div class="ver-row"><span class="ver-tag new">v3.1.1</span><span class="ver-note">新增《失控进化》房型库入口（内置浏览器直达）；官网下载改国内直连；全文版本信息统一</span><span class="ver-date">2026-10-21</span></div>
+        <div class="ver-row"><span class="ver-tag new">v3.1.0</span><span class="ver-note">官网迁移 GitHub Pages（无水印），检查更新默认走 GitHub 官网，下载多通道</span><span class="ver-date">2026-10-20</span></div>
+        <div class="ver-row"><span class="ver-tag">v3.0.8</span><span class="ver-note">玻璃透明感 UI：彩色光斑背景、悬浮玻璃导航、首页搜索栏</span><span class="ver-date">2026-10-19</span></div>
+        <div class="ver-row"><span class="ver-tag">v3.0.7</span><span class="ver-note">修复检查更新误连本机地址，默认走官网</span><span class="ver-date">2026-10-18</span></div>
+        <div class="ver-row"><span class="ver-tag">v3.0.6</span><span class="ver-note">新增一键网络诊断（VPN 前后对比）</span><span class="ver-date">2026-10-18</span></div>
+        <div class="ver-row"><span class="ver-tag">v3.0.5</span><span class="ver-note">穿透启动 VPN 检测，支持代理出口</span><span class="ver-date">2026-10-18</span></div>
+        <div class="ver-row"><span class="ver-tag">v3.0.4</span><span class="ver-note">frp 免实名引导：内置 OpenFrp 官网入口</span><span class="ver-date">2026-10-18</span></div>
+        <div class="ver-row"><span class="ver-tag">v3.0.3</span><span class="ver-note">OTA 检查更新修复，默认官网直连</span><span class="ver-date">2026-10-18</span></div>
+        <div class="ver-row"><span class="ver-tag">v3.0</span><span class="ver-note">全量 UI 升级：液态玻璃设计系统 + 导航加高对齐</span><span class="ver-date">2026-10-17</span></div>
+      </div>
+    </section>
+
+    <!-- ===== 安装说明 ===== -->
+    <section id="guide">
+      <div class="sec-title">安装说明</div>
+      <div class="note">
+        <div><b>1. 下载 APK</b>点击上方按钮下载安装包</div>
+        <div><b>2. 允许未知来源</b>安装时按系统提示开启「允许安装未知应用」</div>
+        <div><b>3. 覆盖升级</b>旧版直接覆盖安装，数据不丢失</div>
+        <div><b>4. 检查更新</b>App 内「检查更新」自动从本页获取最新版</div>
+      </div>
+    </section>
+
+    <footer>
+      永久免费 · 无广告 · 不收集任何数据 · 全部功能离线可用<br>
+      官网已上线 GitHub Pages，发布页：<a href="https://github.com/3115703202/ik-tools" target="_blank" rel="noopener">github.com/3115703202/ik-tools</a>
+    </footer>
+  </div>
+</body>
+</html>
