@@ -41,9 +41,9 @@ import java.util.List;
  */
 public class ObjectDetectActivity extends Activity implements TextureView.SurfaceTextureListener, Camera.PreviewCallback {
 
-    static final int INPUT_SIZE = 320;           // EfficientDet-Lite0 输入 320x320（替换 MobileNetSSD 300）
+    static final int INPUT_SIZE = 640;           // YOLO-World 输入 640x640
     static final int MAX_DETECT = 25;            // EfficientDet-Lite0 最大输出 25 个检测框
-    static final float THRESHOLD = 0.60f;        // 置信度阈值：0.6 高准确率，减少误报
+    static final float THRESHOLD = 0.40f;        // 置信度阈值：0.4 提高召回率
     static final float FOV_DEG = 62f;               // 手机相机近似视场角（估算用）
     static final int MSG_RESULT = 1;
     static final int MSG_DETECT = 2;
@@ -157,6 +157,15 @@ public class ObjectDetectActivity extends Activity implements TextureView.Surfac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Tools.applyStatusBar(this);
+
+        // 检查模型是否存在
+        final java.io.File mf = getModelFile();
+        if (!mf.exists()) {
+            // 显示下载页面
+            showDownloadPage();
+            return;
+        }
+
         try {
             loadModel();
             loadClsModel();
@@ -168,13 +177,156 @@ public class ObjectDetectActivity extends Activity implements TextureView.Surfac
             return;
         }
 
-        // 运行时相机权限（Android 6.0+）
+        startDetectUI();
+    }
+
+    void showDownloadPage() {
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setGravity(android.view.Gravity.CENTER);
+        root.setBackground(Tools.bgWithGlow(this));
+        root.setPadding(dp(30), dp(20), dp(30), dp(20));
+
+        TextView title = new TextView(this);
+        title.setText("下载物体识别模型");
+        title.setTextSize(22);
+        title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        root.addView(title);
+
+        TextView size = new TextView(this);
+        size.setText("约71MB · YOLO-World X");
+        size.setTextSize(14);
+        size.setPadding(0, dp(8), 0, dp(20));
+        root.addView(size);
+
+        final TextView progress = new TextView(this);
+        progress.setText("准备下载...");
+        progress.setTextSize(16);
+        root.addView(progress);
+
+        android.widget.Button btn = new android.widget.Button(this);
+        btn.setText("开始下载");
+        root.addView(btn);
+
+        setContentView(root);
+
+        btn.setOnClickListener(v -> {
+            btn.setEnabled(false);
+            progress.setText("连接中…");
+            new Thread(() -> {
+                Exception lastError = null;
+                boolean ok = false;
+                for (String u : MODEL_URLS) {
+                    try {
+                        ok = fetchModel(u, progress);
+                        if (ok) break;
+                    } catch (Exception e) {
+                        lastError = e;
+                    }
+                }
+                final boolean success = ok;
+                final Exception err = lastError;
+                runOnUiThread(() -> {
+                    if (success) {
+                        progress.setText("下载完成，正在加载…");
+                        try {
+                            loadModel();
+                            loadLabels();
+                            startDetectUI();
+                        } catch (Exception e2) {
+                            progress.setText("模型加载失败：" + e2.getMessage());
+                            btn.setEnabled(true);
+                            btn.setText("重试");
+                        }
+                    } else {
+                        progress.setText("下载失败：" + describeErr(err));
+                        btn.setEnabled(true);
+                        btn.setText("重试");
+                    }
+                });
+            }).start();
+        });
+    }
+
+    /** 下载单个源到临时文件，校验完整后落盘 */
+    boolean fetchModel(String urlStr, TextView progress) throws Exception {
+        java.io.File mf = getModelFile();
+        mf.getParentFile().mkdirs();
+        java.io.File tmp = new java.io.File(mf.getAbsolutePath() + ".part");
+        if (tmp.exists()) tmp.delete();
+
+        java.net.HttpURLConnection conn =
+                (java.net.HttpURLConnection) new java.net.URL(urlStr).openConnection();
+        conn.setConnectTimeout(15000);
+        conn.setReadTimeout(45000);
+        conn.setRequestMethod("GET");
+        conn.setInstanceFollowRedirects(true);
+        int code = conn.getResponseCode();
+        if (code != 200 && code != 206) {
+            conn.disconnect();
+            throw new Exception("HTTP " + code);
+        }
+        int total = conn.getContentLength();
+
+        java.io.InputStream is = conn.getInputStream();
+        java.io.FileOutputStream fos = new java.io.FileOutputStream(tmp);
+        byte[] buf = new byte[16384];
+        int r;
+        long done = 0;
+        long lastPost = 0;
+        try {
+            while ((r = is.read(buf)) > 0) {
+                fos.write(buf, 0, r);
+                done += r;
+                long now = System.currentTimeMillis();
+                if (now - lastPost > 250) {
+                    lastPost = now;
+                    final long d = done;
+                    final int t = total;
+                    runOnUiThread(() -> progress.setText(t > 0
+                            ? "下载中… " + (int) (d * 100 / t) + "% · " + (d / 1024 / 1024) + "MB / " + (t / 1024 / 1024) + "MB"
+                            : "下载中… " + (d / 1024 / 1024) + "MB"));
+                }
+            }
+        } finally {
+            try { is.close(); } catch (Exception ignored) {}
+            try { fos.close(); } catch (Exception ignored) {}
+            conn.disconnect();
+        }
+
+        if (tmp.length() < 1024 * 1024) {
+            tmp.delete();
+            throw new Exception("文件内容异常（" + tmp.length() + " 字节）");
+        }
+        if (total > 0 && done < total * 0.99) {
+            tmp.delete();
+            throw new Exception("传输中断（" + (done / 1024) + "KB / " + (total / 1024) + "KB）");
+        }
+        if (mf.exists()) mf.delete();
+        if (!tmp.renameTo(mf)) {
+            tmp.delete();
+            throw new Exception("写入模型目录失败");
+        }
+        return true;
+    }
+
+    String describeErr(Exception e) {
+        if (e == null) return "未知错误";
+        String m = e.getMessage();
+        if (m == null) m = e.getClass().getSimpleName();
+        if (m.contains("HTTP 404")) return "下载地址已失效（404），请更新到最新版 App";
+        if (m.contains("HTTP")) return "服务器返回错误 " + m;
+        if (e instanceof java.net.SocketTimeoutException) return "网络超时，请检查网络后重试";
+        if (e instanceof java.net.UnknownHostException) return "网络无法解析下载域名";
+        if (m.contains("ENOSPC") || m.contains("No space")) return "存储空间不足（需约 70MB）";
+        return m;
+    }
+
+    void startDetectUI() {
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.CAMERA}, 100);
         }
-
         buildUI();
-
         inferThread = new HandlerThread("infer");
         inferThread.start();
         inferHandler = new Handler(inferThread.getLooper(), new Handler.Callback() {
@@ -188,6 +340,8 @@ public class ObjectDetectActivity extends Activity implements TextureView.Surfac
             }
         });
     }
+
+    int dp(int v) { return (int)(v * getResources().getDisplayMetrics().density + 0.5f); }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] perms, int[] results) {
@@ -455,11 +609,13 @@ public class ObjectDetectActivity extends Activity implements TextureView.Surfac
 
     void detectInner(byte[] nv21) {
         if (previewW <= 0 || previewH <= 0) return;
-        // NV21 -> 300x300 RGB
+        // NV21 -> 640x640 RGB float32 normalized
         int[] rgb = nv21ToRgbScaled(nv21, previewW, previewH, INPUT_SIZE);
-        ByteBuffer input = ByteBuffer.allocateDirect(INPUT_SIZE * INPUT_SIZE * 3).order(ByteOrder.nativeOrder());
+        ByteBuffer input = ByteBuffer.allocateDirect(1 * INPUT_SIZE * INPUT_SIZE * 3 * 4).order(ByteOrder.nativeOrder());
         for (int v : rgb) {
-            input.put((byte) (v & 0xFF));
+            input.putFloat(((v >> 16) & 0xFF) / 255f);
+            input.putFloat(((v >> 8) & 0xFF) / 255f);
+            input.putFloat((v & 0xFF) / 255f);
         }
         input.rewind();
         // 关键修复：输出统一用一维数组（按元素总数拍平），TFLite 引擎对多维 Java 数组解析兼容性差
@@ -468,15 +624,12 @@ public class ObjectDetectActivity extends Activity implements TextureView.Surfac
         try {
             // 输出数组维度必须与引擎 tensor shape 完全一致（该引擎 copyTo 逐维校验）：
             // EfficientDet-Lite0: detection_boxes [1,25,4] / classes [1,25] / scores [1,25] / num [1]
-            outputs = new Object[4];
-            outputs[0] = new float[1][25][4];
-            outputs[1] = new float[1][25];
-            outputs[2] = new float[1][25];
-            outputs[3] = new float[1];
-            // 关键：必须用多输出 API。run(Object,Object) 会把整个输出数组当单个输出，报
-            // "DataType error: cannot resolve DataType of [Ljava.lang.Object;"（v2.2.2 起一直如此）
+            // YOLO-World: bboxes [1,8400,4] / scores [1,8400,80]
+            outputs = new Object[2];
+            outputs[0] = new float[1][8400][4];
+            outputs[1] = new float[1][8400][80];
             java.util.Map<Integer, Object> outs = new java.util.HashMap<>();
-            for (int i = 0; i < 4; i++) outs.put(i, outputs[i]);
+            for (int i = 0; i < 2; i++) outs.put(i, outputs[i]);
             tfLite.runForMultipleInputsOutputs(new Object[]{input}, outs);
         } catch (Exception e) {
             final String err = e.toString();
@@ -488,39 +641,37 @@ public class ObjectDetectActivity extends Activity implements TextureView.Surfac
             });
             return;
         }
-        float[][][] boxesF = (float[][][]) outputs[0]; // [1,25,4]
-        float[][] classesF = (float[][]) outputs[1];    // [1,25]
-        float[][] scoresF = (float[][]) outputs[2];     // [1,25]
-        float[] numF = (float[]) outputs[3];            // [1]
-        int n = (int) numF[0];
-        if (n > MAX_DETECT) n = MAX_DETECT;
+        float[][][] bboxes = (float[][][]) outputs[0]; // [1,8400,4] cx,cy,w,h normalized
+        float[][][] scores = (float[][][]) outputs[1];  // [1,8400,80]
         final List<Detected> list = new ArrayList<>();
-        for (int i = 0; i < n; i++) {
-            if (scoresF[0][i] >= THRESHOLD) {
-                int cls = (int) classesF[0][i];
-                // 过滤背景类（class=0，标签为"???"），避免显示无意义框
-                if (cls <= 0 || cls >= labels.size()) continue;
-                Detected d = new Detected();
-                d.cls = cls;
-                d.score = scoresF[0][i];
-                // 模型输出：y1, x1, y2, x2（0-1 归一化）
-                d.rect = new float[]{boxesF[0][i][0], boxesF[0][i][1], boxesF[0][i][2], boxesF[0][i][3]};
-                // 显示中文标签；超出中文表范围时回退英文原标签
-                d.label = (cls < CN_LABELS.length) ? CN_LABELS[cls] : labels.get(cls);
-                // 估算距离/尺寸（单目近似）
-                float boxH = (d.rect[2] - d.rect[0]) * INPUT_SIZE;
-                float boxW = (d.rect[3] - d.rect[1]) * INPUT_SIZE;
-                if (boxH > 4f) {
-                    float focal = (INPUT_SIZE / 2f) / (float) Math.tan(Math.toRadians(FOV_DEG / 2f));
-                    float h = (cls < realH.length) ? realH[cls] : DEFAULT_H;
-                    d.distM = h * focal / boxH;
-                    d.widthM = d.distM * 2f * (float) Math.tan(Math.toRadians(FOV_DEG / 2f)) * boxW / INPUT_SIZE;
-                } else {
-                    d.distM = 0; d.widthM = 0;
+        for (int i = 0; i < 8400; i++) {
+            float bestScore = 0;
+            int bestCls = -1;
+            for (int c = 0; c < 80; c++) {
+                if (scores[0][i][c] > bestScore) {
+                    bestScore = scores[0][i][c];
+                    bestCls = c;
                 }
-                d.color = labelColor(d.cls);
-                list.add(d);
             }
+            if (bestScore < THRESHOLD || bestCls < 0) continue;
+            Detected d = new Detected();
+            d.cls = bestCls + 1; // 偏移1，对齐原标签表
+            d.score = bestScore;
+            float cx = bboxes[0][i][0], cy = bboxes[0][i][1], w = bboxes[0][i][2], h = bboxes[0][i][3];
+            d.rect = new float[]{cy - h/2, cx - w/2, cy + h/2, cx + w/2}; // y1,x1,y2,x2 normalized
+            d.label = (d.cls < CN_LABELS.length) ? CN_LABELS[d.cls] : labels.get(d.cls);
+            float boxH = h * INPUT_SIZE;
+            float boxW = w * INPUT_SIZE;
+            if (boxH > 4f) {
+                float focal = (INPUT_SIZE / 2f) / (float) Math.tan(Math.toRadians(FOV_DEG / 2f));
+                float rh = (d.cls < realH.length) ? realH[d.cls] : DEFAULT_H;
+                d.distM = rh * focal / boxH;
+                d.widthM = d.distM * 2f * (float) Math.tan(Math.toRadians(FOV_DEG / 2f)) * boxW / INPUT_SIZE;
+            } else {
+                d.distM = 0; d.widthM = 0;
+            }
+            d.color = labelColor(d.cls);
+            list.add(d);
         }
         // 同类高重叠框去重：模型 NMS 后仍会留下多个重叠的同类框（如多个"笔记本电脑"），只保留置信度最高的
         java.util.List<Detected> dedup = new ArrayList<>();
@@ -878,20 +1029,45 @@ public class ObjectDetectActivity extends Activity implements TextureView.Surfac
         br.close();
     }
 
+    static final String[] MODEL_URLS = {
+            "https://aka.doubaocdn.com/s/lsXODg0wa7"
+    };
+
+    java.io.File getModelFile() {
+        return new java.io.File(getExternalFilesDir("IK工具箱"), "yolo_world.tflite");
+    }
+
     void loadModel() throws Exception {
-        InputStream is = getAssets().open("detect.tflite");
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-        byte[] chunk = new byte[8192];
-        int r;
-        while ((r = is.read(chunk)) > 0) {
-            bos.write(chunk, 0, r);
+        java.io.File mf = getModelFile();
+        if (!mf.exists() || mf.length() < 1024 * 1024) {
+            downloadModel();
+            throw new Exception("模型未下载");
         }
-        is.close();
-        byte[] buf = bos.toByteArray();
-        ByteBuffer bb = ByteBuffer.allocateDirect(buf.length).order(ByteOrder.nativeOrder());
-        bb.put(buf);
-        bb.rewind();
+        java.io.FileInputStream fis = new java.io.FileInputStream(mf);
+        java.nio.channels.FileChannel ch = fis.getChannel();
+        ByteBuffer bb = ch.map(java.nio.channels.FileChannel.MapMode.READ_ONLY, 0, ch.size());
+        ch.close();
+        fis.close();
         tfLite = new Interpreter(bb);
+    }
+
+    void downloadModel() {
+        new Thread(() -> {
+            try {
+                java.io.File mf = getModelFile();
+                mf.getParentFile().mkdirs();
+                java.net.URL url = new java.net.URL(MODEL_URLS[0]);
+                java.io.InputStream is = url.openStream();
+                java.io.FileOutputStream fos = new java.io.FileOutputStream(mf);
+                byte[] buf = new byte[8192];
+                int r;
+                while ((r = is.read(buf)) > 0) fos.write(buf, 0, r);
+                is.close(); fos.close();
+                uiHandler.post(() -> infoView.setText("模型下载完成，请重新进入物体识别"));
+            } catch (Exception e) {
+                uiHandler.post(() -> infoView.setText("模型下载失败: " + e.getMessage()));
+            }
+        }).start();
     }
 
     void loadLabels() throws Exception {

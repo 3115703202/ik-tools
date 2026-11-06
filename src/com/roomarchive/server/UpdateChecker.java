@@ -47,7 +47,7 @@ public class UpdateChecker {
      */
     public static final String FALLBACK_VERSION = "v4.0.9";
     public static final int FALLBACK_CODE = 113;
-    public static final String FALLBACK_URL = "https://aka.doubaocdn.com/s/D0NV7kAnaf";
+    public static final String FALLBACK_URL = "https://aka.doubaocdn.com/s/EFyx8dCfYp";
     public static final String FALLBACK_NOTE = "官网暂不可达，已自动切换内置更新信息；下载走国内直链";
 
     /** 判断是否为官网地址（只有官网失败时才允许降级到内置信息） */

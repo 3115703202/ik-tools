@@ -312,20 +312,12 @@ public class AboutActivity extends BaseActivity {
             String latest = null;
             String apkUrl = null;
             try {
-                java.net.URL u = new java.net.URL("https://3115703202.github.io/ik-tools/");
+                java.net.URL u = new java.net.URL("https://3115703202.github.io/ik-tools/version.txt");
                 java.io.BufferedReader br = new java.io.BufferedReader(new java.io.InputStreamReader(u.openStream()));
                 String line;
                 while ((line = br.readLine()) != null) {
-                    if (line.contains("VER=v")) {
-                        int i = line.indexOf("VER=v");
-                        latest = line.substring(i + 5, line.indexOf("|", i));
-                    }
-                    if (line.contains("URL=https://aka.doubaocdn.com")) {
-                        int i = line.indexOf("URL=https://aka.doubaocdn.com");
-                        int j = line.indexOf("'", i);
-                        if (j < 0) j = line.indexOf("\"", i);
-                        apkUrl = line.substring(i + 4, j > 0 ? j : line.length());
-                    }
+                    if (line.startsWith("VERSION=")) latest = line.substring(8).trim();
+                    if (line.startsWith("URL=")) apkUrl = line.substring(4).trim();
                 }
                 br.close();
             } catch (Exception ignored) {}
@@ -336,7 +328,7 @@ public class AboutActivity extends BaseActivity {
                     Toast.makeText(this, "检查失败，请检查网络", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                String cur = "v4.0.8";
+                String cur = "v4.5.1";
                 try {
                     cur = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
                     if (!cur.startsWith("v")) cur = "v" + cur;
@@ -349,8 +341,55 @@ public class AboutActivity extends BaseActivity {
                             .setMessage("当前版本：" + cur + "\n\n点击下载安装新版本。")
                             .setPositiveButton("下载", (d, w) -> {
                                 if (fUrl != null) {
-                                    try { startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(fUrl))); }
-                                    catch (Exception ignored) {}
+                                    // 国内加速
+                                    String dlUrl = fUrl;
+                                    final android.app.ProgressDialog pd = new android.app.ProgressDialog(this);
+                                    pd.setTitle("下载中");
+                                    pd.setMessage("准备下载...");
+                                    pd.setProgressStyle(android.app.ProgressDialog.STYLE_HORIZONTAL);
+                                    pd.setMax(100);
+                                    pd.show();
+                                    final String finalUrl = dlUrl;
+                                    new Thread(() -> {
+                                        try {
+                                            java.net.URL u = new java.net.URL(finalUrl);
+                                            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) u.openConnection();
+                                            conn.setConnectTimeout(10000);
+                                            conn.setReadTimeout(30000);
+                                            conn.connect();
+                                            int total = conn.getContentLength();
+                                            runOnUiThread(() -> pd.setMessage("下载 " + (total/1024/1024) + "MB..."));
+                                            java.io.InputStream is = conn.getInputStream();
+                                            java.io.File dir = new java.io.File(FileStore.outDir(this), "下载");
+                                            dir.mkdirs();
+                                            java.io.File out = new java.io.File(dir, "IK工具箱-" + fLatest + ".apk");
+                                            java.io.FileOutputStream fos = new java.io.FileOutputStream(out);
+                                            byte[] buf = new byte[8192];
+                                            int r; long done = 0;
+                                            while ((r = is.read(buf)) > 0) {
+                                                fos.write(buf, 0, r);
+                                                done += r;
+                                                if (total > 0) {
+                                                    int p = (int)(done * 100 / total);
+                                                    runOnUiThread(() -> pd.setProgress(p));
+                                                }
+                                            }
+                                            is.close(); fos.close();
+                                            runOnUiThread(() -> {
+                                                pd.dismiss();
+                                                Toast.makeText(this, "下载完成，正在安装...", Toast.LENGTH_LONG).show();
+                                                Intent install = new Intent(Intent.ACTION_VIEW);
+                                                install.setDataAndType(android.net.Uri.fromFile(out), "application/vnd.android.package-archive");
+                                                install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                startActivity(install);
+                                            });
+                                        } catch (Exception e) {
+                                            runOnUiThread(() -> {
+                                                pd.dismiss();
+                                                Toast.makeText(this, "下载失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                            });
+                                        }
+                                    }).start();
                                 }
                             })
                             .setNegativeButton("取消", null)

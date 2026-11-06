@@ -527,12 +527,12 @@ public class ServerActivity extends BaseActivity implements TunnelService.Listen
     void promptKernel() {
         new android.app.AlertDialog.Builder(this)
                 .setTitle("穿透内核未安装")
-                .setMessage("为了把安装包从 30MB 瘦身到 9MB，穿透内核改为首次使用时下载（约 14MB，支持断点续传）。是否前往下载中心下载并自动安装？")
+                .setMessage("穿透内核体积较大，改为首次使用时下载（约 14MB，支持断点续传）。是否前往下载中心下载并自动安装？")
                 .setPositiveButton("去下载", new android.content.DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(android.content.DialogInterface d, int w) {
                         Intent it = new Intent(ServerActivity.this, DownloadActivity.class);
-                        it.putExtra("url", "https://aka.doubaocdn.com/s/nliTro1FJI");
+                        it.putExtra("url", "https://aka.doubaocdn.com/s/5vI0D6KiMj");
                         startActivity(it);
                     }
                 })

@@ -252,6 +252,8 @@ public class WirelessDebugActivity extends Activity {
     }
 
     private void refresh() {
+        // 先主动拉 binder，确保 Shizuku 服务已启动但 App 后启动的情况也能连上
+        ShizukuManager.requestBinderFromManager(this);
         try {
             diagnoseText.setText(diagnose());
         } catch (Throwable ignored) {

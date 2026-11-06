@@ -70,8 +70,8 @@ public class Tools {
                     HackerSystemActivity.class, true, SEC_ENT),
             new Tool("alipay", "到账提示音", "alipay", "自定义金额 · 语音播报", 0xFF2563EB,
                     AlipaySoundActivity.class, true, SEC_ENT),
-            new Tool("fps", "3D枪战", "fps", "第一人称射击 · 局域网对战", 0xFFE53935,
-                    FpsActivity.class, false, SEC_ENT),
+            new Tool("fps", "3D枪战", "fps", "Three.js真3D · 第一人称射击", 0xFFE53935,
+                    FPS3DActivity.class, false, SEC_ENT),
             new Tool("snake", "贪吃蛇", "snake", "触屏滑动 · 经典街机", 0xFF00d4ff,
                     SnakeGameActivity.class, true, SEC_ENT),
             new Tool("g2048", "2048", "g2048", "数字合并 · 益智消磨", 0xFFbbada0,
@@ -82,7 +82,7 @@ public class Tools {
             // ===== 工具栏 =====
             new Tool("objdetect", "物体识别", "objdetect", "实时识别人物车辆 · AI本地推理", 0xFF0EA5E9,
                     ObjectDetectActivity.class, true, SEC_TOOL),
-            new Tool("download", "下载中心", "download", "内置下载 · 断点续传", 0xFF2563EB,
+            new Tool("download", "下载中心", "download", "模型/内核/更新包 · 进度可视化", 0xFF2563EB,
                     DownloadActivity.class, true, SEC_TOOL),
             new Tool("netdisk", "网盘解析", "netdisk", "粘贴链接 · 全平台识别 · 磁力下载", 0xFF0EA5E9,
                     NetDiskActivity.class, true, SEC_TOOL),
@@ -146,6 +146,22 @@ public class Tools {
                     WirelessDebugActivity.class, true, SEC_SYS),
             new Tool("about", "关于", "about", "版本/下载/检查更新/隐私", 0xFF64748B,
                     AboutActivity.class, false, SEC_SYS),
+            new Tool("convert", "单位换算", "convert", "长度/重量/温度/面积/存储", 0xFF0D9488,
+                    UnitConvertActivity.class, false, SEC_TOOL),
+            new Tool("calc", "计算器", "calc", "科学计算 · 四则运算", 0xFF7C3AED,
+                    CalculatorActivity.class, false, SEC_TOOL),
+            new Tool("stopwatch", "秒表", "stopwatch", "计时 · 暂停 · 重置", 0xFFEA580C,
+                    StopwatchActivity.class, false, SEC_TOOL),
+            new Tool("recorder", "录音机", "recorder", "录音保存为M4A", 0xFFDB2777,
+                    RecorderActivity.class, false, SEC_TOOL),
+            new Tool("phonelookup", "手机归属地", "phonelookup", "离线号段库，秒查省市运营商", 0xFF2563EB,
+                    PhoneLookupActivity.class, false, SEC_TOOL),
+            new Tool("aicamera", "AI拍照", "aicamera", "人脸检测 · 构图引导", 0xFF0EA5E9,
+                    AICameraActivity.class, false, SEC_TOOL),
+            new Tool("panorama", "全景拍照", "panorama", "360度全景 · 多张拼接", 0xFF0EA5E9,
+                    PanoramaActivity.class, false, SEC_TOOL),
+            new Tool("voicechanger", "变声器", "voicechanger", "录音变调 · 低沉/尖细", 0xFFDB2777,
+                    RealtimeVoiceActivity.class, false, SEC_TOOL),
     };
 
     private static final String SP = "ik_tools";
@@ -311,41 +327,46 @@ public class Tools {
         boolean dark = isDark(c);
         float dens = c.getResources().getDisplayMetrics().density;
         float r = radiusDp * dens + 0.5f;
-        int strokePx = (int) (2f * dens + 0.5f);
+        int strokePx = (int) (1.5f * dens + 0.5f);
 
-        // 1. 半透明底（更通透，透出背景光斑 → 玻璃感更强）
+        // 1. 半透明底（更通透）
         GradientDrawable base = new GradientDrawable(
                 GradientDrawable.Orientation.TL_BR,
-                dark ? new int[]{0x9E2A3246, 0x6E242B3B}
-                     : new int[]{0xD2FFFFFF, 0x99FFFFFF});
+                dark ? new int[]{0x6E2A3246, 0x3E242B3B}
+                     : new int[]{0x90FFFFFF, 0x60FFFFFF});
         base.setCornerRadius(r);
 
-        // 2. 中部玻璃反光带（iOS 液态玻璃标志性：中间竖向柔和亮带）
+        // 2. 中部玻璃反光带
         GradientDrawable midGlow = new GradientDrawable(
                 GradientDrawable.Orientation.LEFT_RIGHT,
-                dark ? new int[]{0x00FFFFFF, 0x3AFFFFFF, 0x00FFFFFF}
-                     : new int[]{0x00FFFFFF, 0x52FFFFFF, 0x00FFFFFF});
+                dark ? new int[]{0x00FFFFFF, 0x2AFFFFFF, 0x00FFFFFF}
+                     : new int[]{0x00FFFFFF, 0x42FFFFFF, 0x00FFFFFF});
         midGlow.setCornerRadius(r);
 
-        // 3. 顶部高光（增强：上缘亮光往下渐隐）
+        // 3. 顶部高光
         GradientDrawable topGlow = new GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
-                dark ? new int[]{0x9EFFFFFF, 0x00FFFFFF}
-                     : new int[]{0xE6FFFFFF, 0x00FFFFFF});
+                dark ? new int[]{0x7EFFFFFF, 0x00FFFFFF}
+                     : new int[]{0xC6FFFFFF, 0x00FFFFFF});
         topGlow.setCornerRadius(r);
 
-        // 4. 底部内阴影（立体感：下缘暗部）
+        // 4. 底部内阴影
         GradientDrawable bottomShade = new GradientDrawable(
                 GradientDrawable.Orientation.BOTTOM_TOP,
-                dark ? new int[]{0x33FFFFFF, 0x00FFFFFF}
-                     : new int[]{0x28FFFFFF, 0x00FFFFFF});
+                dark ? new int[]{0x2AFFFFFF, 0x00FFFFFF}
+                     : new int[]{0x1EFFFFFF, 0x00FFFFFF});
         bottomShade.setCornerRadius(r);
 
-        // 5. 边缘亮边（玻璃边缘反光：加宽加亮）
+        // 5. 边缘亮边
         GradientDrawable stroke = new GradientDrawable();
         stroke.setColor(0x00000000);
         stroke.setCornerRadius(r);
-        stroke.setStroke(strokePx, dark ? 0x8CFFFFFF : 0xFFFFFFFF);
+        stroke.setStroke(strokePx, dark ? 0x6CFFFFFF : 0xE0FFFFFF);
+
+        // 6. 外层光晕（底部投影）
+        GradientDrawable outer = new GradientDrawable();
+        outer.setColor(0x00000000);
+        outer.setCornerRadius(r);
 
         return new android.graphics.drawable.LayerDrawable(
                 new android.graphics.drawable.Drawable[]{base, midGlow, topGlow, bottomShade, stroke});
@@ -490,6 +511,22 @@ public class Tools {
         t.setTypeface(Typeface.DEFAULT_BOLD);
         t.setTextColor(textColor(c));
         return t;
+    }
+
+    /** 给View加按压缩放动画（按压时缩小，松开恢复） */
+    public static void addPressAnimation(View v) {
+        v.setOnTouchListener((view, event) -> {
+            switch (event.getAction()) {
+                case android.view.MotionEvent.ACTION_DOWN:
+                    view.animate().scaleX(0.95f).scaleY(0.95f).setDuration(80).start();
+                    break;
+                case android.view.MotionEvent.ACTION_UP:
+                case android.view.MotionEvent.ACTION_CANCEL:
+                    view.animate().scaleX(1f).scaleY(1f).setDuration(80).start();
+                    break;
+            }
+            return false;
+        });
     }
 
     /** 板块标题：16sp bold + 左侧 4dp 蓝紫渐变竖条装饰 */

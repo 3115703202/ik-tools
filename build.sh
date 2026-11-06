@@ -12,6 +12,9 @@ KEYTOOL=/home/user/.jdk17/jdk17/bin/keytool
 
 rm -rf build && mkdir -p build/gen build/obj build/dex build/assets build/apk build/lib/arm64-v8a build/lib/armeabi-v7a
 cp assets/index.html build/assets/index.html
+cp assets/fps3d.html build/assets/fps3d.html
+cp assets/three.min.js build/assets/three.min.js
+cp assets/phone.dat build/assets/phone.dat
 cp assets/gun.png build/assets/gun.png
 cp assets/impact.png build/assets/impact.png
 cp assets/soldier_orange.png build/assets/soldier_orange.png

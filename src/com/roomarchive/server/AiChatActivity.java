@@ -68,9 +68,9 @@ public class AiChatActivity extends BaseActivity {
 
     // ===== 常用接口预设 =====
     private static final String[][] PRESETS = {
+            {"智谱GLM(免费)", "https://open.bigmodel.cn/api/paas/v4/chat/completions", "glm-4-flash"},
             {"火山方舟(豆包)", "https://ark.cn-beijing.volces.com/api/v3/chat/completions", "doubao-1-5-pro-32k-250115"},
-            {"DeepSeek", "https://api.deepseek.com/chat/completions", "deepseek-chat"},
-            {"智谱GLM", "https://open.bigmodel.cn/api/paas/v4/chat/completions", "glm-4-flash"}
+            {"DeepSeek", "https://api.deepseek.com/chat/completions", "deepseek-chat"}
     };
 
     @Override
@@ -313,7 +313,7 @@ public class AiChatActivity extends BaseActivity {
                 String err = null;
                 try {
                     JSONObject body = new JSONObject();
-                    body.put("model", model == null || model.isEmpty() ? "deepseek-chat" : model);
+                    body.put("model", model == null || model.isEmpty() ? "glm-4-flash" : model);
                     JSONArray messages = new JSONArray();
                     JSONObject userMsg = new JSONObject();
                     userMsg.put("role", "user");

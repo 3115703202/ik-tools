@@ -495,10 +495,7 @@ public class MainActivity extends BaseActivity {
     /** 开源液态玻璃库是否可用：依赖标准安卓渲染管线（RenderEffect / GL）。
      *  华为 HarmonyOS、荣耀系、以及 API 31 以下设备渲染不兼容（会出黑卡），走内置液态玻璃。 */
     private static boolean liquidGlassLibOk() {
-        String sig = (Build.MANUFACTURER + "|" + Build.BRAND + "|" + Build.DISPLAY + "|"
-                + Build.VERSION.INCREMENTAL + "|" + Build.FINGERPRINT).toUpperCase();
-        boolean huaweiLike = sig.contains("HUAWEI") || sig.contains("HONOR") || sig.contains("HARMONY");
-        return !huaweiLike && Build.VERSION.SDK_INT >= 31;
+        return false; // 华为设备出黑卡，统一用内置渲染
     }
 
     /** 单个功能卡：emoji 图标 + 名称行(含火爆标签) + 描述 + 收藏星
@@ -530,7 +527,11 @@ public class MainActivity extends BaseActivity {
             lv.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    startActivity(new Intent(MainActivity.this, t.activity));
+                    v.animate().scaleX(0.95f).scaleY(0.95f).setDuration(100).withEndAction(() -> {
+                        v.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
+                        startActivity(new Intent(MainActivity.this, t.activity));
+                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    }).start();
                 }
             });
             card = lv;
@@ -544,7 +545,11 @@ public class MainActivity extends BaseActivity {
             fl.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    startActivity(new Intent(MainActivity.this, t.activity));
+                    v.animate().scaleX(0.95f).scaleY(0.95f).setDuration(100).withEndAction(() -> {
+                        v.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
+                        startActivity(new Intent(MainActivity.this, t.activity));
+                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    }).start();
                 }
             });
             card = fl;
@@ -697,14 +702,17 @@ public class MainActivity extends BaseActivity {
         item.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (tab == 1) {
-                    startActivity(new Intent(MainActivity.this, FavoritesActivity.class));
-                } else if (tab == 2) {
-                    scrollToSection();
-                } else if (tab == 3) {
-                    startActivity(new Intent(MainActivity.this, UserCenterActivity.class));
-                }
-                overridePendingTransition(0, 0);
+                v.animate().scaleX(0.9f).scaleY(0.9f).setDuration(80).withEndAction(() -> {
+                    v.animate().scaleX(1f).scaleY(1f).setDuration(80).start();
+                    if (tab == 1) {
+                        startActivity(new Intent(MainActivity.this, FavoritesActivity.class));
+                    } else if (tab == 2) {
+                        scrollToSection();
+                    } else if (tab == 3) {
+                        startActivity(new Intent(MainActivity.this, UserCenterActivity.class));
+                    }
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                }).start();
             }
         });
         return item;

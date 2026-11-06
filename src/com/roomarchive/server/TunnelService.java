@@ -421,7 +421,7 @@ public class TunnelService extends Service {
             @Override
             public void run() {
                 final boolean ok = KernelInstaller.downloadAndInstall(TunnelService.this,
-                        "https://aka.doubaocdn.com/s/nliTro1FJI", new KernelInstaller.Log() {
+                        "https://aka.doubaocdn.com/s/5vI0D6KiMj", new KernelInstaller.Log() {
                             @Override
                             public void log(String s) {
                                 notifyLog(s);

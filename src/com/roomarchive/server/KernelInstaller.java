@@ -52,6 +52,22 @@ public class KernelInstaller {
             in.close();
             log.log("内核包下载完成: " + String.format("%.1f", total / 1048576f) + "MB，正在安装…");
 
+            boolean ok = installFromZip(ctx, zip, log);
+            zip.delete();
+            return ok;
+        } catch (Exception e) {
+            log.log("内核自动下载失败: " + e.getMessage());
+            try {
+                if (zip.exists()) zip.delete();
+            } catch (Exception ignore) {
+            }
+            return false;
+        }
+    }
+
+    /** 从本地内核 zip 安装（下载中心手动安装用） */
+    public static boolean installFromZip(Context ctx, File zip, Log log) {
+        try {
             File nDir = KernelPaths.ensureBoth(ctx);
             if (!nDir.exists()) nDir.mkdirs();
             ZipFile zf = new ZipFile(zip);
@@ -73,16 +89,11 @@ public class KernelInstaller {
                 installed++;
             }
             zf.close();
-            zip.delete();
             KernelPaths.ensureBoth(ctx); // 同步外部存储副本
-            log.log("穿透内核已安装（" + installed + " 个组件）");
+            if (log != null) log.log("穿透内核已安装（" + installed + " 个组件）");
             return installed > 0;
         } catch (Exception e) {
-            log.log("内核自动下载失败: " + e.getMessage());
-            try {
-                if (zip.exists()) zip.delete();
-            } catch (Exception ignore) {
-            }
+            if (log != null) log.log("内核安装失败: " + e.getMessage());
             return false;
         }
     }

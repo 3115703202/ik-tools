@@ -21,7 +21,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
-/** 翻译：Google 免费接口 */
+/** 翻译：Google 免费接口 + MyMemory 兜底 */
 public class TranslateActivity extends Activity {
 
     private EditText input;
@@ -94,27 +94,47 @@ public class TranslateActivity extends Activity {
         if (text.isEmpty()) { Toast.makeText(this, "输入文本", Toast.LENGTH_SHORT).show(); return; }
         output.setText("翻译中…");
         new Thread(() -> {
-            String result;
-            try {
-                String api = "https://translate.googleapis.com/translate_a/single?client=gtx&sl="
-                        + from + "&tl=" + to + "&dt=t&q=" + URLEncoder.encode(text, "UTF-8");
-                HttpURLConnection c = (HttpURLConnection) new URL(api).openConnection();
-                c.setConnectTimeout(10000);
-                c.setReadTimeout(10000);
-                BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream(), "UTF-8"));
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = br.readLine()) != null) sb.append(line);
-                br.close();
-                JSONObject jo = new JSONObject("{}");
-                // 返回是嵌套数组，简单解析
-                result = parseGoogleTranslate(sb.toString());
-            } catch (Exception e) {
-                result = "失败：" + e.getMessage();
+            String result = null;
+            String lastErr = null;
+            for (int i = 0; i < 2 && result == null; i++) {
+                try {
+                    if (i == 0) {
+                        String api = "https://translate.googleapis.com/translate_a/single?client=gtx&sl="
+                                + from + "&tl=" + to + "&dt=t&q=" + URLEncoder.encode(text, "UTF-8");
+                        String body = get(api);
+                        result = parseGoogleTranslate(body);
+                    } else {
+                        String api = "https://api.mymemory.translated.net/get?q="
+                                + URLEncoder.encode(text, "UTF-8")
+                                + "&langpair=" + from + "|" + to;
+                        String body = get(api);
+                        org.json.JSONObject jo = new org.json.JSONObject(body);
+                        String t = jo.getJSONObject("responseData").optString("translatedText", "");
+                        if (t.length() > 0 && !t.contains("QUERY LENGTH LIMIT")) result = t;
+                    }
+                } catch (Throwable e) {
+                    lastErr = e.getClass().getSimpleName();
+                }
+            }
+            if (result == null) {
+                result = "翻译服务暂不可用，请检查网络后重试";
             }
             final String r = result;
             h.post(() -> output.setText(r));
         }).start();
+    }
+
+    private String get(String api) throws Exception {
+        HttpURLConnection c = (HttpURLConnection) new URL(api).openConnection();
+        c.setConnectTimeout(12000);
+        c.setReadTimeout(12000);
+        c.setRequestProperty("User-Agent", "Mozilla/5.0");
+        BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream(), "UTF-8"));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = br.readLine()) != null) sb.append(line);
+        br.close();
+        return sb.toString();
     }
 
     private String parseGoogleTranslate(String json) {

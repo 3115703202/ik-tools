@@ -102,8 +102,16 @@ public class ShizukuManager {
     /** 发起授权请求（弹出 Shizuku 授权界面） */
     public static void requestPermission(Context ctx) {
         try {
-            if (isConnected() && !isAuthorized()) {
-                Shizuku.requestPermission(REQ_PERMISSION);
+            // 先主动拉 binder，确保连接上
+            requestBinderFromManager(ctx);
+            // 等 500ms 让 binder 就绪
+            try { Thread.sleep(500); } catch (Exception ignored) {}
+            if (isConnected()) {
+                if (!isAuthorized()) {
+                    Shizuku.requestPermission(REQ_PERMISSION);
+                }
+            } else {
+                Log.w(TAG, "binder still not connected after request");
             }
         } catch (Throwable t) {
             Log.w(TAG, "requestPermission failed", t);

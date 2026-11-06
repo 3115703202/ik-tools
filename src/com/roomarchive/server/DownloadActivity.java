@@ -2,509 +2,343 @@ package com.roomarchive.server;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.ScrollView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
+import android.widget.*;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
-/**
- * 下载中心：内置下载器，支持断点续传、实时进度、完成后一键安装。
- * 解决系统下载器在大文件/弱网下卡 0% 的问题。
- */
 public class DownloadActivity extends Activity {
+    LinearLayout listRoot;
+    Handler ui = new Handler(Looper.getMainLooper());
 
-    private final Handler ui = new Handler(Looper.getMainLooper());
-    private EditText urlInput;
-    private Button btnAction;
-    private ProgressBar bar;
-    private TextView statusView, sizeView, speedView;
-    private LinearLayout doneList;
+    static class Plugin {
+        String name;
+        String desc;
+        String[] urls;
+        String fileName;
+        Plugin(String n, String d, String f, String... u) {
+            name = n; desc = d; urls = u; fileName = f;
+        }
+    }
 
-    private volatile boolean running = false;
-    private volatile boolean cancel = false;
-    private Thread worker;
-    private long total = 0, done = 0;
-    private String currentUrl = "";
-    private File partFile;
-    private String baseName = "";
-
-    private static final String PREFS = "ik_downloads";
-    private static final String PREFS_KEYS = "done_files";
+    Plugin[] plugins = {
+        new Plugin("YOLO-World 模型", "物体识别 AI · 90 类标签 · 约 70MB", "yolo_world.tflite",
+            "https://aka.doubaocdn.com/s/lsXODg0wa7"),
+        new Plugin("IK工具箱最新版", "App 本体更新包", "IK工具箱-latest.apk",
+            "https://aka.doubaocdn.com/s/EFyx8dCfYp"),
+        new Plugin("穿透内核", "内网穿透必需 · cloudflared + frpc · 约 14MB", "kernel.zip",
+            "https://aka.doubaocdn.com/s/5vI0D6KiMj"),
+    };
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate(Bundle s) {
+        super.onCreate(s);
         Tools.applyStatusBar(this);
+        ScrollView sv = new ScrollView(this);
+        listRoot = new LinearLayout(this);
+        listRoot.setOrientation(LinearLayout.VERTICAL);
+        listRoot.setPadding(dp(16), dp(20), dp(16), dp(16));
+        listRoot.setBackground(Tools.bgWithGlow(this));
+        listRoot.addView(Tools.pageTitle(this, "下载中心"));
 
-        ScrollView scroll = new ScrollView(this);
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackground(Tools.bgWithGlow(this));
-        root.setPadding(dp(16), dp(20), dp(16), dp(18));
-        scroll.setClipToPadding(false);
+        TextView hint = new TextView(this);
+        hint.setText("插件下载 · 自动保存到我的文件");
+        hint.setTextSize(13);
+        hint.setPadding(0, dp(4), 0, dp(16));
+        listRoot.addView(hint);
 
-        TextView title = Tools.pageTitle(this, "下载中心");
-        root.addView(title);
+        for (Plugin p : plugins) addPluginCard(p);
 
-        TextView tip = new TextView(this);
-        tip.setText("内置下载器：断点续传、实时进度，下载 IK 工具箱最新版不再卡住。");
-        tip.setTextSize(13);
-        tip.setTextColor(Tools.subTextColor(this));
-        tip.setPadding(0, dp(6), 0, dp(14));
-        root.addView(tip);
+        TextView filesTitle = new TextView(this);
+        filesTitle.setText("已下载文件");
+        filesTitle.setTextSize(16);
+        filesTitle.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        filesTitle.setPadding(0, dp(24), 0, dp(8));
+        listRoot.addView(filesTitle);
+        refreshFiles();
 
-        urlInput = new EditText(this);
-        String preset = getIntent().getStringExtra("url");
-        if (preset == null || preset.isEmpty()) preset = "https://aka.doubaocdn.com/s/WSaXEpJvZ6";
-        urlInput.setText(preset);
-        urlInput.setTextSize(14);
-        urlInput.setTextColor(Tools.textColor(this));
-        urlInput.setSingleLine(true);
-        urlInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
-        urlInput.setPadding(dp(12), dp(10), dp(12), dp(10));
-        GradientDrawable inputBg = new GradientDrawable();
-        inputBg.setColor(Tools.cardColor(this));
-        inputBg.setCornerRadius(Tools.dp(this, 12));
-        inputBg.setStroke(Tools.dp(this, 1),
-                Tools.isDark(this) ? 0xFF2A3040 : 0xFFE4E8EE);
-        urlInput.setBackground(inputBg);
-        root.addView(urlInput);
-
-        btnAction = new Button(this);
-        btnAction.setText("开始下载");
-        btnAction.setTextSize(16);
-        btnAction.setTextColor(0xFFFFFFFF);
-        btnAction.setBackground(Tools.pillButton(this, 50, true));
-        LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        blp.topMargin = dp(12);
-        root.addView(btnAction, blp);
-
-        bar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
-        bar.setMax(1000);
-        LinearLayout.LayoutParams blp2 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, dp(12));
-        blp2.topMargin = dp(20);
-        root.addView(bar, blp2);
-
-        statusView = new TextView(this);
-        statusView.setText("等待下载");
-        statusView.setTextSize(14);
-        statusView.setTextColor(Tools.textColor(this));
-        statusView.setPadding(0, dp(8), 0, 0);
-        root.addView(statusView);
-
-        sizeView = new TextView(this);
-        sizeView.setTextSize(12);
-        sizeView.setTextColor(Tools.subTextColor(this));
-        sizeView.setPadding(0, dp(2), 0, 0);
-        root.addView(sizeView);
-
-        speedView = new TextView(this);
-        speedView.setTextSize(12);
-        speedView.setTextColor(Tools.subTextColor(this));
-        root.addView(speedView);
-
-        TextView doneTitle = Tools.sectionTitle(this, "已下载");
-        doneTitle.setPadding(0, dp(18), 0, dp(6));
-        root.addView(doneTitle);
-
-        doneList = new LinearLayout(this);
-        doneList.setOrientation(LinearLayout.VERTICAL);
-        root.addView(doneList);
-
-        scroll.addView(root);
-        setContentView(scroll);
-
-        // 从网盘解析跳转过来：自动开始下载
-        if (getIntent().getBooleanExtra("auto_start", false)) {
-            scroll.postDelayed(() -> { if (btnAction != null) btnAction.performClick(); }, 300);
-        }
-
-        btnAction.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (running) {
-                    cancel = true;
-                    running = false;
-                    btnAction.setText("继续");
-                    statusView.setText("已暂停，进度已保存，点继续可断点续传");
-                } else {
-                    startDownload();
-                }
-            }
-        });
-
-        renderDoneList();
+        sv.addView(listRoot);
+        setContentView(sv);
     }
 
-    void startDownload() {
-        String url = urlInput.getText().toString().trim();
-        if (url.isEmpty()) {
-            toast("请输入下载地址");
-            return;
-        }
-        currentUrl = url;
-        baseName = nameFromUrl(url);
-        running = true;
-        cancel = false;
-        btnAction.setText("暂停");
-        statusView.setText("连接中…");
-        speedView.setText("");
-        bar.setProgress(0);
-        worker = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                doDownload();
-            }
-        });
-        worker.start();
-    }
+    void addPluginCard(Plugin p) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(16), dp(14), dp(16), dp(14));
+        card.setBackgroundColor(0x22FFFFFF);
 
-    void doDownload() {
-        HttpURLConnection conn = null;
-        try {
-            URL u = new URL(currentUrl);
-            conn = (HttpURLConnection) u.openConnection();
-            conn.setConnectTimeout(15000);
-            conn.setReadTimeout(30000);
-            conn.setInstanceFollowRedirects(true);
-            long from = 0;
-            if (partFile != null && partFile.exists()) from = partFile.length();
-            if (from > 0) conn.setRequestProperty("Range", "bytes=" + from + "-");
-            conn.connect();
-            int code = conn.getResponseCode();
-            if (code == HttpURLConnection.HTTP_MOVED_PERM || code == HttpURLConnection.HTTP_MOVED_TEMP
-                    || code == 307 || code == 303 || code == 301) {
-                String loc = conn.getHeaderField("Location");
-                conn.disconnect();
-                conn = null;
-                if (loc != null) {
-                    final String l = loc;
-                    ui.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            urlInput.setText(l);
-                        }
-                    });
-                    currentUrl = loc;
-                    baseName = nameFromUrl(loc);
-                    doDownload();
-                    return;
-                }
-                fail("服务器未给出跳转地址");
-                return;
+        TextView name = new TextView(this);
+        name.setText(p.name);
+        name.setTextSize(16);
+        name.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        card.addView(name);
+
+        TextView desc = new TextView(this);
+        desc.setText(p.desc);
+        desc.setTextSize(13);
+        desc.setPadding(0, dp(4), 0, dp(10));
+        card.addView(desc);
+
+        ProgressBar pb = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+        pb.setMax(100);
+        pb.setVisibility(View.GONE);
+        card.addView(pb);
+
+        TextView pct = new TextView(this);
+        pct.setTextSize(12);
+        pct.setVisibility(View.GONE);
+        card.addView(pct);
+
+        Button dlBtn = new Button(this);
+        java.io.File existing = new java.io.File(FileStore.outDir(this), "下载/" + p.fileName);
+        if (existing.exists() && existing.length() > 1024) {
+            if (p.fileName.endsWith(".zip")) {
+                dlBtn.setText("已下载 · 点击安装内核");
+                dlBtn.setOnClickListener(v -> installKernel(existing));
+            } else {
+                dlBtn.setText("已下载 · 点击打开");
+                dlBtn.setOnClickListener(v -> openFile(existing));
             }
-            if (code != 200 && code != 206) {
-                fail("服务器响应异常: HTTP " + code);
-                return;
-            }
-            long contentLen = conn.getContentLengthLong();
-            if (code == 200) {
-                total = contentLen;
-                done = 0;
-                partFile = new File(dir(), baseName + ".part");
-                if (partFile.exists()) partFile.delete();
-            } else if (code == 206) {
-                total = contentLen + from;
-                done = from;
-            }
-            ui.post(new Runnable() {
-                @Override
-                public void run() {
-                    statusView.setText("下载中…");
-                }
+        } else {
+            dlBtn.setText("下载");
+            dlBtn.setOnClickListener(v -> {
+                dlBtn.setEnabled(false);
+                pb.setVisibility(View.VISIBLE);
+                pct.setVisibility(View.VISIBLE);
+                startDownload(p, pb, pct, dlBtn);
             });
-            final long[] last = {System.currentTimeMillis(), done};
-            InputStream in = conn.getInputStream();
-            RandomAccessFile raf = new RandomAccessFile(partFile, "rw");
-            raf.seek(done);
-            byte[] buf = new byte[65536];
-            int n;
-            while (!cancel && (n = in.read(buf)) > 0) {
-                raf.write(buf, 0, n);
-                done += n;
-                long now = System.currentTimeMillis();
-                if (now - last[0] > 500) {
-                    final long d = done;
-                    final long t = total;
-                    long spd = (d - last[1]) * 1000 / (now - last[0]);
-                    last[0] = now;
-                    last[1] = d;
-                    ui.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            updateProgress(d, t, spd);
-                        }
-                    });
-                }
+        }
+        card.addView(dlBtn);
+        listRoot.addView(card);
+    }
+
+    void startDownload(Plugin p, ProgressBar pb, TextView pct, Button btn) {
+        ui.post(() -> pct.setText("连接中..."));
+        new Thread(() -> {
+            java.io.File dir = new java.io.File(FileStore.outDir(this), "下载");
+            dir.mkdirs();
+            java.io.File out = new java.io.File(dir, p.fileName);
+            java.io.File tmp = new java.io.File(dir, p.fileName + ".part");
+
+            Exception lastError = null;
+            String lastUrl = "";
+            boolean ok = false;
+
+            java.util.List<String> candidates = new java.util.ArrayList<>();
+            if (p.fileName.endsWith(".apk")) {
+                String latest = resolveLatestUrl();
+                if (latest != null && !candidates.contains(latest)) candidates.add(latest);
             }
-            raf.close();
-            in.close();
-            if (conn != null) conn.disconnect();
-            conn = null;
-            if (cancel) {
-                ui.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        statusView.setText("已暂停，点继续可断点续传");
-                    }
-                });
-                return;
-            }
-            final File target = new File(dir(), baseName);
-            if (target.exists()) target.delete();
-            partFile.renameTo(target);
-            partFile = null;
-            // 穿透内核包：自动解压到内部私有目录（首选执行路径），并同步一份到外部存储兜底
-            boolean kernelZip = baseName.contains("穿透内核") || baseName.contains("kernel");
-            if (kernelZip) {
+            for (String u : p.urls) if (!candidates.contains(u)) candidates.add(u);
+
+            for (String u : candidates) {
+                lastUrl = u;
                 try {
-                    File nDir = KernelPaths.ensureBoth(DownloadActivity.this);
-                    if (!nDir.exists()) nDir.mkdirs();
-                    unzip(target, nDir);
-                    File[] ks = nDir.listFiles();
-                    if (ks != null) {
-                        for (File k : ks) KernelPaths.chmodKernel(nDir, k);
-                    }
-                    KernelPaths.ensureBoth(DownloadActivity.this);   // 同步外部存储副本
+                    if (tmp.exists()) tmp.delete();
+                    downloadTo(u, tmp, pb, pct);
+                    long size = tmp.length();
+                    if (size < 1024) throw new Exception("文件内容为空");
+                    if (out.exists()) out.delete();
+                    if (!tmp.renameTo(out)) throw new Exception("文件写入失败");
+                    ok = true;
+                    break;
                 } catch (Exception e) {
-                    fail("内核解压失败: " + e.getMessage());
-                    return;
+                    lastError = e;
+                    if (tmp.exists()) tmp.delete();
                 }
             }
-            final boolean kz = kernelZip;
-            ui.post(new Runnable() {
-                @Override
-                public void run() {
-                    running = false;
-                    btnAction.setText("开始下载");
-                    bar.setProgress(1000);
-                    statusView.setTextColor(Tools.isDark(DownloadActivity.this) ? 0xFF22C55E : 0xFF16A34A);
-                    statusView.setText(kz ? "下载完成，穿透内核已就绪" : "下载完成: " + target.getName());
-                    speedView.setText("");
-                    sizeView.setText(fmt(target.length()) + (kz ? " · 已自动安装到服务器工具" : " · 保存在应用下载目录"));
-                    remember(target.getAbsolutePath());
-                    renderDoneList();
+
+            final boolean success = ok;
+            final Exception err = lastError;
+            final String used = lastUrl;
+
+            ui.post(() -> {
+                pb.setVisibility(View.GONE);
+                pct.setVisibility(View.GONE);
+                btn.setEnabled(true);
+                if (success) {
+                    Toast.makeText(this, "下载完成：" + p.fileName, Toast.LENGTH_LONG).show();
+                    if (p.fileName.endsWith(".zip")) {
+                        btn.setText("已下载 · 点击安装内核");
+                        btn.setOnClickListener(v -> installKernel(out));
+                    } else {
+                        btn.setText("已下载 · 点击打开");
+                        btn.setOnClickListener(v -> openFile(out));
+                    }
+                    refreshFiles();
+                } else {
+                    btn.setText("重试");
+                    btn.setOnClickListener(v -> {
+                        btn.setEnabled(false);
+                        pb.setVisibility(View.VISIBLE);
+                        pct.setVisibility(View.VISIBLE);
+                        pb.setProgress(0);
+                        startDownload(p, pb, pct, btn);
+                    });
+                    String reason = describeError(err);
+                    pct.setText("下载失败：" + reason);
+                    pct.setVisibility(View.VISIBLE);
+                    Toast.makeText(this, "下载失败：" + reason, Toast.LENGTH_LONG).show();
                 }
             });
-        } catch (Exception e) {
-            if (conn != null) {
-                try {
-                    conn.disconnect();
-                } catch (Throwable ignored) {
-                }
+        }).start();
+    }
+
+    /** 从官网 version.txt 取最新版 APK 地址（取不到就用内置兜底） */
+    String resolveLatestUrl() {
+        try {
+            java.net.HttpURLConnection c = (java.net.HttpURLConnection)
+                    new java.net.URL("https://3115703202.github.io/ik-tools/version.txt").openConnection();
+            c.setConnectTimeout(6000);
+            c.setReadTimeout(6000);
+            java.io.BufferedReader br = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(c.getInputStream(), "UTF-8"));
+            String line;
+            String url = null;
+            while ((line = br.readLine()) != null) {
+                if (line.startsWith("URL=")) url = line.substring(4).trim();
             }
-            if (!cancel) {
-                final String m = e.getMessage() == null ? e.toString() : e.getMessage();
-                fail("下载失败: " + m);
+            br.close();
+            return url;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** 单次下载，带进度；失败抛异常 */
+    void downloadTo(String urlStr, java.io.File dest, ProgressBar pb, TextView pct) throws Exception {
+        URL url = new URL(urlStr);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setConnectTimeout(15000);
+        conn.setReadTimeout(45000);
+        conn.setRequestMethod("GET");
+        conn.setInstanceFollowRedirects(true);
+        conn.setRequestProperty("User-Agent", "IKToolbox/1.0");
+        conn.connect();
+
+        int code = conn.getResponseCode();
+        if (code != 200 && code != 206) {
+            conn.disconnect();
+            throw new Exception("HTTP " + code);
+        }
+        int total = conn.getContentLength();
+
+        ui.post(() -> pct.setText(total > 0
+                ? "连接成功 · 共 " + (total / 1024 / 1024) + "MB，开始下载…"
+                : "连接成功 · 开始下载…"));
+
+        InputStream is = conn.getInputStream();
+        FileOutputStream fos = new FileOutputStream(dest);
+        byte[] buf = new byte[8192];
+        int r;
+        long done = 0;
+        long lastPost = 0;
+        try {
+            while ((r = is.read(buf)) > 0) {
+                fos.write(buf, 0, r);
+                done += r;
+                long now = System.currentTimeMillis();
+                if (now - lastPost > 200) {
+                    lastPost = now;
+                    int pctVal = total > 0 ? (int) (done * 100 / total) : 0;
+                    final long d = done;
+                    final int t = total;
+                    final int pv = pctVal;
+                    ui.post(() -> {
+                        pb.setProgress(pv);
+                        pct.setText(t > 0
+                                ? pv + "% · " + (d / 1024 / 1024) + "MB / " + (t / 1024 / 1024) + "MB"
+                                : (d / 1024 / 1024) + "MB 已下载");
+                    });
+                }
             }
         } finally {
-            running = false;
+            try { is.close(); } catch (Exception ignored) {}
+            try { fos.close(); } catch (Exception ignored) {}
+            conn.disconnect();
+        }
+
+        if (total > 0 && done < total * 0.99) {
+            throw new Exception("传输中断（" + (done / 1024) + "KB / " + (total / 1024) + "KB）");
         }
     }
 
-    void updateProgress(long d, long t, long spd) {
-        int pct = t > 0 ? (int) (d * 1000 / t) : 0;
-        bar.setProgress(pct);
-        sizeView.setText(fmt(d) + " / " + fmt(t));
-        speedView.setText(fmtSpeed(spd));
+    String describeError(Exception e) {
+        if (e == null) return "未知错误";
+        String m = e.getMessage();
+        if (m == null) m = e.getClass().getSimpleName();
+        if (m.contains("HTTP 404")) return "下载地址已失效（404），请联系更新";
+        if (m.contains("HTTP")) return "服务器返回 " + m.replace("HTTP ", "HTTP ");
+        if (m.contains("Unable to resolve host") || m.contains("dns")) return "网络无法解析下载域名";
+        if (e instanceof java.net.SocketTimeoutException) return "网络超时，请检查网络后重试";
+        if (e instanceof java.net.UnknownHostException) return "网络无法解析下载域名";
+        if (m.contains("ENOSPC") || m.contains("No space")) return "存储空间不足";
+        return m;
     }
 
-    void fail(final String msg) {
-        ui.post(new Runnable() {
-            @Override
-            public void run() {
-                running = false;
-                btnAction.setText("开始下载");
-                statusView.setTextColor(Tools.isDark(DownloadActivity.this) ? 0xFFF87171 : 0xFFDC2626);
-                statusView.setText(msg);
-                speedView.setText("");
-                toast(msg);
-            }
-        });
+    void installKernel(java.io.File zip) {
+        Toast.makeText(this, "正在安装穿透内核…", Toast.LENGTH_SHORT).show();
+        new Thread(() -> {
+            boolean ok = KernelInstaller.installFromZip(this, zip, null);
+            ui.post(() -> Toast.makeText(this,
+                    ok ? "穿透内核安装完成，可返回开启隧道" : "安装失败，请重新下载内核包",
+                    Toast.LENGTH_LONG).show());
+        }).start();
     }
 
-    void renderDoneList() {
-        doneList.removeAllViews();
-        List<String> files = remembered();
-        if (files.isEmpty()) {
+    void openFile(java.io.File f) {
+        try {
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            String type = f.getName().endsWith(".apk") ? "application/vnd.android.package-archive" : "*/*";
+            i.setDataAndType(Uri.fromFile(f), type);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        } catch (Exception e) {
+            Toast.makeText(this, "无法打开: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    LinearLayout fileBox;
+
+    void refreshFiles() {
+        if (fileBox == null) {
+            fileBox = new LinearLayout(this);
+            fileBox.setOrientation(LinearLayout.VERTICAL);
+            listRoot.addView(fileBox);
+        }
+        fileBox.removeAllViews();
+
+        java.io.File dir = new java.io.File(FileStore.outDir(this), "下载");
+        java.io.File[] files = dir.listFiles();
+        if (files == null || files.length == 0) {
             TextView empty = new TextView(this);
-            empty.setText("暂无下载记录");
+            empty.setText("暂无下载文件");
             empty.setTextSize(13);
             empty.setTextColor(Tools.subTextColor(this));
             empty.setPadding(0, dp(8), 0, 0);
-            doneList.addView(empty);
+            fileBox.addView(empty);
             return;
         }
-        for (final String path : files) {
-            final File f = new File(path);
-            if (!f.exists()) continue;
-            LinearLayout row = new LinearLayout(this);
-            row.setOrientation(LinearLayout.VERTICAL);
-            row.setPadding(dp(14), dp(10), dp(14), dp(10));
-            row.setBackground(Tools.liquidGlassCard(this, 14));
-            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            rlp.bottomMargin = dp(8);
-            row.setLayoutParams(rlp);
-
-            TextView name = new TextView(this);
-            name.setText(f.getName());
-            name.setTextSize(14);
-            name.setTextColor(Tools.textColor(this));
-            name.setSingleLine(true);
-            name.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);
-            row.addView(name);
-
-            TextView meta = new TextView(this);
-            meta.setText(fmt(f.length()) + (f.getName().endsWith(".apk") ? " · 安装包" : ""));
-            meta.setTextSize(12);
-            meta.setTextColor(Tools.subTextColor(this));
-            meta.setPadding(0, dp(2), 0, dp(4));
-            row.addView(meta);
-
-            Button open = new Button(this);
-            open.setText(f.getName().endsWith(".apk") ? "安装" : "打开");
-            open.setTextSize(14);
-            open.setTextColor(Tools.accentColor(this));
-            open.setBackgroundColor(0x00000000);
-            open.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openFile(f);
-                }
-            });
-            row.addView(open, new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-
-            doneList.addView(row);
+        java.util.Arrays.sort(files, (a, b) -> Long.compare(b.lastModified(), a.lastModified()));
+        for (java.io.File f : files) {
+            if (f.getName().endsWith(".part")) continue;
+            TextView row = new TextView(this);
+            long kb = f.length() / 1024;
+            String size = kb >= 1024 ? (kb / 1024) + "MB" : kb + "KB";
+            row.setText(f.getName() + "   " + size);
+            row.setTextSize(13);
+            row.setTextColor(Tools.textColor(this));
+            row.setPadding(0, dp(8), 0, dp(8));
+            row.setOnClickListener(v -> openFile(f));
+            fileBox.addView(row);
         }
     }
 
-    void openFile(File f) {
-        try {
-            Uri uri = Uri.parse("content://com.roomarchive.server.files/dl/" + Uri.encode(f.getName()));
-            Intent it = new Intent(Intent.ACTION_VIEW);
-            it.setDataAndType(uri, f.getName().endsWith(".apk")
-                    ? "application/vnd.android.package-archive"
-                    : guessMime(f.getName()));
-            it.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(it);
-        } catch (Exception e) {
-            toast("无法打开: " + e.getMessage());
-        }
-    }
-
-    String guessMime(String name) {
-        String n = name.toLowerCase();
-        if (n.endsWith(".zip")) return "application/zip";
-        if (n.endsWith(".txt")) return "text/plain";
-        if (n.endsWith(".png")) return "image/png";
-        if (n.endsWith(".jpg") || n.endsWith(".jpeg")) return "image/jpeg";
-        if (n.endsWith(".pdf")) return "application/pdf";
-        return "application/octet-stream";
-    }
-
-    void unzip(File zip, File destDir) throws Exception {
-        ZipFile zf = new ZipFile(zip);
-        Enumeration<? extends ZipEntry> en = zf.entries();
-        while (en.hasMoreElements()) {
-            ZipEntry e = en.nextElement();
-            if (e.isDirectory()) continue;
-            File out = new File(destDir, e.getName());
-            FileOutputStream fos = new FileOutputStream(out);
-            InputStream is = zf.getInputStream(e);
-            byte[] b = new byte[65536];
-            int n;
-            while ((n = is.read(b)) > 0) fos.write(b, 0, n);
-            fos.close();
-            is.close();
-            out.setExecutable(true);
-        }
-        zf.close();
-    }
-
-    String nameFromUrl(String url) {
-        if (url.contains("bg20OVZlqv") || url.contains("sxX1tMWiqN") || url.contains("1UNUdJGgLt") || url.contains("nliTro1FJI")) return "穿透内核_kernel.zip";
-        if (url.contains("JvqOj3tvP4") || url.contains("9xSATBZFJl")) return "IK工具箱安装包.apk";
-        String tail = url.substring(url.lastIndexOf('/') + 1);
-        tail = tail.split("[?]")[0];
-        if (!tail.isEmpty() && tail.length() < 60 && tail.contains(".")) return tail;
-        return "download_" + System.currentTimeMillis() + ".apk";
-    }
-
-    File dir() {
-        File d = FileStore.outDir(this);
-        if (!d.exists()) d.mkdirs();
-        return d;
-    }
-
-    void remember(String path) {
-        List<String> list = remembered();
-        if (!list.contains(path)) list.add(0, path);
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < list.size() && i < 8; i++) {
-            if (i > 0) sb.append('\n');
-            sb.append(list.get(i));
-        }
-        getSharedPreferences(PREFS, MODE_PRIVATE).edit().putString(PREFS_KEYS, sb.toString()).apply();
-    }
-
-    List<String> remembered() {
-        String s = getSharedPreferences(PREFS, MODE_PRIVATE).getString(PREFS_KEYS, "");
-        List<String> out = new ArrayList<>();
-        if (s.isEmpty()) return out;
-        for (String line : s.split("\n")) {
-            if (!line.trim().isEmpty()) out.add(line);
-        }
-        return out;
-    }
-
-    static String fmt(long b) {
-        if (b < 1024) return b + " B";
-        if (b < 1024 * 1024) return String.format(java.util.Locale.US, "%.1f KB", b / 1024.0);
-        return String.format(java.util.Locale.US, "%.2f MB", b / 1048576.0);
-    }
-
-    static String fmtSpeed(long bps) {
-        if (bps < 1024) return bps + " B/s";
-        if (bps < 1024 * 1024) return String.format(java.util.Locale.US, "%.1f KB/s", bps / 1024.0);
-        return String.format(java.util.Locale.US, "%.1f MB/s", bps / 1048576.0);
-    }
-
-    int dp(int v) {
-        return (int) (v * getResources().getDisplayMetrics().density + 0.5f);
-    }
-
-    void toast(String s) {
-        Toast.makeText(this, s, Toast.LENGTH_LONG).show();
-    }
+    int dp(int v) { return (int)(v * getResources().getDisplayMetrics().density + 0.5f); }
 }
