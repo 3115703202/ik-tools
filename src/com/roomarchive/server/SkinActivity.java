@@ -21,7 +21,7 @@ import android.widget.Toast;
 
 /**
  * 应用外观：切换桌面显示的图标和名称。
- * 15 套 activity-alias，切换即生效，免 root；页面采用液态玻璃卡片 + 桌面预览。
+ * 23 套 activity-alias，切换即生效，免 root；页面采用液态玻璃卡片 + 桌面预览。
  */
 public class SkinActivity extends BaseActivity {
 
@@ -41,6 +41,14 @@ public class SkinActivity extends BaseActivity {
             {"Music", "音乐", "ic_pick_music", 0xFF9333EA},
             {"Video", "视频", "ic_pick_video", 0xFFBE123C},
             {"Store", "应用商店", "ic_pick_store", 0xFF0369A1},
+            {"Theme", "主题", "ic_pick_theme", 0xFF7C3AED},
+            {"Cloud", "云盘", "ic_pick_cloud", 0xFF2563EB},
+            {"Shop", "购物", "ic_pick_shop", 0xFFEA580C},
+            {"Chat", "聊天", "ic_pick_chat", 0xFF0EA5E9},
+            {"Map", "地图", "ic_pick_map", 0xFF16A34A},
+            {"Mail", "邮箱", "ic_pick_mail", 0xFFDC2626},
+            {"Translate", "翻译", "ic_pick_translate", 0xFF0891B2},
+            {"Health", "健康", "ic_pick_health", 0xFFDC2626},
     };
     private static final String PREF = "ik_skin";
 
