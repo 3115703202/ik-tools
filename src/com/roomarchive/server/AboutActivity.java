@@ -119,7 +119,7 @@ public class AboutActivity extends BaseActivity {
         root.addView(textSection("隐私声明", new String[]{
                 "本软件永久免费、无广告、无收费",
                 "如遇到收费、卡密，是诈骗软件，请勿相信",
-                "所有功能完全离线运行，不联网、不收集、不上传任何数据",
+                "核心功能完全离线运行；联网仅用于检查更新、公告与匿名在线人数，不上传文件内容",
                 "文件仅在本地处理，加密密码由你保管"
         }));
 
@@ -136,6 +136,9 @@ public class AboutActivity extends BaseActivity {
         card.setPadding(dp(14), dp(12), dp(14), dp(12));
 
         card.addView(groupTitle("最新"));
+        card.addView(timelineRow(accent, "v4.5.30", "本地 AI 模型下载显示百分比/MB/实时速度；修复 llama-cli 不认 --no-conversation 导致的 invalid argument；下载中心新增模型下载入口并自动取线上最新 APK；后台公告 Token 输入改正常输入法、发布前校验 Token"));
+        card.addView(timelineRow(accent, "v4.5.28", "恢复原始 IK 图标；官网 OTA 锁版本修复；llama.cpp 内核改为随 APK 打进原生库目录执行，修复 error=13"));
+        card.addView(timelineRow(accent, "v4.5.27", "本地 AI 白屏修复；后台二次密码去掉长度截断、兼容全角数字；局域网传文件 Broken pipe 静默"));
         card.addView(timelineRow(accent, "v4.5.3", "网盘 window.open 触发的下载被丢弃问题修复；下载到 HTML 错误页被当文件保存的问题修复；蓝奏表单被 chunked 拒绝修复；Shizuku 重启改用精确闹钟定时拉起 + 启动后二次拉取 binder"));
         card.addView(timelineRow(accent, "v4.5.2", "无线调试修复；网盘支持应用内直接下载"));
         card.addView(timelineRow(accent, "v4.5.1", "3D枪战完全重写：本地引擎、弹道命中、墙体碰撞、波次与结算；手机归属地改离线号段库；物体识别模型换源 + 下载校验；下载中心 / 穿透内核 / 官网链接全部修复"));
@@ -181,7 +184,7 @@ public class AboutActivity extends BaseActivity {
         card.addView(timelineRow(accent, "v2.3.0", "物体识别大升级：修复推理报错（输出按模型真实形状分配）；新增 ImageNet 1000 类整图识别——几乎任何东西都能大致识别出是什么（人物/动物/食物/家电/乐器/工具等），面板顶部显示整体识别结果"));
         card.addView(timelineRow(accent, "v2.3.1", "彻底修复识别报错：识别结果统一改一维数组传递，根治 DataType error（此前的报错根因）"));
         card.addView(timelineRow(accent, "v2.3.2", "新增下载中心：内置断点续传下载器，下载 APK 不再卡 0%，完成后一键安装"));
-        card.addView(timelineRow(accent, "v2.3.3", "安装包大幅瘦身（30MB→9MB）：穿透内核改为首次使用时下载（约14MB，断点续传+自动安装），下载更新不再卡顿"));
+        card.addView(timelineRow(accent, "v2.3.3", "安装包瘦身：穿透内核改为首次使用时下载（约14MB，断点续传+自动安装），下载更新不再卡顿"));
         card.addView(timelineRow(accent, "v2.3.4", "修复穿透内核执行被拒（Permission denied）：兼容模式调整，按需下载的穿透内核可正常运行"));
         card.addView(timelineRow(accent, "v2.3.5", "修复物体识别推理错误：真正根因是多输出调用方式错误（引擎把输出数组误判为单输出），改为多输出 API"));
         card.addView(timelineRow(accent, "v2.3.6", "修复识别输出维度：输出数组改为与引擎 shape 完全一致的多维结构，识别框/标签/距离与 1000 类识别全部正常；穿透内核执行权限进一步加固"));
@@ -332,7 +335,7 @@ public class AboutActivity extends BaseActivity {
                     Toast.makeText(this, "检查失败，请检查网络", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                String cur = "v4.5.3";
+                String cur = UpdateChecker.FALLBACK_VERSION;
                 try {
                     cur = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
                     if (!cur.startsWith("v")) cur = "v" + cur;

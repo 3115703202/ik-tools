@@ -28,7 +28,7 @@ public class DownloadActivity extends Activity {
     }
 
     Plugin[] plugins = {
-        new Plugin("IK工具箱最新版", "App 本体更新包 · 自动取线上最新版，覆盖安装保留数据", "IK工具箱-v4.5.29.apk",
+        new Plugin("IK工具箱最新版", "App 本体更新包 · 自动取线上最新版，覆盖安装保留数据", "IK工具箱-latest.apk",
             "https://aka.doubaocdn.com/s/tzDln6K9Fd"),
         new Plugin("穿透内核", "内网穿透必需 · cloudflared + frpc · 约 14MB", "kernel.zip",
             "https://aka.doubaocdn.com/s/xune67xCpU"),
@@ -170,16 +170,16 @@ public class DownloadActivity extends Activity {
                         if (now - last > 250) {
                             last = now;
                             final long g2 = got, t2 = total;
-                            final double sp = (got - lastGot) / 1048576.0 / Math.max(0.25, (now - lastTime) / 1000.0);
+                            final double sp = (got - lastGot) / 1000000.0 / Math.max(0.25, (now - lastTime) / 1000.0);
                             lastGot = got; lastTime = now;
                             runOnUiThread(() -> {
                                 if (t2 > 0) {
                                     int p = (int) (g2 * 100 / t2);
                                     pb.setProgress(p);
                                     pct.setText(String.format("%d%% · %.0f/%.0f MB · %.1f MB/s", p,
-                                            g2 / 1048576.0, t2 / 1048576.0, sp));
+                                            g2 / 1000000.0, t2 / 1000000.0, sp));
                                 } else {
-                                    pct.setText(String.format("%.0f MB · %.1f MB/s", g2 / 1048576.0, sp));
+                                    pct.setText(String.format("%.0f MB · %.1f MB/s", g2 / 1000000.0, sp));
                                 }
                             });
                         }

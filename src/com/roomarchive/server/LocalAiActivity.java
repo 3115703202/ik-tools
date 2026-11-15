@@ -67,7 +67,7 @@ public class LocalAiActivity extends BaseActivity {
         root.addView(title);
 
         TextView sub = new TextView(this);
-        sub.setText("v4.5.29 · llama.cpp 本地推理 · 不联网 · 数据不出手机");
+        sub.setText("v4.5.30 · llama.cpp 本地推理 · 不联网 · 数据不出手机");
         sub.setTextSize(12);
         sub.setTextColor(Tools.subTextColor(this));
         sub.setGravity(Gravity.CENTER);
@@ -218,7 +218,7 @@ public class LocalAiActivity extends BaseActivity {
             return;
         }
         if (m.exists() && m.length() > 100_000_000L) {
-            stateText.setText("● 模型就绪 · " + String.format("%.0f MB", m.length() / 1048576.0));
+            stateText.setText("● 模型就绪 · " + String.format("%.0f MB", m.length() / 1000000.0));
             dlBtn.setText("重新下载模型");
         } else {
             stateText.setText("● 模型未下载（需 491MB）");
@@ -274,7 +274,7 @@ public class LocalAiActivity extends BaseActivity {
                         if (now - last > 200) {
                             last = now;
                             final long g2 = got, t2 = total;
-                            final double speed = (got - lastGot) / 1048576.0
+                            final double speed = (got - lastGot) / 1000000.0
                                     / Math.max(0.2, (now - lastTime) / 1000.0);
                             lastGot = got; lastTime = now;
                             ui.post(() -> {
@@ -283,10 +283,10 @@ public class LocalAiActivity extends BaseActivity {
                                     bar.setProgress(pct);
                                     stateText.setText(String.format(
                                             "● 下载中 %d%% · %.0f / %.0f MB · %.1f MB/s",
-                                            pct, g2 / 1048576.0, t2 / 1048576.0, speed));
+                                            pct, g2 / 1000000.0, t2 / 1000000.0, speed));
                                 } else {
                                     stateText.setText(String.format("● 下载中 %.0f MB · %.1f MB/s",
-                                            g2 / 1048576.0, speed));
+                                            g2 / 1000000.0, speed));
                                 }
                             });
                         }

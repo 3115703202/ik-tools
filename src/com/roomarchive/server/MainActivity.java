@@ -228,7 +228,7 @@ public class MainActivity extends BaseActivity {
         box.addView(spacer(10));
 
         TextView b3 = new TextView(this);
-        b3.setText(nb.isEmpty() ? "v4.5.3：网盘下载接管与文件校验修复 + Shizuku 重启加固"
+        b3.setText(nb.isEmpty() ? "v4.5.29：模型下载实时进度 + 本地 AI 参数修复 + 公告 Token 输入修复"
                 : NoticeCenter.time(this));
         b3.setTextSize(12);
         b3.setTextColor(Color.rgb(100, 110, 125));
@@ -452,7 +452,7 @@ public class MainActivity extends BaseActivity {
             }
         }
         TextView foot = new TextView(this);
-        foot.setText("IK工具箱 v4.5.3\n全部功能离线运行，不收集任何数据");
+        foot.setText("IK工具箱 " + UpdateChecker.FALLBACK_VERSION + "\n核心功能离线运行 · 不上传你的文件内容");
         foot.setTextSize(10);
         foot.setTextColor(Tools.subTextColor(this));
         foot.setGravity(Gravity.CENTER);
