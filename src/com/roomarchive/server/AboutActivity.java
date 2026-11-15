@@ -136,6 +136,7 @@ public class AboutActivity extends BaseActivity {
         card.setPadding(dp(14), dp(12), dp(14), dp(12));
 
         card.addView(groupTitle("最新"));
+        card.addView(timelineRow(accent, "v4.5.32", "3D 枪战第二轮：突击兵/疾行者/重装兵三种敌人（血量、速度、伤害、射速不同），敌人双腿摆动与走路起伏；受击方向红色弧提示、低血量红屏脉冲、最高纪录本地保存、结算显示爆头数；换弹时枪身下沉侧转；敌人射击加散布，避免六人同时百发百中"));
         card.addView(timelineRow(accent, "v4.5.31", "3D 枪战手感升级：按住连发、爆头 2.5 倍伤害、轻微辅助瞄准、击杀爆点与倒地下沉、连杀提示、波次横幅；修复敌人子弹穿墙与重开后定时刷怪；敌人会侧移分散；新增暂停与灵敏度滑杆；连续掉帧自动降分辨率"));
         card.addView(timelineRow(accent, "v4.5.30", "全量文本排查：修正主界面残留 v4.5.3、内置说明「7 个工具」、官网/说明「51 项」（实际 66 项）；模型容量统一 491MB；隐私文案改为不上传文件内容"));
         card.addView(timelineRow(accent, "v4.5.29", "本地 AI 模型下载显示百分比/MB/实时速度；修复 llama-cli 不认 --no-conversation 导致的 invalid argument；下载中心新增模型下载入口并自动取线上最新 APK；后台公告 Token 输入改正常输入法、发布前校验 Token"));

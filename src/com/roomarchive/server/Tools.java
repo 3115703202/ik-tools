@@ -70,7 +70,7 @@ public class Tools {
                     HackerSystemActivity.class, true, SEC_ENT),
             new Tool("alipay", "到账提示音", "alipay", "自定义金额 · 语音播报", 0xFF2563EB,
                     AlipaySoundActivity.class, true, SEC_ENT),
-            new Tool("fps", "3D枪战", "fps", "Three.js真3D · 连发/爆头/自适应帧率", 0xFFE53935,
+            new Tool("fps", "3D枪战", "fps", "Three.js真3D · 三兵种/爆头/自适应帧率", 0xFFE53935,
                     FPS3DActivity.class, false, SEC_ENT),
             new Tool("snake", "贪吃蛇", "snake", "触屏滑动 · 经典街机", 0xFF00d4ff,
                     SnakeGameActivity.class, true, SEC_ENT),
