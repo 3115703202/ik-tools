@@ -459,121 +459,177 @@ public class ObjectDetectActivity extends Activity implements TextureView.Surfac
 
     void detectInner(byte[] nv21) {
         if (previewW <= 0 || previewH <= 0) return;
-        // NV21 -> 320x320 RGB（uint8）
-        int[] rgb = nv21ToRgbScaled(nv21, previewW, previewH, INPUT_SIZE);
-        ByteBuffer input = ByteBuffer.allocateDirect(INPUT_SIZE * INPUT_SIZE * 3).order(ByteOrder.nativeOrder());
-        for (int v : rgb) {
-            input.put((byte) (v & 0xFF));
-        }
-        input.rewind();
-        // 关键修复：输出统一用一维数组（按元素总数拍平），TFLite 引擎对多维 Java 数组解析兼容性差
-        // （曾报 "DataType error: cannot resolve DataType of [Ljava.lang.Object;"）
-        Object[] outputs = null;
-        try {
-            // 输出数组维度必须与引擎 tensor shape 完全一致（该引擎 copyTo 逐维校验）：
-            // EfficientDet-Lite0: detection_boxes [1,25,4] / classes [1,25] / scores [1,25] / num [1]
-            outputs = new Object[4];
-            outputs[0] = new float[1][25][4];
-            outputs[1] = new float[1][25];
-            outputs[2] = new float[1][25];
-            outputs[3] = new float[1];
-            java.util.Map<Integer, Object> outs = new java.util.HashMap<>();
-            for (int i = 0; i < 4; i++) outs.put(i, outputs[i]);
-            tfLite.runForMultipleInputsOutputs(new Object[]{input}, outs);
-        } catch (Exception e) {
-            final String err = e.toString();
-            uiHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    infoView.setText("推理错误: " + err);
-                }
-            });
+        if (tfLite == null) {
+            uiHandler.post(() -> infoView.setText("模型未加载"));
             return;
         }
-        float[][][] boxesF = (float[][][]) outputs[0]; // [1,25,4]
-        float[][] classesF = (float[][]) outputs[1];    // [1,25]
-        float[][] scoresF = (float[][]) outputs[2];     // [1,25]
-        float[] numF = (float[]) outputs[3];            // [1]
-        int n = (int) numF[0];
+        // 输入尺寸/类型按模型自己声明来，不再写死
+        Tensor inT = tfLite.getInputTensor(0);
+        int[] inShape = inT.shape();
+        int h = inShape.length >= 3 ? inShape[1] : INPUT_SIZE;
+        int w = inShape.length >= 3 ? inShape[2] : INPUT_SIZE;
+        int[] rgb = nv21ToRgbScaled(nv21, previewW, previewH, Math.max(h, w), true);
+        ByteBuffer input = makeInputBuffer(tfLite, rgb, Math.max(h, w));
+        if (input == null) {
+            uiHandler.post(() -> infoView.setText("模型输入类型不支持：" + inT.dataType()));
+            return;
+        }
+
+        int outCount = tfLite.getOutputTensorCount();
+        ByteBuffer[] outs = new ByteBuffer[outCount];
+        java.util.Map<Integer, Object> map = new java.util.HashMap<>();
+        for (int i = 0; i < outCount; i++) {
+            Tensor t = tfLite.getOutputTensor(i);
+            outs[i] = ByteBuffer.allocateDirect(t.numBytes()).order(ByteOrder.nativeOrder());
+            map.put(i, outs[i]);
+        }
+        try {
+            tfLite.runForMultipleInputsOutputs(new Object[]{input}, map);
+        } catch (Throwable e) {
+            final String err = e.toString();
+            uiHandler.post(() -> infoView.setText("推理错误: " + err));
+            return;
+        }
+
+        // 按形状找 boxes[1,N,4] / classes[1,N] / scores[1,N] / num[1]
+        int boxesIdx = -1, classesIdx = -1, scoresIdx = -1, numIdx = -1;
+        int N = 0;
+        for (int i = 0; i < outCount; i++) {
+            int[] sh = tfLite.getOutputTensor(i).shape();
+            if (sh.length == 3 && sh[sh.length - 1] == 4) {
+                boxesIdx = i; N = sh[1];
+            } else if (sh.length == 2 && sh[1] > 1) {
+                if (classesIdx < 0) classesIdx = i; else scoresIdx = i;
+            } else if (sh.length == 1 || (sh.length == 2 && sh[1] == 1)) {
+                numIdx = i;
+            }
+        }
+        // 常规顺序兜底（EfficientDet-Lite0）
+        if (boxesIdx < 0 && outCount >= 4) { boxesIdx = 0; classesIdx = 1; scoresIdx = 2; numIdx = 3; }
+        if (boxesIdx < 0 || classesIdx < 0 || scoresIdx < 0) {
+            uiHandler.post(() -> infoView.setText("模型输出结构不认识，已跳过这一帧"));
+            return;
+        }
+        float[] boxes = readFloats(tfLite.getOutputTensor(boxesIdx), outs[boxesIdx]);
+        float[] classes = readFloats(tfLite.getOutputTensor(classesIdx), outs[classesIdx]);
+        float[] scores = readFloats(tfLite.getOutputTensor(scoresIdx), outs[scoresIdx]);
+        int n = N;
+        if (numIdx >= 0) {
+            float[] num = readFloats(tfLite.getOutputTensor(numIdx), outs[numIdx]);
+            if (num.length > 0) n = Math.min(N, (int) num[0]);
+        }
         if (n > MAX_DETECT) n = MAX_DETECT;
         final List<Detected> list = new ArrayList<>();
         for (int i = 0; i < n; i++) {
-            if (scoresF[0][i] < THRESHOLD) continue;
-            int cls = (int) classesF[0][i];
-            // 过滤背景类（class=0，标签为"???"），避免显示无意义框
+            int si = i * (scores.length / Math.max(1, N));
+            if (si >= scores.length) break;
+            if (scores[si] < THRESHOLD) continue;
+            int bi = i * 4;
+            if (bi + 3 >= boxes.length) break;
+            int cls = (int) classes[i * (classes.length / Math.max(1, N))];
             if (cls <= 0 || cls >= labels.size()) continue;
             Detected d = new Detected();
             d.cls = cls;
-            d.score = scoresF[0][i];
-            // 模型输出：y1, x1, y2, x2（0-1 归一化）
-            d.rect = new float[]{boxesF[0][i][0], boxesF[0][i][1], boxesF[0][i][2], boxesF[0][i][3]};
+            d.score = scores[si];
+            d.rect = new float[]{boxes[bi], boxes[bi + 1], boxes[bi + 2], boxes[bi + 3]};
             d.label = (cls < CN_LABELS.length) ? CN_LABELS[cls] : labels.get(cls);
-            float boxH = (d.rect[2] - d.rect[0]) * INPUT_SIZE;
-            float boxW = (d.rect[3] - d.rect[1]) * INPUT_SIZE;
+            float boxH = (d.rect[2] - d.rect[0]) * 100f;
+            float boxW = (d.rect[3] - d.rect[1]) * 100f;
             if (boxH > 4f) {
-                float focal = (INPUT_SIZE / 2f) / (float) Math.tan(Math.toRadians(FOV_DEG / 2f));
+                float focal = (100f / 2f) / (float) Math.tan(Math.toRadians(FOV_DEG / 2f));
                 float rh = (cls < realH.length) ? realH[cls] : DEFAULT_H;
                 d.distM = rh * focal / boxH;
-                d.widthM = d.distM * 2f * (float) Math.tan(Math.toRadians(FOV_DEG / 2f)) * boxW / INPUT_SIZE;
+                d.widthM = d.distM * 2f * (float) Math.tan(Math.toRadians(FOV_DEG / 2f)) * boxW / 100f;
             } else {
                 d.distM = 0; d.widthM = 0;
             }
-            d.color = labelColor(d.cls);
-            list.add(d);
-        }
-        // 同类高重叠框去重：模型 NMS 后仍会留下多个重叠的同类框（如多个"笔记本电脑"），只保留置信度最高的
-        java.util.List<Detected> dedup = new ArrayList<>();
-        for (Detected d : list) {
+            d.color = labelColor(cls);
             boolean dup = false;
-            for (Detected k : dedup) {
-                if (k.cls == d.cls && iou(k.rect, d.rect) > 0.45f) {
-                    dup = true;
-                    break;
-                }
+            for (Detected o : list) {
+                if (o.cls == d.cls && iou(o.rect, d.rect) > 0.45f) { dup = true; break; }
             }
-            if (!dup) dedup.add(d);
+            if (!dup) list.add(d);
         }
-        list.clear();
-        list.addAll(dedup);
-        // 按距离近->远排序
-        java.util.Collections.sort(list, new java.util.Comparator<Detected>() {
-            @Override
-            public int compare(Detected a, Detected b) {
-                return Float.compare(a.distM, b.distM);
-            }
+        uiHandler.post(() -> {
+            overlay.setResults(list);
         });
-
-        // 每 6 帧做一次整图 1000 类分类（约 1 秒一次），覆盖"几乎所有东西都能大致识别"
-        clsTick++;
-        if (clsTick % 6 == 0) {
-            try {
-                classifyScene(nv21);
-            } catch (Throwable ignored) {
+        classifyScene(nv21);
+        final List<Detected> shown = list;
+        uiHandler.post(() -> {
+            StringBuilder sb = new StringBuilder();
+            if (overallText != null && !overallText.isEmpty()) {
+                sb.append("整体: ").append(overallText).append("\n");
             }
-        }
-        final String overall = overallText;
-
-        uiHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                overlay.setResults(list);
-                StringBuilder sb = new StringBuilder();
-                if (overall != null && !overall.isEmpty()) {
-                    sb.append("整体: ").append(overall).append("\n");
+            if (shown.isEmpty()) {
+                sb.append("画面中物体: 未检测到\n");
+            } else {
+                for (int i = 0; i < Math.min(shown.size(), 6); i++) {
+                    Detected d = shown.get(i);
+                    sb.append(String.format("#%s %s %.0f%%\n  距 %.1fm 约%.2fm×%.2fm\n",
+                            Integer.toHexString(d.color & 0xFFFFFF), d.label, d.score * 100,
+                            d.distM, d.widthM, d.widthM));
                 }
-                if (list.isEmpty()) {
-                    sb.append("画面中物体: 未检测到\n");
-                } else {
-                    for (int i = 0; i < Math.min(list.size(), 6); i++) {
-                        Detected d = list.get(i);
-                        sb.append(String.format("#%s %s %.0f%%\n  距 %.1fm 约%.2fm×%.2fm\n",
-                                Integer.toHexString(d.color & 0xFFFFFF), d.label, d.score * 100,
-                                d.distM, d.widthM, d.widthM));
+            }
+            sb.append("模型: ").append(inT.dataType()).append(" ");
+            for (int v : inShape) sb.append(v).append("x");
+            infoView.setText(sb.toString());
+        });
+    }
+
+    /** 按模型自己声明的输入类型构造 buffer：uint8 直接喂，float 归一化到 -1..1 */
+    ByteBuffer makeInputBuffer(Interpreter it, int[] rgb, int size) {
+        try {
+            Tensor t = it.getInputTensor(0);
+            int[] shape = t.shape();
+            int h = shape.length >= 3 ? shape[1] : size;
+            int w = shape.length >= 3 ? shape[2] : size;
+            int c = shape.length >= 4 ? shape[3] : 3;
+            ByteBuffer bb;
+            if (t.dataType() == DataType.FLOAT32) {
+                bb = ByteBuffer.allocateDirect(h * w * c * 4).order(ByteOrder.nativeOrder());
+            } else {
+                bb = ByteBuffer.allocateDirect(h * w * c).order(ByteOrder.nativeOrder());
+            }
+            for (int y = 0; y < h; y++) {
+                int sy = (int) (y / (float) h * size);
+                for (int x = 0; x < w; x++) {
+                    int sx = (int) (x / (float) w * size);
+                    int base = (sy * size + sx) * 3;
+                    for (int ch = 0; ch < c; ch++) {
+                        int idx = base + Math.min(ch, 2);
+                        int v = rgb[Math.min(idx, rgb.length - 1)];
+                        if (t.dataType() == DataType.FLOAT32) {
+                            bb.putFloat((v - 127.5f) / 127.5f);
+                        } else {
+                            bb.put((byte) v);
+                        }
                     }
                 }
-                infoView.setText(sb.toString());
             }
-        });
+            bb.rewind();
+            return bb;
+        } catch (Throwable e) {
+            return null;
+        }
+    }
+
+    /** 输出 tensor → float[]，兼容 float32 与 uint8 量化 */
+    float[] readFloats(Tensor t, ByteBuffer b) {
+        b.rewind();
+        int elems = 1;
+        int[] sh = t.shape();
+        for (int v : sh) elems *= v;
+        float[] out = new float[elems];
+        if (t.dataType() == DataType.FLOAT32) {
+            java.nio.FloatBuffer fb = b.asFloatBuffer();
+            for (int i = 0; i < elems && i < fb.capacity(); i++) out[i] = fb.get(i);
+        } else if (t.dataType() == DataType.UINT8) {
+            Tensor.QuantizationParams q = t.quantizationParams();
+            for (int i = 0; i < elems && i < b.capacity(); i++) {
+                out[i] = q.getScale() * ((b.get(i) & 0xFF) - q.getZeroPoint());
+            }
+        }
+        return out;
     }
 
     int labelColor(int cls) {
@@ -594,19 +650,28 @@ public class ObjectDetectActivity extends Activity implements TextureView.Surfac
         return ua <= 0f ? 0f : inter / ua;
     }
 
-    // NV21 -> 300x300 RGB（双线性近似，取中心缩放）
-    int[] nv21ToRgbScaled(byte[] nv21, int srcW, int srcH, int dst) {
+    // NV21 -> 正方形 RGB（按 90° 顺时针旋正，保证框和画面同向）
+    int[] nv21ToRgbScaled(byte[] nv21, int srcW, int srcH, int dst, boolean rotate90) {
         int[] out = new int[dst * dst * 3];
         int idx = 0;
         for (int y = 0; y < dst; y++) {
-            int sy = y * srcH / dst;
             for (int x = 0; x < dst; x++) {
-                int sx = x * srcW / dst;
+                int sx, sy;
+                if (rotate90) {
+                    // dst 宽高都等于 dst，按旋转后的归一化坐标反查源图
+                    sx = (int) ((y / (float) dst) * srcW);
+                    sy = (int) ((1f - x / (float) dst) * (srcH - 1));
+                } else {
+                    sx = (int) (x / (float) dst * srcW);
+                    sy = (int) (y / (float) dst * srcH);
+                }
+                if (sx < 0) sx = 0; else if (sx >= srcW) sx = srcW - 1;
+                if (sy < 0) sy = 0; else if (sy >= srcH) sy = srcH - 1;
                 int yOff = sy * srcW + sx;
                 int yv = nv21[yOff] & 0xFF;
                 int uvOff = srcW * srcH + (sy / 2) * srcW + (sx / 2) * 2;
-                int v = (nv21[uvOff] & 0xFF) - 128;      // NV21: V 在前
-                int u = (nv21[uvOff + 1] & 0xFF) - 128;  // U 在后
+                int v = (nv21[uvOff] & 0xFF) - 128;
+                int u = (nv21[uvOff + 1] & 0xFF) - 128;
                 int r = yv + (int) (1.402f * v);
                 int g = yv - (int) (0.344f * u) - (int) (0.714f * v);
                 int b = yv + (int) (1.772f * u);
@@ -624,17 +689,19 @@ public class ObjectDetectActivity extends Activity implements TextureView.Surfac
     // 整图分类：MobileNet 1000 类，top-3 标签
     void classifyScene(byte[] nv21) {
         if (clsLite == null || clsLabels.isEmpty()) return;
-        int[] rgb = nv21ToRgbScaled(nv21, previewW, previewH, 224);
-        ByteBuffer input = ByteBuffer.allocateDirect(224 * 224 * 3).order(ByteOrder.nativeOrder());
-        for (int v : rgb) input.put((byte) (v & 0xFF));
-        input.rewind();
-        // MobileNet 输出固定 [1,1001]
-        Object[] outputs = new Object[1];
-        outputs[0] = new float[1][1001];
+        int clsSize = 224;
+        int[] rgb = nv21ToRgbScaled(nv21, previewW, previewH, clsSize, true);
+        ByteBuffer input = makeInputBuffer(clsLite, rgb, clsSize);
+        if (input == null) return;
         java.util.Map<Integer, Object> outs = new java.util.HashMap<>();
-        outs.put(0, outputs[0]);
+        ByteBuffer[] outBufs = new ByteBuffer[clsLite.getOutputTensorCount()];
+        for (int i = 0; i < outBufs.length; i++) {
+            Tensor t = clsLite.getOutputTensor(i);
+            outBufs[i] = ByteBuffer.allocateDirect(t.numBytes()).order(ByteOrder.nativeOrder());
+            outs.put(i, outBufs[i]);
+        }
         clsLite.runForMultipleInputsOutputs(new Object[]{input}, outs);
-        float[] probs = ((float[][]) outputs[0])[0];
+        float[] probs = readFloats(clsLite.getOutputTensor(0), outBufs[0]);
         int[] top = new int[3];
         float[] topv = new float[]{-1, -1, -1};
         for (int i = 1; i < probs.length && i < clsLabels.size(); i++) {
