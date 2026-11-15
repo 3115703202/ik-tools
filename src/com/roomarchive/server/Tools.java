@@ -84,7 +84,7 @@ public class Tools {
                     ObjectDetectActivity.class, true, SEC_TOOL),
             new Tool("download", "下载中心", "download", "模型/内核/更新包 · 进度可视化", 0xFF2563EB,
                     DownloadActivity.class, true, SEC_TOOL),
-            new Tool("netdisk", "网盘解析", "netdisk", "粘贴链接 · 全平台识别 · 磁力下载", 0xFF0EA5E9,
+            new Tool("netdisk", "网盘解析", "netdisk", "粘贴链接 · 应用内直下 · 不跳浏览器", 0xFF0EA5E9,
                     NetDiskActivity.class, true, SEC_TOOL),
             new Tool("history", "历史上的今天", "history", "每天一个历史事件", 0xFF0891B2,
                     HistoryTodayActivity.class, false, SEC_TOOL),

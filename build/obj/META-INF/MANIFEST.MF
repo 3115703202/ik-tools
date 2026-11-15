@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Created-By: bazel
-Target-Label: //tensorflow/lite/java:tensorflowlite_api
-

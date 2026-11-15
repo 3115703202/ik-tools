@@ -84,7 +84,7 @@ public class NetDiskActivity extends Activity {
         card.addView(spacer(8));
 
         input = new EditText(this);
-        input.setHint("粘贴百度/阿里/夸克/蓝奏/123链接，或磁力 magnet:...");
+        input.setHint("粘贴百度/阿里/夸克/蓝奏/123 分享链接或文件直链");
         input.setTextSize(13);
         input.setSingleLine(false);
         input.setMinLines(2);
@@ -167,23 +167,138 @@ public class NetDiskActivity extends Activity {
         }
         String platform = detectPlatform(url);
         saveHistory(url);
-        // 磁力/thunder 直接显示
         if (url.startsWith("magnet:") || url.startsWith("thunder://")) {
-            showResult(platform, url, null);
+            showMagnet(platform, url);
             return;
         }
-        // 视频链接（抖音/B站/快手/小红书/TikTok）走视频解析
+        if (isDirectFile(url)) {
+            downloadDirect(platform, url);
+            return;
+        }
         if (isVideoLink(url)) {
             doVideoParse(platform, url);
             return;
         }
-        // 百度网盘：NFD不支持，直接显示打开按钮
-        if (url.contains("pan.baidu.com") || url.contains("yun.baidu.com")) {
-            showResult(platform, url, null);
+        if ("蓝奏云".equals(platform)) {
+            resolveLanzou(url, findPwd(text));
             return;
         }
-        // 其他网盘走 NFD 解析
-        doApiParse(platform, url);
+        // 网盘分享页：在应用内打开并接管下载（不再跳系统浏览器）
+        openInApp(platform, url);
+    }
+
+    /** 本身就是一个文件直链 */
+    private boolean isDirectFile(String url) {
+        String p = url.split("\\?")[0].toLowerCase();
+        String[] exts = {".zip", ".rar", ".7z", ".tar", ".gz", ".apk", ".mp4", ".mkv", ".avi",
+                ".mp3", ".flac", ".m4a", ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt",
+                ".jpg", ".jpeg", ".png", ".gif", ".webp", ".txt", ".iso", ".exe", ".ipa"};
+        for (String e : exts) if (p.endsWith(e)) return true;
+        return false;
+    }
+
+    /** 直链：内置下载器直接下到 IK工具箱 */
+    private void downloadDirect(String platform, String url) {
+        downloadDirect(platform, url, null);
+    }
+
+    private void downloadDirect(String platform, String url, String referer) {
+        ProgressDialog pd = new ProgressDialog(this);
+        pd.setTitle("正在下载");
+        pd.setMessage("连接中…");
+        pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        pd.setMax(100);
+        pd.setCancelable(false);
+        pd.show();
+        PanDownloader.start(this, url, referer, null, new PanDownloader.Listener() {
+            @Override public void onStart(String name, long total) {
+                if (pd.isShowing()) pd.setMessage(name + (total > 0 ? " · " + (total / 1024 / 1024) + "MB" : ""));
+            }
+            @Override public void onProgress(String name, int percent, long done, long total) {
+                if (pd.isShowing() && percent >= 0) {
+                    pd.setProgress(percent);
+                    pd.setMessage(name + " · " + (done / 1024 / 1024) + "MB / " + (total / 1024 / 1024) + "MB");
+                }
+            }
+            @Override public void onDone(java.io.File file) {
+                try { if (pd.isShowing()) pd.dismiss(); } catch (Throwable ignored) {}
+                Toast.makeText(NetDiskActivity.this,
+                        "已保存到 IK工具箱：" + file.getName(), Toast.LENGTH_LONG).show();
+            }
+            @Override public void onError(String msg) {
+                try { if (pd.isShowing()) pd.dismiss(); } catch (Throwable ignored) {}
+                Toast.makeText(NetDiskActivity.this, "下载失败：" + msg, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    /** 从粘贴文本里找提取码 */
+    private String findPwd(String text) {
+        java.util.regex.Matcher m = java.util.regex.Pattern
+                .compile("(?:提取码|密码|pwd|passwd)\\s*[：:=]?\\s*([a-zA-Z0-9]{4,6})",
+                        java.util.regex.Pattern.CASE_INSENSITIVE).matcher(text);
+        return m.find() ? m.group(1) : null;
+    }
+
+    /** 蓝奏云免登录直解；失败则回退到应用内页面下载 */
+    private void resolveLanzou(final String shareUrl, final String pwd) {
+        ProgressDialog pd = new ProgressDialog(this);
+        pd.setTitle("蓝奏云解析");
+        pd.setMessage("正在取直链…");
+        pd.setCancelable(false);
+        pd.show();
+        new Thread(() -> {
+            String[] err = new String[1];
+            String direct = LanzouResolver.resolve(shareUrl, pwd, err);
+            runOnUiThread(() -> {
+                try { if (pd.isShowing()) pd.dismiss(); } catch (Throwable ignored) {}
+                if (direct != null && direct.length() > 0) {
+                    downloadDirect("蓝奏云", direct, shareUrl);
+                } else {
+                    Toast.makeText(this, "直链解析没成功（" + (err[0] == null ? "页面结构变化" : err[0])
+                            + "），改用应用内下载", Toast.LENGTH_LONG).show();
+                    openInApp("蓝奏云", shareUrl);
+                }
+            });
+        }).start();
+    }
+
+    /** 应用内打开分享页，下载由本应用接管 */
+    private void openInApp(String platform, String url) {
+        showResult(platform, url, null);
+    }
+
+    /** 磁力/迅雷：无内置 BT 引擎，明确说明而不是假装能下 */
+    private void showMagnet(String platform, String url) {
+        resultBox.removeAllViews();
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(16), dp(16), dp(16), dp(16));
+        card.setBackground(Tools.liquidGlassCard(this, 20));
+
+        TextView p = new TextView(this);
+        p.setText("识别：" + platform);
+        p.setTextSize(15);
+        p.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        p.setTextColor(Tools.accentColor(this));
+        card.addView(p);
+
+        TextView tip = new TextView(this);
+        tip.setText("内置下载器不支持 BT/磁力（需要 P2P 引擎），磁力链接请复制后用专门客户端打开。");
+        tip.setTextSize(12);
+        tip.setTextColor(Tools.subTextColor(this));
+        tip.setPadding(0, dp(8), 0, dp(8));
+        card.addView(tip);
+
+        Button copyBtn = pillButton("复制链接", true);
+        copyBtn.setOnClickListener(v -> {
+            ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            cm.setPrimaryClip(ClipData.newPlainText("url", url));
+            Toast.makeText(this, "已复制", Toast.LENGTH_SHORT).show();
+        });
+        card.addView(copyBtn, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(42)));
+        resultBox.addView(card);
     }
 
     private boolean isVideoLink(String url) {
@@ -338,6 +453,15 @@ public class NetDiskActivity extends Activity {
         card.addView(p);
         card.addView(spacer(8));
 
+        if (directLink == null || directLink.isEmpty()) {
+            TextView how = new TextView(this);
+            how.setText("在应用内打开分享页，登录 / 填提取码后点页面里的下载按钮，文件会直接存进 IK工具箱，不跳浏览器。");
+            how.setTextSize(11);
+            how.setTextColor(Tools.subTextColor(this));
+            how.setPadding(0, dp(6), 0, dp(6));
+            card.addView(how);
+        }
+
         TextView u = new TextView(this);
         u.setText(url);
         u.setTextSize(11);
@@ -365,7 +489,7 @@ public class NetDiskActivity extends Activity {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
 
-        Button openBtn = pillButton(directLink != null && !directLink.isEmpty() ? "下载" : "打开", true);
+        Button openBtn = pillButton(directLink != null && !directLink.isEmpty() ? "下载到本机" : "应用内解析下载", true);
         openBtn.setOnClickListener(v -> {
             try {
                 String target = (directLink != null && !directLink.isEmpty()) ? directLink : url;
@@ -378,7 +502,9 @@ public class NetDiskActivity extends Activity {
                     startActivity(it);
                     Toast.makeText(this, "已加入下载", Toast.LENGTH_SHORT).show();
                 } else {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(target)));
+                    Intent it = new Intent(NetDiskActivity.this, NetDiskWebActivity.class);
+                    it.putExtra(NetDiskWebActivity.EXTRA_URL, target);
+                    startActivity(it);
                 }
             } catch (Exception e) {
                 Toast.makeText(this, "无法打开", Toast.LENGTH_SHORT).show();

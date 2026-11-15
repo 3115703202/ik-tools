@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.roomarchive.server"
-    android:versionCode="184"
-    android:versionName="4.5.4">
+    android:versionCode="185"
+    android:versionName="4.5.5">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -72,6 +72,8 @@
         <activity android:name=".AudioDecibelActivity" android:exported="false" />
         <activity android:name=".ObjectDetectActivity" android:exported="false" />
         <activity android:name=".DownloadActivity" android:exported="false" />
+        <activity android:name=".NetDiskWebActivity" android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity android:name=".NetDiskActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
