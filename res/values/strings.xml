@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="accessibility_desc">IK工具箱自动点击器，用于模拟屏幕点击</string>
+    <string name="install_a11y_desc">安装确认自动点击：在系统安装界面自动点「继续安装/安装」</string>
 </resources>

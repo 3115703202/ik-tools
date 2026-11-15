@@ -142,6 +142,8 @@ public class Tools {
                     ScreenRecordActivity.class, true, SEC_TOOL),
             new Tool("autoclick", "自动点击", "autoclick", "无障碍模拟点击", 0xFF059669,
                     AutoClickActivity.class, true, SEC_TOOL),
+            new Tool("installer", "安装器", "installer", "Shizuku/Root 静默装", 0xFF0F766E,
+                    InstallerActivity.class, false, SEC_SYS),
             new Tool("wldbg", "无线调试", "wldbg", "Shizuku 免root · 分步引导", 0xFF0EA5E9,
                     WirelessDebugActivity.class, true, SEC_SYS),
             new Tool("about", "关于", "about", "版本/下载/检查更新/隐私", 0xFF64748B,

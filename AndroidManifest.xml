@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.roomarchive.server"
-    android:versionCode="188"
-    android:versionName="4.5.8">
+    android:versionCode="189"
+    android:versionName="4.5.9">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -92,6 +92,11 @@
         <activity android:name=".ExpressActivity" android:exported="false" />
         <activity android:name=".ScreenRecordActivity" android:exported="false" />
         <activity android:name=".AutoClickActivity" android:exported="false" />
+        <activity android:name=".InstallerActivity" android:exported="false" />
+        <service android:name=".InstallClickService" android:exported="false" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter><action android:name="android.accessibilityservice.AccessibilityService" /></intent-filter>
+            <meta-data android:name="android.accessibilityservice" android:resource="@xml/install_a11y" />
+        </service>
         <service android:name=".ScreenRecordActivity$RecorderService" android:exported="false" android:foregroundServiceType="mediaProjection" />
         <service android:name=".AutoClickActivity$AutoClickService" android:exported="false" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter><action android:name="android.accessibilityservice.AccessibilityService" /></intent-filter>
