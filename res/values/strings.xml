@@ -2,4 +2,5 @@
 <resources>
     <string name="accessibility_desc">IK工具箱自动点击器，用于模拟屏幕点击</string>
     <string name="install_a11y_desc">安装确认自动点击：在系统安装界面自动点「继续安装/安装」</string>
+    <string name="ai_a11y_desc">IK工具箱本地 AI 的操控通道：读取当前屏幕文字，代替你点击、滑动、返回、打开应用。只在你主动下达指令时执行。</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.roomarchive.server;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,7 +34,7 @@ public class LocalAiActivity extends BaseActivity {
     static final String URL_MIRROR =
             "https://hf-mirror.com/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/" + MODEL_NAME;
 
-    private TextView stateText, logText, sendBtn, dlBtn;
+    private TextView stateText, logText, sendBtn, dlBtn, a11yState;
     private ProgressBar bar;
     private EditText input;
     private LinearLayout chatBox;
@@ -68,6 +69,32 @@ public class LocalAiActivity extends BaseActivity {
         sub.setGravity(Gravity.CENTER);
         sub.setPadding(0, dp(6), 0, dp(14));
         root.addView(sub);
+
+        LinearLayout capCard = new LinearLayout(this);
+        capCard.setOrientation(LinearLayout.VERTICAL);
+        capCard.setPadding(dp(16), dp(14), dp(16), dp(14));
+        capCard.setBackground(Tools.liquidGlassCard(this, 20));
+        Tools.setElevation(capCard, 8);
+        root.addView(capCard);
+
+        a11yState = new TextView(this);
+        a11yState.setTextSize(12);
+        a11yState.setTextColor(Tools.subTextColor(this));
+        capCard.addView(a11yState);
+
+        LinearLayout capRow = new LinearLayout(this);
+        capRow.setOrientation(LinearLayout.HORIZONTAL);
+        capRow.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams crl = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        crl.topMargin = dp(10);
+        capCard.addView(capRow, crl);
+        chip(capRow, "权限中心", v -> startActivity(new Intent(this, AiPermissionActivity.class)));
+        chip(capRow, "读屏看看", v -> {
+            if (!AiAgentService.ready()) { toast("先去权限中心开无障碍"); return; }
+            bubble(AiAgentService.get().screenText(), false);
+        });
+        chip(capRow, "文件实验室", v -> startActivity(new Intent(this, MediaLabActivity.class)));
 
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
@@ -145,7 +172,27 @@ public class LocalAiActivity extends BaseActivity {
         refreshState();
     }
 
+    void chip(LinearLayout row, String label, android.view.View.OnClickListener c) {
+        TextView t = new TextView(this);
+        t.setText(label);
+        t.setGravity(Gravity.CENTER);
+        t.setTextSize(12);
+        t.setTextColor(Tools.accentColor(this));
+        t.setBackground(Tools.pillButton(this, 34, false));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(34), 1);
+        lp.leftMargin = dp(4);
+        lp.rightMargin = dp(4);
+        row.addView(t, lp);
+        t.setOnClickListener(c);
+    }
+
     void refreshState() {
+        if (a11yState != null) {
+            a11yState.setText(AiAgentService.ready()
+                    ? "● 操控权限已开：能读屏、点击、滑动、开应用"
+                    : "○ 操控权限未开：只能聊天，点「权限中心」给 AI 授权");
+            a11yState.setTextColor(AiAgentService.ready() ? 0xFF16A34A : 0xFFEF4444);
+        }
         File m = modelFile();
         if (!isArm64()) {
             stateText.setText("● 当前设备架构不支持本地模型（需 arm64）");
@@ -243,6 +290,60 @@ public class LocalAiActivity extends BaseActivity {
         }).start();
     }
 
+    void runCommands(String text) {
+        if (!AiAgentService.ready() || text == null) return;
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile(
+                "[\\[【](读屏|点击|滑动|返回|主页|打开|页面)[:：]?([^\\]】]*)[\\]】]").matcher(text);
+        java.util.List<String[]> cmds = new java.util.ArrayList<>();
+        while (m.find()) {
+            String cmd = m.group(1);
+            String arg = m.group(2) == null ? "" : m.group(2).trim();
+            cmds.add(new String[]{cmd, arg});
+        }
+        if (cmds.isEmpty()) return;
+        Handler h = new Handler(Looper.getMainLooper());
+        for (int i = 0; i < cmds.size(); i++) {
+            final String[] c = cmds.get(i);
+            h.postDelayed(() -> exec(c[0], c[1]), i * 900L);
+        }
+    }
+
+    void exec(String cmd, String arg) {
+        AiAgentService svc = AiAgentService.get();
+        if (svc == null) return;
+        boolean ok = false;
+        String label = cmd + (arg.isEmpty() ? "" : " " + arg);
+        switch (cmd) {
+            case "读屏":
+                bubble(svc.screenText(), false);
+                return;
+            case "点击": ok = svc.clickText(arg); break;
+            case "滑动": ok = svc.swipe(arg.isEmpty() ? "上" : arg); break;
+            case "返回": ok = svc.back(); break;
+            case "主页": ok = svc.home(); break;
+            case "打开": ok = svc.openApp(arg); break;
+            case "页面": ok = openPage(arg); break;
+        }
+        bubble((ok ? "✓ 已执行 " : "× 执行失败 ") + label, false);
+    }
+
+    boolean openPage(String name) {
+        try {
+            Class<?> c;
+            if (name.contains("文件") || name.contains("图片") || name.contains("视频")) c = MediaLabActivity.class;
+            else if (name.contains("剪辑") || name.contains("裁剪")) c = VideoTrimActivity.class;
+            else if (name.contains("音频")) c = AudioTrimActivity.class;
+            else if (name.contains("长截图") || name.contains("截图")) c = LongShotActivity.class;
+            else if (name.contains("网盘")) c = NetDiskActivity.class;
+            else if (name.contains("金属")) c = MetalDetectorActivity.class;
+            else if (name.contains("识别")) c = ObjectDetectActivity.class;
+            else if (name.contains("权限")) c = AiPermissionActivity.class;
+            else return false;
+            startActivity(new Intent(this, c));
+            return true;
+        } catch (Throwable t) { return false; }
+    }
+
     void bubble(String text, boolean me) {
         TextView t = new TextView(this);
         t.setText(text);
@@ -285,7 +386,7 @@ public class LocalAiActivity extends BaseActivity {
         try {
             File bin = new File(getFilesDir(), "llama-cli");
             if (!bin.exists() || bin.length() < 1_000_000L) extractBinary(bin);
-            String prompt = "<|im_start|>system\n你是IK工具箱内置的本地AI，用简体中文回答，简洁直接，不啰嗦。<|im_end|>\n"
+            String prompt = "<|im_start|>system\n你是IK工具箱内置的本地AI，用简体中文回答，简洁直接，不啰嗦。你可以操控这台手机，可用命令：[读屏] [点击:文字] [滑动:上] [返回] [主页] [打开:包名] [页面:文件实验室]。需要动手时在回答最后单独一行写命令，不要解释命令。<|im_end|>\n"
                     + "<|im_start|>user\n" + q + "<|im_end|>\n<|im_start|>assistant\n";
             proc = new ProcessBuilder(bin.getAbsolutePath(),
                     "-m", modelFile().getAbsolutePath(),
@@ -327,6 +428,7 @@ public class LocalAiActivity extends BaseActivity {
             chatBox.removeView(wait);
             bubble(a, false);
             busy = false;
+            runCommands(a);
         });
     }
 
