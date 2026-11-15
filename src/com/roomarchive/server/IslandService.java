@@ -41,7 +41,7 @@ public class IslandService extends Service {
     private static boolean running = false;
     private WindowManager wm;
     private View island;
-    private TextView timeView, batteryView, dateView, detailView;
+    private TextView timeView, batteryView, dateView, detailView, notifyView;
     private LinearLayout detailBox;
     private boolean expanded = false, landscape = false;
     private int battery = -1, chargeState = 0;
@@ -52,6 +52,31 @@ public class IslandService extends Service {
             refreshTime();
             ui.postDelayed(this, 30000);
         }
+    };
+
+    private final BroadcastReceiver islandRx = new BroadcastReceiver() {
+        @Override public void onReceive(Context c, Intent i) {
+            if (i == null) return;
+            if ("com.roomarchive.server.ISLAND_NOTIFY".equals(i.getAction())) {
+                String title = i.getStringExtra("title");
+                String text = i.getStringExtra("text");
+                String line = (title == null ? "" : title) + (text == null || text.isEmpty() ? "" : "：" + text);
+                if (line.length() > 22) line = line.substring(0, 22) + "…";
+                timeView.setText(line.isEmpty() ? "新通知" : line);
+                if (notifyView != null) notifyView.setText(line);
+                ui.removeCallbacks(restoreClock);
+                ui.postDelayed(restoreClock, 6000);
+            } else if ("com.roomarchive.server.ISLAND_FOREGROUND".equals(i.getAction())) {
+                String pkg = i.getStringExtra("pkg");
+                if (pkg != null && !pkg.isEmpty() && detailView != null) {
+                    detailView.setText("前台：" + pkg + " · 点击胶囊收起");
+                }
+            }
+        }
+    };
+
+    private final Runnable restoreClock = new Runnable() {
+        @Override public void run() { refreshTime(); }
     };
 
     private final BroadcastReceiver batteryRx = new BroadcastReceiver() {
@@ -79,6 +104,10 @@ public class IslandService extends Service {
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         buildIsland();
         registerReceiver(batteryRx, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        IntentFilter f = new IntentFilter();
+        f.addAction("com.roomarchive.server.ISLAND_NOTIFY");
+        f.addAction("com.roomarchive.server.ISLAND_FOREGROUND");
+        registerReceiver(islandRx, f);
         ui.post(clock);
         running = true;
     }
@@ -155,6 +184,12 @@ public class IslandService extends Service {
         dateView.setTextColor(0xFFBFD4E8);
         dateView.setTextSize(11);
         detailBox.addView(dateView);
+
+        notifyView = new TextView(this);
+        notifyView.setTextColor(0xFFFFD166);
+        notifyView.setTextSize(10);
+        notifyView.setPadding(0, dp(2), 0, dp(2));
+        detailBox.addView(notifyView);
 
         detailView = new TextView(this);
         detailView.setTextColor(0xFF7E93AA);
@@ -247,6 +282,7 @@ public class IslandService extends Service {
     @Override public void onDestroy() {
         ui.removeCallbacksAndMessages(null);
         try { unregisterReceiver(batteryRx); } catch (Throwable ignored) {}
+        try { unregisterReceiver(islandRx); } catch (Throwable ignored) {}
         try { if (island != null && wm != null) wm.removeView(island); } catch (Throwable ignored) {}
         island = null;
         running = false;

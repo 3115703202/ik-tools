@@ -2,6 +2,7 @@ package com.roomarchive.server;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -16,6 +17,10 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.speech.tts.TextToSpeech;
 import android.text.InputType;
+import android.net.Uri;
+import android.telecom.PhoneAccount;
+import android.telecom.PhoneAccountHandle;
+import android.telecom.TelecomManager;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -38,7 +43,8 @@ public class SimCallActivity extends Activity implements TextToSpeech.OnInitList
     private LinearLayout setupLayer;
     private FrameLayout callLayer;
     private EditText etNumber, etName;
-    private TextView callName, callNumber, callState, avatar, btnMute, btnSpeaker;
+    private TextView callName, callNumber, callState, avatar, btnMute, btnSpeaker, accountState;
+    private String pendingCallName = "张三", pendingCallNumber = "13800138000";
     private int delaySec = 0;
     private boolean ringing = false, connected = false, muted = false, speaker = false;
     private long connectAt = 0;
@@ -76,6 +82,13 @@ public class SimCallActivity extends Activity implements TextToSpeech.OnInitList
         buildSetup();
         buildCallLayer();
         setContentView(root);
+        if (getIntent() != null && getIntent().getBooleanExtra("incoming", false)) {
+            String n = getIntent().getStringExtra("name");
+            String num = getIntent().getStringExtra("number");
+            if (n != null && !n.isEmpty()) pendingCallName = n;
+            if (num != null && !num.isEmpty()) pendingCallNumber = num;
+            showIncomingUi(pendingCallName, pendingCallNumber);
+        }
     }
 
     private void buildSetup() {
@@ -96,6 +109,13 @@ public class SimCallActivity extends Activity implements TextToSpeech.OnInitList
         sub.setTextSize(12);
         sub.setPadding(0, dp(4), 0, dp(16));
         setupLayer.addView(sub);
+
+        accountState = new TextView(this);
+        accountState.setTextSize(11);
+        accountState.setTextColor(0xFF7E93AA);
+        accountState.setPadding(0, 0, 0, dp(4));
+        setupLayer.addView(accountState);
+        refreshAccountState();
 
         setupLayer.addView(label("来电号码"));
         etNumber = new EditText(this);
@@ -147,7 +167,7 @@ public class SimCallActivity extends Activity implements TextToSpeech.OnInitList
         setupLayer.addView(delays);
 
         TextView note = new TextView(this);
-        note.setText("不注册系统通话账户，不走 PhoneAccount，因此不会出现 SecurityException；\n只在手机屏幕上显示一整套来电界面，不会真的拨号。");
+        note.setText("会真实注册 PhoneAccount（self-managed），并通过系统 Telecom 发起来电；\n系统状态栏会进入来电状态，接听/挂断走 Telecom 回调，但不会真的拨号。");
         note.setTextColor(0xFF7E93AA);
         note.setTextSize(11);
         note.setPadding(0, dp(14), 0, dp(18));
@@ -271,17 +291,85 @@ public class SimCallActivity extends Activity implements TextToSpeech.OnInitList
         String name = etName.getText().toString().trim();
         if (num.isEmpty()) num = "未知号码";
         if (name.isEmpty()) name = num;
+        pendingCallName = name;
+        pendingCallNumber = num;
         callName.setText(name);
         callNumber.setText(num);
         avatar.setText(name.substring(0, 1));
+        final String fn = name, fnum = num;
         if (delaySec > 0) {
-            setupLayer.setVisibility(View.GONE);
-            callLayer.setVisibility(View.VISIBLE);
-            callState.setText(delaySec + " 秒后响起…");
-            ui.postDelayed(startRunnable, delaySec * 1000L);
+            accountState.setText(delaySec + " 秒后通过 Telecom 发起来电…");
+            ui.postDelayed(() -> placeRealCall(fn, fnum), delaySec * 1000L);
         } else {
-            showIncoming();
+            placeRealCall(fn, fnum);
         }
+    }
+
+    /** 注册 PhoneAccount 并用 TelecomManager.addNewIncomingCall 发起真实来电 */
+    private void placeRealCall(String name, String number) {
+        if (Build.VERSION.SDK_INT < 23) { showIncomingUi(name, number); return; }
+        try {
+            TelecomManager tm = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
+            PhoneAccountHandle h = SimCallConnectionService.handle(this);
+            PhoneAccount acc = tm.getPhoneAccount(h);
+            if (acc == null) {
+                PhoneAccount.Builder b = PhoneAccount.builder(h, "IK模拟通话")
+                        .setShortDescription("模拟来电 · 仅供娱乐")
+                        .setSupportedUriSchemes(java.util.Collections.singletonList("tel"));
+                if (Build.VERSION.SDK_INT >= 26) {
+                    b.setCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED);
+                } else {
+                    b.setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER);
+                }
+                tm.registerPhoneAccount(b.build());
+                acc = tm.getPhoneAccount(h);
+            }
+            SimCallConnectionService.setPending(name, number);
+            android.os.Bundle extras = new android.os.Bundle();
+            extras.putString("ik_name", name);
+            extras.putString("ik_number", number);
+            extras.putParcelable(TelecomManager.EXTRA_INCOMING_CALL_ADDRESS,
+                    Uri.fromParts("tel", number, null));
+            tm.addNewIncomingCall(h, extras);
+            accountState.setTextColor(0xFF16A34A);
+            accountState.setText("通话账户已注册 · 正在通过 Telecom 发起来电");
+            refreshAccountState();
+        } catch (Throwable e) {
+            accountState.setTextColor(0xFFDC2626);
+            accountState.setText("通话账户调用失败：" + e.getClass().getSimpleName()
+                    + " · " + e.getMessage() + "（已切到本机悬浮界面）");
+            Toast.makeText(this, "Telecom 拒绝，已切到本机悬浮界面", Toast.LENGTH_LONG).show();
+            showIncomingUi(name, number);
+        }
+    }
+
+    private void refreshAccountState() {
+        if (accountState == null) return;
+        try {
+            TelecomManager tm = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
+            PhoneAccount acc = tm.getPhoneAccount(SimCallConnectionService.handle(this));
+            if (acc == null) {
+                accountState.setTextColor(0xFF7E93AA);
+                accountState.setText("通话账户：未注册（点开始后自动注册）");
+            } else if (acc.isEnabled()) {
+                accountState.setTextColor(0xFF16A34A);
+                accountState.setText("通话账户：已注册 · 已启用（系统来电通道）");
+            } else {
+                accountState.setTextColor(0xFFF59E0B);
+                accountState.setText("通话账户：已注册 · 未启用，需到系统「通话账户」里打开");
+            }
+        } catch (Throwable t) {
+            accountState.setTextColor(0xFFDC2626);
+            accountState.setText("通话账户状态读取失败：" + t.getClass().getSimpleName());
+        }
+    }
+
+    private void showIncomingUi(String name, String number) {
+        if (name == null || name.isEmpty()) name = number != null ? number : "未知号码";
+        callName.setText(name);
+        callNumber.setText(number == null ? "" : number);
+        avatar.setText(name.substring(0, 1));
+        showIncoming();
     }
 
     private void showIncoming() {
@@ -301,6 +389,7 @@ public class SimCallActivity extends Activity implements TextToSpeech.OnInitList
         stopRing();
         vibrate(false);
         connected = true;
+        try { SimCallConnectionService.answer(); } catch (Throwable ignored) {}
         connectAt = System.currentTimeMillis();
         callNumber.setVisibility(View.GONE);
         callState.setText("通话中  00:00");
@@ -316,6 +405,7 @@ public class SimCallActivity extends Activity implements TextToSpeech.OnInitList
         stopRing();
         vibrate(false);
         ui.removeCallbacks(tick);
+        try { SimCallConnectionService.disconnect(); } catch (Throwable ignored) {}
         Toast.makeText(this, "已挂断（模拟）", Toast.LENGTH_SHORT).show();
         finish();
     }
@@ -369,6 +459,20 @@ public class SimCallActivity extends Activity implements TextToSpeech.OnInitList
                 ttsReady = true;
             } catch (Throwable ignored) {}
         }
+    }
+
+    @Override protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent != null && intent.getBooleanExtra("incoming", false)) {
+            String n = intent.getStringExtra("name");
+            String num = intent.getStringExtra("number");
+            showIncomingUi(n, num);
+        }
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        refreshAccountState();
     }
 
     @Override protected void onDestroy() {

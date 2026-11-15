@@ -53,7 +53,7 @@ public class DownloadActivity extends Activity {
         listRoot.addView(hint);
 
         for (Plugin p : plugins) addPluginCard(p);
-        addAiModelCard();
+        addAiModelCards();
         refreshLatestApkUrl();
 
         TextView filesTitle = new TextView(this);
@@ -91,23 +91,41 @@ public class DownloadActivity extends Activity {
     }
 
     static final String AI_MODEL = "qwen2.5-0.5b-instruct-q4_k_m.gguf";
-    static final String AI_URL = "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/" + AI_MODEL;
-    static final String AI_URL2 = "https://hf-mirror.com/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/" + AI_MODEL;
 
-    void addAiModelCard() {
+    static class AiModel {
+        String file, title, desc, hf, mirror;
+        AiModel(String f, String t, String d, String repo) {
+            file = f; title = t; desc = d;
+            hf = "https://huggingface.co/" + repo + "/resolve/main/" + f;
+            mirror = "https://hf-mirror.com/" + repo + "/resolve/main/" + f;
+        }
+    }
+
+    AiModel[] aiModels = {
+        new AiModel(AI_MODEL, "Qwen2.5 0.5B", "491MB · 最快，短答约 1 秒", "Qwen/Qwen2.5-0.5B-Instruct-GGUF"),
+        new AiModel("qwen2.5-1.5b-instruct-q4_k_m.gguf", "Qwen2.5 1.5B", "约 1.1GB · 更聪明，速度稍慢", "Qwen/Qwen2.5-1.5B-Instruct-GGUF"),
+        new AiModel("tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf", "TinyLlama 1.1B", "约 669MB · 轻量英文/中文", "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF"),
+        new AiModel("Llama-3.2-1B-Instruct-Q4_K_M.gguf", "Llama 3.2 1B", "约 800MB · 通用对话", "bartowski/Llama-3.2-1B-Instruct-GGUF")
+    };
+
+    void addAiModelCards() {
+        for (AiModel m : aiModels) addAiModelCard(m);
+    }
+
+    void addAiModelCard(AiModel m) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
         card.setPadding(dp(16), dp(14), dp(16), dp(14));
         card.setBackgroundColor(0x22FFFFFF);
 
         TextView name = new TextView(this);
-        name.setText("本地 AI 模型 · Qwen2.5-0.5B");
+        name.setText("本地 AI 模型 · " + m.title);
         name.setTextSize(16);
         name.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         card.addView(name);
 
         TextView desc = new TextView(this);
-        desc.setText("491MB · 下完完全离线对话 · 支持断点续传 / 双镜像");
+        desc.setText(m.desc + " · 断点续传 / 双镜像");
         desc.setTextSize(13);
         desc.setPadding(0, dp(4), 0, dp(10));
         card.addView(desc);
@@ -123,31 +141,31 @@ public class DownloadActivity extends Activity {
         card.addView(pct);
 
         Button dlBtn = new Button(this);
-        java.io.File model = new java.io.File(new java.io.File(FileStore.outDir(this), "models"), AI_MODEL);
+        java.io.File model = new java.io.File(new java.io.File(FileStore.outDir(this), "models"), m.file);
         if (model.exists() && model.length() > 100_000_000L) {
             dlBtn.setText("已下载 · 打开本地 AI");
             dlBtn.setOnClickListener(v -> startActivity(new android.content.Intent(this, LocalAiActivity.class)));
         } else {
-            dlBtn.setText("下载模型（491MB）");
+            dlBtn.setText("下载模型（" + m.desc.split(" · ")[0] + "）");
             dlBtn.setOnClickListener(v -> {
                 dlBtn.setEnabled(false);
                 pb.setVisibility(View.VISIBLE);
                 pct.setVisibility(View.VISIBLE);
-                downloadAiModel(model, pb, pct, dlBtn);
+                downloadAiModel(model, pb, pct, dlBtn, new String[]{m.hf, m.mirror});
             });
         }
         card.addView(dlBtn);
         listRoot.addView(card);
     }
 
-    void downloadAiModel(java.io.File dest, ProgressBar pb, TextView pct, Button btn) {
+    void downloadAiModel(java.io.File dest, ProgressBar pb, TextView pct, Button btn, String[] urls) {
         new Thread(() -> {
             java.io.File dir = dest.getParentFile();
             if (!dir.exists()) dir.mkdirs();
-            java.io.File tmp = new java.io.File(dir, AI_MODEL + ".part");
+            java.io.File tmp = new java.io.File(dir, dest.getName() + ".part");
             long have = tmp.exists() ? tmp.length() : 0;
             boolean ok = false;
-            for (String urlStr : new String[]{AI_URL, AI_URL2}) {
+            for (String urlStr : urls) {
                 try {
                     java.net.HttpURLConnection c = (java.net.HttpURLConnection) new java.net.URL(urlStr).openConnection();
                     c.setConnectTimeout(15000);

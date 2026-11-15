@@ -1,2 +1,2 @@
-VERSION=v4.5.33
-URL=https://aka.doubaocdn.com/s/TEDdyTiNiV
+VERSION=v4.5.34
+URL=https://aka.doubaocdn.com/s/RUeceaHAL7

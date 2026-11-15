@@ -28,6 +28,10 @@ import java.net.URL;
 public class LocalAiActivity extends BaseActivity {
 
     static final String MODEL_NAME = "qwen2.5-0.5b-instruct-q4_k_m.gguf";
+    private TextView modelTitle;
+    String selectedModel() {
+        return getSharedPreferences("ik_ai", MODE_PRIVATE).getString("model", MODEL_NAME);
+    }
     static final long MODEL_SIZE = 491400032L;
     static final String URL_HF =
             "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/" + MODEL_NAME;
@@ -45,7 +49,7 @@ public class LocalAiActivity extends BaseActivity {
     private boolean busy = false;
 
     private File modelFile() {
-        return new File(new File(FileStore.outDir(this), "models"), MODEL_NAME);
+        return new File(new File(FileStore.outDir(this), "models"), selectedModel());
     }
 
     @Override
@@ -73,12 +77,21 @@ public class LocalAiActivity extends BaseActivity {
         LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(dp(10), dp(10));
         dlp.rightMargin = dp(9);
         head.addView(dot, dlp);
-        TextView title = new TextView(this);
-        title.setText("Qwen2.5 0.5B");
-        title.setTextSize(22);
-        title.setTextColor(0xFF111827);
-        title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-        head.addView(title);
+        modelTitle = new TextView(this);
+        modelTitle.setTextSize(22);
+        modelTitle.setTextColor(0xFF111827);
+        modelTitle.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        head.addView(modelTitle);
+        TextView switchM = new TextView(this);
+        switchM.setText("切换");
+        switchM.setTextSize(11);
+        switchM.setTextColor(0xFF16A34A);
+        switchM.setPadding(dp(10), dp(4), dp(10), dp(4));
+        switchM.setBackground(paper(0xFFDCFCE7, 12, 0xFFBBF7D0));
+        switchM.setOnClickListener(v -> showModelPicker());
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(-2, -2);
+        slp.leftMargin = dp(10);
+        head.addView(switchM, slp);
         root.addView(head);
 
         TextView sub = new TextView(this);
@@ -222,7 +235,39 @@ public class LocalAiActivity extends BaseActivity {
         t.setOnClickListener(c);
     }
 
+    void showModelPicker() {
+        File dir = new File(FileStore.outDir(this), "models");
+        File[] fs = dir.listFiles((d, n) -> n.endsWith(".gguf"));
+        if (fs == null || fs.length == 0) {
+            android.app.AlertDialog.Builder b = new android.app.AlertDialog.Builder(this);
+            b.setTitle("还没有本地模型");
+            b.setMessage("先去模型市场下载 GGUF 模型，下载完成后会自动出现在这里。");
+            b.setPositiveButton("去模型市场", (d, w) -> startActivity(new Intent(this, DownloadActivity.class)));
+            b.setNegativeButton("取消", null);
+            b.show();
+            return;
+        }
+        String[] names = new String[fs.length];
+        for (int i = 0; i < fs.length; i++) names[i] = fs[i].getName();
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("选择本地模型")
+                .setItems(names, (d, which) -> {
+                    getSharedPreferences("ik_ai", MODE_PRIVATE).edit()
+                            .putString("model", names[which]).apply();
+                    refreshState();
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    String shortModelName() {
+        String n = selectedModel().replace(".gguf", "");
+        if (n.length() > 26) n = n.substring(0, 26) + "…";
+        return n;
+    }
+
     void refreshState() {
+        if (modelTitle != null) modelTitle.setText(shortModelName());
         if (a11yState != null) {
             a11yState.setText(AiAgentService.ready()
                     ? "● 操控权限已开：能读屏、点击、滑动、开应用"
@@ -264,7 +309,7 @@ public class LocalAiActivity extends BaseActivity {
         new Thread(() -> {
             File dir = modelFile().getParentFile();
             if (!dir.exists()) dir.mkdirs();
-            File tmp = new File(dir, MODEL_NAME + ".part");
+            File tmp = new File(dir, selectedModel() + ".part");
             long have = tmp.exists() ? tmp.length() : 0;
             boolean ok = false;
             for (String urlStr : new String[]{URL_HF, URL_MIRROR}) {
@@ -501,7 +546,8 @@ public class LocalAiActivity extends BaseActivity {
             proc = new ProcessBuilder(bin.getAbsolutePath(),
                     "-m", modelFile().getAbsolutePath(),
                     "-p", prompt,
-                    "-n", "220", "-c", "2048", "-t", "4",
+                    "-n", "160", "-c", "1024", "-t", "6",
+                    "--batch-size", "512", "--ubatch-size", "512",
                     "--temp", "0.7", "--top-p", "0.9",
                     "--no-display-prompt", "--no-warmup")
                     .redirectErrorStream(true).start();
