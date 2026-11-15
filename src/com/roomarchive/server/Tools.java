@@ -199,14 +199,22 @@ public class Tools {
         return favSet(c).contains(id);
     }
 
-    /** 主题：0 浅色 / 1 深色 */
+    /** 主题：0 浅色 / 1 深色。切换时递增 theme_epoch，各页面据此判断需要重绘 */
     public static void setDark(Context c, boolean dark) {
-        c.getSharedPreferences(SP, Context.MODE_PRIVATE)
-                .edit().putInt("theme", dark ? 1 : 0).apply();
+        boolean now = isDark(c);
+        android.content.SharedPreferences.Editor e = c.getSharedPreferences(SP, Context.MODE_PRIVATE).edit();
+        e.putInt("theme", dark ? 1 : 0);
+        if (now != dark) e.putInt("theme_epoch", themeEpoch(c) + 1);
+        e.apply();
     }
 
     public static boolean isDark(Context c) {
         return c.getSharedPreferences(SP, Context.MODE_PRIVATE).getInt("theme", 0) == 1;
+    }
+
+    /** 主题版本号：切换一次 +1，页面在 onResume 里对比，发现变了就重建，避免退回旧配色 */
+    public static int themeEpoch(Context c) {
+        return c.getSharedPreferences(SP, Context.MODE_PRIVATE).getInt("theme_epoch", 0);
     }
 
     public static int bgColor(Context c) {

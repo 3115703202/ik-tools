@@ -301,6 +301,8 @@ public class UserCenterActivity extends BaseActivity {
         final android.widget.RadioButton dark = new android.widget.RadioButton(this);
         dark.setText("深色主题");
         if (Tools.isDark(this)) dark.setChecked(true); else light.setChecked(true);
+        light.setId(View.generateViewId());
+        dark.setId(View.generateViewId());
         themeGroup.addView(light);
         themeGroup.addView(dark);
         box.addView(themeGroup);
@@ -333,9 +335,13 @@ public class UserCenterActivity extends BaseActivity {
                 .setPositiveButton("应用主题", new android.content.DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(android.content.DialogInterface d, int w) {
-                        Tools.setDark(UserCenterActivity.this, dark.isChecked());
-                        Toast.makeText(UserCenterActivity.this, "主题已切换", Toast.LENGTH_SHORT).show();
-                        recreate();
+                        boolean wantDark = themeGroup.getCheckedRadioButtonId() == dark.getId();
+                        boolean changed = wantDark != Tools.isDark(UserCenterActivity.this);
+                        Tools.setDark(UserCenterActivity.this, wantDark);
+                        Toast.makeText(UserCenterActivity.this,
+                                changed ? (wantDark ? "已切换到深色主题" : "已切换到浅色主题") : "主题未变化",
+                                Toast.LENGTH_SHORT).show();
+                        if (changed) recreate();
                     }
                 })
                 .setNegativeButton("取消", null)
