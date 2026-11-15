@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>IK 管理后台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,"PingFang SC",system-ui,sans-serif;background:#05070d;color:#eaf2ff;min-height:100vh;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:-1;background:
+  radial-gradient(60% 40% at 80% 10%,rgba(0,212,255,.22),transparent 60%),
+  radial-gradient(50% 40% at 10% 30%,rgba(124,58,237,.20),transparent 60%),
+  radial-gradient(70% 50% at 50% 100%,rgba(14,165,233,.16),transparent 65%),#05070d}
+.gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{width:100%;max-width:420px;padding:26px 20px 22px;border-radius:26px;
+  background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 24px 60px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.22),inset 0 -18px 40px rgba(0,0,0,.25);
+  backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4)}
+.title{font-size:17px;font-weight:600;letter-spacing:.5px;text-align:center}
+.sub{font-size:12px;color:#8fa3bf;text-align:center;margin-top:8px;line-height:1.6}
+.pwd{width:100%;margin-top:18px;height:48px;border-radius:14px;border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06);color:#fff;font-size:18px;text-align:center;letter-spacing:6px;outline:none}
+.pwd:focus{border-color:rgba(0,212,255,.6);box-shadow:0 0 0 3px rgba(0,212,255,.15)}
+.btn{width:100%;height:48px;margin-top:14px;border:none;border-radius:14px;color:#031018;
+  font-size:15px;font-weight:600;letter-spacing:1px;
+  background:linear-gradient(180deg,#7fe9ff,#22c1e8);
+  box-shadow:0 10px 24px rgba(0,212,255,.28),inset 0 1px 0 rgba(255,255,255,.7)}
+.btn:active{transform:translateY(1px)}
+.err{color:#ff6b6b;font-size:12px;text-align:center;margin-top:10px;min-height:16px}
+.wrap{padding:18px 14px 40px;display:none}
+.head{display:flex;align-items:center;justify-content:space-between;margin:6px 4px 14px}
+.head h1{font-size:18px;font-weight:600}
+.head .v{font-size:11px;color:#7fe9ff;background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.3);
+  padding:5px 10px;border-radius:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{border-radius:20px;padding:14px;
+  background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 12px 30px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.18)}
+.tile .k{font-size:11px;color:#8fa3bf}
+.tile .v{font-size:16px;font-weight:600;margin-top:6px;word-break:break-all}
+.sec{margin-top:16px;border-radius:22px;padding:16px;
+  background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.025));
+  border:1px solid rgba(255,255,255,.12);box-shadow:0 14px 34px rgba(0,0,0,.35)}
+.sec h2{font-size:13px;color:#9fb6d4;font-weight:600;letter-spacing:.5px;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px}
+.row:last-child{border-bottom:none}
+.row .l{color:#c9d8ee}.row .r{color:#7fe9ff;text-align:right;word-break:break-all}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:12px;padding:7px 11px;border-radius:11px;background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);color:#d7e6fb}
+.bar{height:6px;border-radius:6px;background:rgba(255,255,255,.08);margin-top:10px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#7fe9ff,#22c1e8,#7c3aed);border-radius:6px}
+.foot{text-align:center;font-size:11px;color:#5c718c;margin-top:22px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<div class="gate" id="gate">
+  <div class="card">
+    <div class="title">管理后台</div>
+    <div class="sub">本机数据控制台<br>再输一次密码才进得去</div>
+    <input class="pwd" id="pwd" type="password" inputmode="numeric" maxlength="8" placeholder="••••">
+    <button class="btn" onclick="login()">验证进入</button>
+    <div class="err" id="err"></div>
+  </div>
+</div>
+
+<div class="wrap" id="wrap">
+  <div class="head">
+    <h1>IK 管理后台</h1>
+    <span class="v" id="ver">v—</span>
+  </div>
+  <div class="grid" id="tiles"></div>
+
+  <div class="sec"><h2>设备</h2><div id="dev"></div></div>
+  <div class="sec"><h2>存储</h2><div id="sto"></div><div class="bar"><i id="stoBar" style="width:0"></i></div></div>
+  <div class="sec"><h2>文件分布（本 App 产物目录）</h2><div id="files"></div></div>
+  <div class="sec"><h2>记录与本地服务</h2><div id="rec"></div></div>
+  <div class="sec"><h2>功能清单</h2><div class="chips" id="tools"></div></div>
+
+  <div class="foot">仅展示本机与本 App 自身数据<br>不包含任何他人隐私内容</div>
+</div>
+
+<script>
+var DATA=null;
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function login(){
+  var p=$('pwd').value.trim();
+  if(!p){$('err').textContent='请输入密码';return}
+  var ok=false;
+  try{ ok=window.AdminBridge && AdminBridge.auth(p) }catch(e){ ok=false }
+  if(!ok){$('err').textContent='密码不对';return}
+  var raw='{}';
+  try{ raw=AdminBridge.data(p) }catch(e){ $('err').textContent='无法读取数据（请从 App 内打开）';return }
+  try{ DATA=JSON.parse(raw) }catch(e){ $('err').textContent='数据解析失败';return }
+  if(DATA.error){$('err').textContent='无权限：'+DATA.error;return}
+  $('gate').style.display='none';
+  $('wrap').style.display='block';
+  render();
+}
+function row(l,r){return '<div class="row"><span class="l">'+esc(l)+'</span><span class="r">'+esc(r)+'</span></div>'}
+function render(){
+  var d=DATA.device||{}, a=DATA.app||{}, s=DATA.storage||{};
+  $('ver').textContent='v'+a.version+' / '+a.code;
+  $('tiles').innerHTML=
+    tile('功能', (DATA.tools||[]).reduce(function(n,g){return n+((g.names||[]).length)},0)+' 项')+
+    tile('本机应用', a.installedApps>=0?a.installedApps+' 个':'—')+
+    tile('可用空间', s.internalFree||'—')+
+    tile('本机内存', (d.heapMb||'—')+' MB 堆');
+  $('dev').innerHTML=
+    row('品牌 / 机型', d.brand+' '+d.model)+
+    row('厂商', d.manufacturer)+
+    row('系统', 'Android '+d.android+' (SDK '+d.sdk+')')+
+    row('架构', d.abi)+
+    row('屏幕', d.screen+' @ '+d.density+'dpi')+
+    row('CPU 核数', d.cores);
+  $('sto').innerHTML=
+    row('总容量', s.internalTotal)+
+    row('已用', (s.internalUsedPct||0)+'%')+
+    row('可用', s.internalFree)+
+    row('App 产物占用', s.appData)+
+    row('产物目录', s.outDir);
+  setTimeout(function(){ $('stoBar').style.width=(s.internalUsedPct||0)+'%' },80);
+  var fl=(DATA.files||[]).map(function(f){
+    return row((f.dir?'📁 ':'📄 ')+f.name, f.count+' 个 · '+f.size)
+  }).join('') || '<div class="row"><span class="l">暂无文件</span><span class="r">—</span></div>';
+  $('files').innerHTML=fl;
+  var rec=DATA.records||{};
+  $('rec').innerHTML=Object.keys(rec).map(function(k){return row(k, rec[k])}).join('');
+  $('tools').innerHTML=(DATA.tools||[]).map(function(g){
+    return '<div style="width:100%;margin-top:8px;color:#8fa3bf;font-size:11px">'+esc(g.section)+'</div>'+
+      (g.names||[]).map(function(n){return '<span class="chip">'+esc(n)+'</span>'}).join('')
+  }).join('');
+}
+function tile(k,v){return '<div class="tile"><div class="k">'+esc(k)+'</div><div class="v">'+esc(v)+'</div></div>'}
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&$('gate').style.display!=='none')login()});
+</script>
+</body>
+</html>

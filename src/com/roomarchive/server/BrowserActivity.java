@@ -35,6 +35,8 @@ public class BrowserActivity extends BaseActivity {
     private EditText addressBox;
     private Button btnNoImage;
     private List<WebView> tabs = new ArrayList<WebView>();
+    private boolean sawDouyin = false;
+    private boolean adminPromptShown = false;
     // 浏览器标识(UA)切换
     private int uaMode = 0;
     private static final String[] UA_NAMES = {
@@ -203,7 +205,9 @@ public class BrowserActivity extends BaseActivity {
 
     // ================= 标签管理 =================
 
-    private void openTab(String url, String title) {
+    private void openTab(String url, String title) { openTab(url, title, false); }
+
+    private void openTab(String url, String title, boolean adminMode) {
         if (tabs.size() >= 5) {
             Toast.makeText(this, "最多同时开 5 个标签", Toast.LENGTH_SHORT).show();
             return;
@@ -214,12 +218,14 @@ public class BrowserActivity extends BaseActivity {
         }
         WebSettings s = wv.getSettings();
         s.setJavaScriptEnabled(true);
+        s.setAllowFileAccess(true);
         s.setDomStorageEnabled(true);
         s.setLoadWithOverviewMode(true);
         s.setUseWideViewPort(true);
         s.setBuiltInZoomControls(true);
         s.setDisplayZoomControls(false);
         s.setBlockNetworkImage(noImage);
+        if (adminMode) wv.addJavascriptInterface(new AdminBridge(this), "AdminBridge");
         wv.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
@@ -236,6 +242,7 @@ public class BrowserActivity extends BaseActivity {
                 if (tabs.indexOf(view) == currentTab) {
                     addressBox.setText(url);
                 }
+                checkSecretRoute(view, url);
                 updateTabTitles();
                 // 记录历史（跳过 about:start 和空 URL）
                 if (url != null && !url.startsWith("about:") && !url.startsWith("data:")) {
@@ -366,6 +373,53 @@ public class BrowserActivity extends BaseActivity {
         }
         WebView wv = currentWebView();
         if (wv != null) wv.loadUrl(url);
+    }
+
+    /** 抖音 → B站 的隐藏路由：走完才弹密码 */
+    private void checkSecretRoute(WebView view, String url) {
+        if (url == null) return;
+        String low = url.toLowerCase();
+        if (low.contains("douyin.com")) sawDouyin = true;
+        if (sawDouyin && low.contains("bilibili.com") && !adminPromptShown) {
+            view.postDelayed(this::showSecretGate, 900);
+        }
+    }
+
+    private void showSecretGate() {
+        if (adminPromptShown || isFinishing()) return;
+        adminPromptShown = true;
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(dp(20), dp(10), dp(20), 0);
+        EditText input = new EditText(this);
+        input.setHint("密码");
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER
+                | android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        input.setTextSize(18);
+        input.setGravity(android.view.Gravity.CENTER);
+        box.addView(input);
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("验证")
+                .setView(box)
+                .setCancelable(false)
+                .setPositiveButton("进入", (d, w) -> {
+                    if ("111".equals(input.getText().toString().trim())) {
+                        openAdminTab();
+                    } else {
+                        Toast.makeText(this, "密码错误", Toast.LENGTH_SHORT).show();
+                        adminPromptShown = false;
+                    }
+                })
+                .setNegativeButton("取消", (d, w) -> adminPromptShown = false)
+                .show();
+    }
+
+    private void openAdminTab() {
+        openTab("file:///android_asset/admin.html", "管理后台", true);
+    }
+
+    private int dp(float v) {
+        return (int) (v * getResources().getDisplayMetrics().density + 0.5f);
     }
 
     /** 统一处理链接：网页链接在 WebView 内打开，自定义协议跳转外部应用 */
