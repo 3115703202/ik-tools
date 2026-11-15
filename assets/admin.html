@@ -123,6 +123,7 @@ function normPwd(v){
     .replace(/[^0-9]/g,'');
 }
 function login(){
+  if(!window.AdminBridge){$('err').textContent='页面桥接未注入：请从 App 内「111」入口重新打开';return}
   var p=normPwd($('pwd').value);
   if(!p){$('err').textContent='请输入密码';return}
   var ok=false;
