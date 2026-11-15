@@ -114,6 +114,8 @@ public class Tools {
                     ScreenTestActivity.class, true, SEC_TOOL),
             new Tool("bench", "性能跑分", "bench", "CPU/内存/存储跑分", 0xFFF59E0B,
                     PerformanceActivity.class, true, SEC_TOOL),
+            new Tool("metal", "金属探测", "metal", "磁力计探测 · 声音+震动反馈", 0xFFF59E0B,
+                    MetalDetectorActivity.class, true, SEC_TOOL),
             new Tool("sensor", "传感器工具箱", "sensor", "指南针 · 水平仪 · 手电筒", 0xFF0D9488,
                     SensorToolsActivity.class, true, SEC_TOOL),
 
