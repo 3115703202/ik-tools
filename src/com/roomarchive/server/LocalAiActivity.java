@@ -51,6 +51,10 @@ public class LocalAiActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
+        final android.widget.FrameLayout host = new android.widget.FrameLayout(this);
+        host.setBackground(Tools.bgWithGlow(this));
+        setContentView(host);
+        try {
         ScrollView sv = new ScrollView(this);
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -63,7 +67,7 @@ public class LocalAiActivity extends BaseActivity {
         root.addView(title);
 
         TextView sub = new TextView(this);
-        sub.setText("llama.cpp 本地推理 · 不联网 · 数据不出手机");
+        sub.setText("v4.5.25 · llama.cpp 本地推理 · 不联网 · 数据不出手机");
         sub.setTextSize(12);
         sub.setTextColor(Tools.subTextColor(this));
         sub.setGravity(Gravity.CENTER);
@@ -169,8 +173,21 @@ public class LocalAiActivity extends BaseActivity {
         sendBtn.setOnClickListener(v -> send());
 
         scroll = sv;
-        setContentView(sv);
+        sv.setFillViewport(true);
+        host.addView(sv, new android.widget.FrameLayout.LayoutParams(
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT));
         refreshState();
+        } catch (Throwable t) {
+            TextView err = new TextView(this);
+            err.setText("本地 AI 页面加载失败：" + t + "\n\n请截图这段文字发给开发者");
+            err.setTextSize(14);
+            err.setTextColor(0xFFDC2626);
+            err.setPadding(dp(20), dp(40), dp(20), dp(20));
+            host.addView(err, new android.widget.FrameLayout.LayoutParams(
+                    android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                    android.widget.FrameLayout.LayoutParams.WRAP_CONTENT));
+        }
     }
 
     void chip(LinearLayout row, String label, android.view.View.OnClickListener c) {
