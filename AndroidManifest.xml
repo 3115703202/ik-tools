@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.roomarchive.server"
-    android:versionCode="215"
-    android:versionName="4.5.35">
+    android:versionCode="216"
+    android:versionName="4.5.36">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
@@ -259,12 +260,18 @@
         <activity android:name=".HandBulletActivity" android:exported="false"
             android:screenOrientation="landscape" />
         <activity android:name=".AudioDecibelActivity" android:exported="false" />
+        <activity android:name=".ForceRotateActivity" android:screenOrientation="portrait" />
+        <activity android:name=".FpsActivity" android:screenOrientation="portrait" />
+        <activity android:name=".SecurityShieldActivity" android:screenOrientation="portrait" />
+        <activity android:name=".PetActivity" android:screenOrientation="portrait" />
         <activity android:name=".LensActivity" android:screenOrientation="portrait" />
         <activity android:name=".ObjectDetectActivity" android:exported="false" />
         <activity android:name=".SimCallActivity" android:exported="false"
             android:showWhenLocked="true" android:turnScreenOn="true" android:excludeFromRecents="true" />
         <activity android:name=".IslandActivity" android:exported="false" />
         <service android:name=".IslandService" android:exported="false" />
+        <service android:name=".FpsService" android:exported="false" />
+        <service android:name=".PetService" android:exported="false" />
         <service android:name=".IslandNotificationListener" android:exported="true"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter><action android:name="android.service.notification.NotificationListenerService" /></intent-filter>

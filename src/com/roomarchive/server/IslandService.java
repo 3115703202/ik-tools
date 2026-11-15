@@ -54,6 +54,40 @@ public class IslandService extends Service {
         }
     };
 
+    private final BroadcastReceiver eventRx = new BroadcastReceiver() {
+        @Override public void onReceive(Context c, Intent i) {
+            if (i == null) return;
+            String a = i.getAction();
+            if (Intent.ACTION_SCREEN_OFF.equals(a)) { showTemp("已锁定 · 通知仍会上岛", 0); return; }
+            if (Intent.ACTION_SCREEN_ON.equals(a)) { showTemp("已解锁", 2500); return; }
+            if ("android.media.VOLUME_CHANGED_ACTION".equals(a)) {
+                try {
+                    android.media.AudioManager am = (android.media.AudioManager) getSystemService(AUDIO_SERVICE);
+                    int v = am.getStreamVolume(android.media.AudioManager.STREAM_MUSIC);
+                    int m = am.getStreamMaxVolume(android.media.AudioManager.STREAM_MUSIC);
+                    showTemp("音量 " + (m > 0 ? Math.round(v * 100f / m) : 0) + "%", 2500);
+                } catch (Throwable ignored) {}
+                return;
+            }
+            if ("android.media.RINGER_MODE_CHANGED".equals(a)) {
+                try {
+                    android.media.AudioManager am = (android.media.AudioManager) getSystemService(AUDIO_SERVICE);
+                    int mode = am.getRingerMode();
+                    showTemp(mode == android.media.AudioManager.RINGER_MODE_SILENT ? "静音模式" :
+                            mode == android.media.AudioManager.RINGER_MODE_VIBRATE ? "震动模式" : "响铃模式", 2500);
+                } catch (Throwable ignored) {}
+            }
+        }
+    };
+
+    private void showTemp(String text, long restoreMs) {
+        if (timeView == null) return;
+        timeView.setText(text);
+        ui.removeCallbacks(restoreClock);
+        if (restoreMs <= 0) return;
+        ui.postDelayed(restoreClock, restoreMs);
+    }
+
     private final BroadcastReceiver islandRx = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) {
             if (i == null) return;
@@ -108,6 +142,12 @@ public class IslandService extends Service {
         f.addAction("com.roomarchive.server.ISLAND_NOTIFY");
         f.addAction("com.roomarchive.server.ISLAND_FOREGROUND");
         registerReceiver(islandRx, f);
+        IntentFilter sf = new IntentFilter();
+        sf.addAction(Intent.ACTION_SCREEN_ON);
+        sf.addAction(Intent.ACTION_SCREEN_OFF);
+        sf.addAction("android.media.VOLUME_CHANGED_ACTION");
+        sf.addAction("android.media.RINGER_MODE_CHANGED");
+        registerReceiver(eventRx, sf);
         ui.post(clock);
         running = true;
     }
@@ -239,7 +279,8 @@ public class IslandService extends Service {
         expanded = !expanded;
         detailBox.setVisibility(expanded ? View.VISIBLE : View.GONE);
         WindowManager.LayoutParams lp = (WindowManager.LayoutParams) island.getLayoutParams();
-        lp.width = dp(expanded ? 272 : 156);
+        SharedPreferences sp = getSharedPreferences(PREFS, MODE_PRIVATE);
+        lp.width = dp(expanded ? sp.getInt("exp_w", 272) : sp.getInt("cap_w", 156));
         try { wm.updateViewLayout(island, lp); } catch (Throwable ignored) {}
         applyVisibility();
     }
@@ -283,6 +324,7 @@ public class IslandService extends Service {
         ui.removeCallbacksAndMessages(null);
         try { unregisterReceiver(batteryRx); } catch (Throwable ignored) {}
         try { unregisterReceiver(islandRx); } catch (Throwable ignored) {}
+        try { unregisterReceiver(eventRx); } catch (Throwable ignored) {}
         try { if (island != null && wm != null) wm.removeView(island); } catch (Throwable ignored) {}
         island = null;
         running = false;

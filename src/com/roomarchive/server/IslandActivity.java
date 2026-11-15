@@ -226,6 +226,29 @@ public class IslandActivity extends Activity {
         addSwitch("响铃/静音时显示", "ringer", false);
         addSwitch("解锁时显示", "unlock", false);
         addSwitch("锁屏时显示", "lock", false);
+        TextView size = new TextView(this);
+        size.setText("外观尺寸");
+        size.setTextSize(18); size.setTextColor(0xFF111114); size.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        size.setPadding(0, dp(18), 0, dp(4)); settingsBox.addView(size);
+        addSeek("紧凑胶囊宽度", "cap_w", 110, 230, 156);
+        addSeek("展开卡片宽度", "exp_w", 220, 380, 272);
+    }
+
+    private void addSeek(String label, String key, int min, int max, int def) {
+        TextView l = new TextView(this); l.setText(label); l.setTextSize(13); l.setTextColor(0xFF6B6B75); l.setPadding(0, dp(10), 0, 0); settingsBox.addView(l);
+        android.widget.SeekBar sb = new android.widget.SeekBar(this);
+        sb.setMax(max - min);
+        sb.setProgress(Math.max(0, getSharedPreferences("ik_island", MODE_PRIVATE).getInt(key, def) - min));
+        sb.setPadding(0, dp(6), 0, dp(6));
+        sb.setOnSeekBarChangeListener(new android.widget.SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(android.widget.SeekBar bar, int p, boolean fromUser) {
+                getSharedPreferences("ik_island", MODE_PRIVATE).edit().putInt(key, min + p).apply();
+                sendBroadcast(new Intent("com.roomarchive.server.ISLAND_RESIZE").setPackage(getPackageName()));
+            }
+            public void onStartTrackingTouch(android.widget.SeekBar bar) {}
+            public void onStopTrackingTouch(android.widget.SeekBar bar) {}
+        });
+        settingsBox.addView(sb);
     }
 
     private void addSwitch(String label, String key, boolean def) {

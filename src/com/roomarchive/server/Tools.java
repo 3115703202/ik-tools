@@ -82,6 +82,8 @@ public class Tools {
             // ===== 工具栏 =====
             new Tool("lens", "看见", "objdetect", "LENS 网页版 · 实时识别 · 摄像头", 0xFF14B8A6,
                     LensActivity.class, true, SEC_TOOL),
+            new Tool("godmode", "上帝模式", "objdetect", "看见同款 LENS 网页 · 实时识别", 0xFFF59E0B,
+                    LensActivity.class, true, SEC_TOOL),
             new Tool("objdetect", "物体识别", "objdetect", "实时识别人物车辆 · AI本地推理", 0xFF0EA5E9,
                     ObjectDetectActivity.class, true, SEC_TOOL),
             new Tool("simcall", "模拟通话", "phone", "悬浮来电界面 · 铃声/接听/挂断 · 纯娱乐", 0xFF16A34A,
@@ -130,6 +132,14 @@ public class Tools {
                     AudioTrimActivity.class, true, SEC_TOOL),
             new Tool("metal", "金属探测", "metal", "磁力计探测 · 声音+震动反馈", 0xFFF59E0B,
                     MetalDetectorActivity.class, true, SEC_TOOL),
+            new Tool("rotate", "强制横屏", "device", "改系统旋转锁 · 全局生效", 0xFF0EA5E9,
+                    ForceRotateActivity.class, true, SEC_TOOL),
+            new Tool("fps", "帧率监测", "device", "悬浮 FPS / 帧耗时 · 游戏用", 0xFF22C55E,
+                    FpsActivity.class, true, SEC_TOOL),
+            new Tool("shield", "安全护盾", "shield", "本机扫描敏感权限 · 不上传", 0xFFEF4444,
+                    SecurityShieldActivity.class, true, SEC_TOOL),
+            new Tool("pet", "桌面宠物", "device", "液态小龙 · 桌面悬浮可拖动", 0xFF14B8A6,
+                    PetActivity.class, true, SEC_TOOL),
             new Tool("sensor", "传感器工具箱", "sensor", "指南针 · 水平仪 · 手电筒", 0xFF0D9488,
                     SensorToolsActivity.class, true, SEC_TOOL),
 

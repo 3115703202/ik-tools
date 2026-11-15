@@ -136,6 +136,7 @@ public class AboutActivity extends BaseActivity {
         card.setPadding(dp(14), dp(12), dp(14), dp(12));
 
         card.addView(groupTitle("最新"));
+        card.addView(timelineRow(accent, "v4.5.36", "新增上帝模式（看见同款 LENS 网页）、强制横屏、帧率悬浮监测、安全护盾本机权限扫描、桌面宠物；灵动岛补外观尺寸滑杆与音量/响铃/解锁/锁屏事件上岛"));
         card.addView(timelineRow(accent, "v4.5.35", "官网全面重做：深色系统级视觉，真实能力优先，补齐本地 AI 模型表与更新记录；代码保持真实 Telecom 来电、灵动岛 5/5 权限、4 模型切换"));
         card.addView(timelineRow(accent, "v4.5.34", "模拟通话改为真实注册 PhoneAccount（self-managed），通过 TelecomManager 发起来电并回调接听/挂断；灵动岛补齐 5/5 权限门禁与通知监听、无障碍、电池白名单；本地 AI 增加模型切换与 4 个 GGUF 模型下载，推理降到 160 tokens、1024 上下文、6 线程以压缩首响应时间"));
         card.addView(timelineRow(accent, "v4.5.33", "新增「看见」本机视觉入口、悬浮窗版「模拟通话」、免无障碍的「灵动岛」；本地 AI 换成白底绿色对话界面：模型状态栏、四张推荐问题卡、左右气泡、底部模型市场/对话导航"));
