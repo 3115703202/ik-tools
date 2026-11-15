@@ -169,6 +169,7 @@ public class LocalAiActivity extends BaseActivity {
         sendBtn.setOnClickListener(v -> send());
 
         scroll = sv;
+        setContentView(sv);
         refreshState();
     }
 

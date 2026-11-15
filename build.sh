@@ -120,9 +120,9 @@ if [ ! -f keystore/debug.keystore ]; then
 fi
 $BT/apksigner sign \
   --ks keystore/debug.keystore --ks-pass pass:android --key-pass pass:android \
-  --out output/IK工具箱-v4.5.23.apk \
+  --out output/IK工具箱-v4.5.24.apk \
   build/apk/app-aligned.apk
 
 echo ""
-echo "✅ APK 生成：$(pwd)/output/IK工具箱-v4.5.23.apk"
+echo "✅ APK 生成：$(pwd)/output/IK工具箱-v4.5.24.apk"
 ls -la output/
