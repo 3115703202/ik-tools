@@ -37,6 +37,7 @@ public class DownloadActivity extends Activity {
     @Override
     protected void onCreate(Bundle s) {
         super.onCreate(s);
+        FileStore.ensurePermission(this);
         Tools.applyStatusBar(this);
         ScrollView sv = new ScrollView(this);
         listRoot = new LinearLayout(this);
@@ -294,7 +295,8 @@ public class DownloadActivity extends Activity {
         try {
             Intent i = new Intent(Intent.ACTION_VIEW);
             String type = f.getName().endsWith(".apk") ? "application/vnd.android.package-archive" : "*/*";
-            i.setDataAndType(Uri.fromFile(f), type);
+            i.setDataAndType(IkFileProvider.uriFor(this, f), type);
+            i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
         } catch (Exception e) {

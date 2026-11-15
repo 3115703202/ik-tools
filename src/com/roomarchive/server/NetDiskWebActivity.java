@@ -263,7 +263,8 @@ public class NetDiskWebActivity extends Activity {
         b.setPositiveButton("打开", (d, w) -> {
             try {
                 Intent it = new Intent(Intent.ACTION_VIEW);
-                it.setDataAndType(Uri.fromFile(f), guessMime(f.getName()));
+                it.setDataAndType(IkFileProvider.uriFor(this, f), guessMime(f.getName()));
+                it.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 it.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(it);
             } catch (Throwable e) {

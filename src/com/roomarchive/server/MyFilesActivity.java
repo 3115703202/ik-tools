@@ -37,6 +37,7 @@ public class MyFilesActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FileStore.ensurePermission(this);
         dir = FileStore.outDir(this);
         buildUi();
         refresh();
@@ -90,15 +91,18 @@ public class MyFilesActivity extends BaseActivity {
         listBox.removeAllViews();
         // 合并：主目录 + 旧下载目录（兼容v3.3之前的下载文件）
         java.util.List<File> all = new java.util.ArrayList<>();
-        File[] f1 = dir.listFiles();
-        if (f1 != null) java.util.Collections.addAll(all, f1);
-        File oldDir = getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS);
-        if (oldDir != null && !oldDir.equals(dir)) {
-            File[] f2 = oldDir.listFiles();
-            if (f2 != null) java.util.Collections.addAll(all, f2);
+        java.util.HashSet<String> seen = new java.util.HashSet<>();
+        for (File d : FileStore.allDirs(this)) {
+            File[] fs = d.listFiles();
+            if (fs == null) continue;
+            for (File f : fs) {
+                if (f.isDirectory() || f.getName().startsWith(".ik_probe")) continue;
+                if (seen.add(f.getAbsolutePath())) all.add(f);
+            }
         }
         if (all.isEmpty()) {
-            statusView.setText("目录：\n" + dir.getAbsolutePath() + "\n\n（还没有文件，去各工具里保存/提取产物吧）");
+            statusView.setText("目录：\n" + FileStore.outDir(this).getAbsolutePath()
+                    + "\n\n（还没有文件，去各工具里保存/提取产物吧）");
             statusView.setTextColor(Tools.subTextColor(this));
             return;
         }
@@ -109,7 +113,8 @@ public class MyFilesActivity extends BaseActivity {
                 return Long.compare(b.lastModified(), a.lastModified());
             }
         });
-        statusView.setText("共 " + files.length + " 个文件 · 点文件分享 · 长按删除");
+        statusView.setText("共 " + files.length + " 个文件 · 点文件分享 · 长按删除\n"
+                + FileStore.outDir(this).getAbsolutePath());
         statusView.setTextColor(Tools.textColor(this));
         for (final File f : files) {
             listBox.addView(fileRow(f));
@@ -187,11 +192,20 @@ public class MyFilesActivity extends BaseActivity {
         b.setPositiveButton("删除", new android.content.DialogInterface.OnClickListener() {
             @Override
             public void onClick(android.content.DialogInterface d, int which) {
-                if (f.delete()) {
+                boolean ok = f.delete();
+                if (!ok && !FileStore.hasStoragePermission(MyFilesActivity.this)) {
+                    // 没存储权限时公共下载目录删不掉，先要权限再让用户重试
+                    FileStore.ensurePermission(MyFilesActivity.this);
+                    Toast.makeText(MyFilesActivity.this, "需要存储权限才能删除，已弹出授权，允许后再删一次",
+                            Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if (ok || !f.exists()) {
                     Toast.makeText(MyFilesActivity.this, "已删除", Toast.LENGTH_SHORT).show();
                     refresh();
                 } else {
-                    Toast.makeText(MyFilesActivity.this, "删除失败", Toast.LENGTH_SHORT).show();
+                    String why = f.canWrite() ? "文件被其它应用占用" : "该目录只读，需要在系统设置里给存储权限";
+                    Toast.makeText(MyFilesActivity.this, "删除失败：" + why, Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -199,34 +213,22 @@ public class MyFilesActivity extends BaseActivity {
         b.show();
     }
 
+    @Override
+    public void onRequestPermissionsResult(int code, String[] perms, int[] granted) {
+        super.onRequestPermissionsResult(code, perms, granted);
+        if (code == 3001) refresh();
+    }
+
     /** 分享文件：Android 10+ 通过 MediaStore 生成 uri；旧版本提示用文件管理器 */
     private void shareFile(final File f) {
         try {
-            if (Build.VERSION.SDK_INT >= 29) {
-                ContentValues cv = new ContentValues();
-                cv.put(MediaStore.MediaColumns.DISPLAY_NAME, f.getName());
-                cv.put(MediaStore.MediaColumns.MIME_TYPE, mimeOf(f.getName()));
-                Uri collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
-                Uri item = getContentResolver().insert(collection, cv);
-                if (item == null) throw new Exception("无法创建分享入口");
-                OutputStream os = getContentResolver().openOutputStream(item);
-                FileInputStream is = new FileInputStream(f);
-                byte[] buf = new byte[65536];
-                int n;
-                while ((n = is.read(buf)) > 0) os.write(buf, 0, n);
-                os.flush();
-                os.close();
-                is.close();
-
-                Intent it = new Intent(Intent.ACTION_SEND);
-                it.setType(mimeOf(f.getName()));
-                it.putExtra(Intent.EXTRA_STREAM, item);
-                it.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                startActivity(Intent.createChooser(it, "分享「" + f.getName() + "」"));
-            } else {
-                Toast.makeText(this, "Android 9 及以下：请到文件管理器 Android/data/com.roomarchive.server/files/IK工具箱 查看该文件",
-                        Toast.LENGTH_LONG).show();
-            }
+            android.net.Uri uri = IkFileProvider.uriFor(this, f);
+            if (uri == null) throw new Exception("无法生成分享链接");
+            Intent it = new Intent(Intent.ACTION_SEND);
+            it.setType(mimeOf(f.getName()));
+            it.putExtra(Intent.EXTRA_STREAM, uri);
+            it.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(it, "分享「" + f.getName() + "」"));
         } catch (Exception e) {
             Toast.makeText(this, "分享失败：" + e.getMessage(), Toast.LENGTH_LONG).show();
         }

@@ -46,6 +46,7 @@ public class NetDiskActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FileStore.ensurePermission(this);
         buildUi();
         // 分享面板进来的：从其他App分享文本
         Intent it = getIntent();

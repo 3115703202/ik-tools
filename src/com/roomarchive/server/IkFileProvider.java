@@ -26,7 +26,11 @@ public class IkFileProvider extends ContentProvider {
     public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
         File base;
         String path = uri.getPath() == null ? "" : uri.getPath();
-        if (path.startsWith("/dl/")) {
+        if (path.startsWith("/pub/")) {
+            // 公共下载目录：Download/IK工具箱（v4.5.7 起产物默认落这里）
+            base = FileStore.publicDir(getContext());
+            if (base == null) throw new FileNotFoundException("public dir missing");
+        } else if (path.startsWith("/dl/")) {
             base = getContext() == null ? null : getContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
             if (base == null) base = getContext() == null ? null : getContext().getFilesDir();
         } else {
@@ -39,6 +43,30 @@ public class IkFileProvider extends ContentProvider {
         File f = new File(base, name);
         if (!f.exists()) throw new FileNotFoundException("file missing: " + name);
         return ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_READ_ONLY);
+    }
+
+    /** 为任意文件生成可分享的 content:// uri（公共目录直接映射，其它目录先拷到缓存） */
+    public static Uri uriFor(android.content.Context c, File f) {
+        try {
+            File pub = FileStore.publicDir(c);
+            if (pub != null && f.getParentFile() != null
+                    && f.getParentFile().getAbsolutePath().equals(pub.getAbsolutePath())) {
+                return Uri.parse("content://com.roomarchive.server.files/pub/" + Uri.encode(f.getName()));
+            }
+            File cache = new File(c.getCacheDir(), f.getName());
+            if (!cache.exists() || cache.length() != f.length()) {
+                java.io.FileInputStream in = new java.io.FileInputStream(f);
+                java.io.FileOutputStream out = new java.io.FileOutputStream(cache);
+                byte[] b = new byte[65536];
+                int n;
+                while ((n = in.read(b)) > 0) out.write(b, 0, n);
+                in.close();
+                out.close();
+            }
+            return Uri.parse("content://com.roomarchive.server.files/share/" + Uri.encode(f.getName()));
+        } catch (Throwable t) {
+            return null;
+        }
     }
 
     @Override

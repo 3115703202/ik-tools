@@ -383,7 +383,8 @@ public class AboutActivity extends BaseActivity {
                                                 pd.dismiss();
                                                 Toast.makeText(this, "下载完成，正在安装...", Toast.LENGTH_LONG).show();
                                                 Intent install = new Intent(Intent.ACTION_VIEW);
-                                                install.setDataAndType(android.net.Uri.fromFile(out), "application/vnd.android.package-archive");
+                                                install.setDataAndType(IkFileProvider.uriFor(this, out), "application/vnd.android.package-archive");
+                                                install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                                                 install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                                 startActivity(install);
                                             });
