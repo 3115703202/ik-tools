@@ -22,7 +22,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -33,38 +32,41 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
- * 自动点击器（悬浮宏版）：每个点独立延时，一轮内按各自节奏依次落下，
- * 循环按「轮」执行，可存方案。
+ * 自动点击器（悬浮宏版）
+ * 修复点：拾取层挡住面板 / 圆点拖完误弹窗 / 状态刷新递归 / 手势超时限 / 长延时点被丢
  */
 public class AutoClickActivity extends Activity {
 
     private static final String PREF = "ik_autoclick";
+    private static final int MAX_STROKES = 8;        // 单次手势最多手指/笔画
+    private static final long SEG_MAX = 850;         // 单次手势最长 850ms，留余量
 
     private TextView status;
     private WindowManager wm;
     private boolean panelShown = false;
 
     private LinearLayout panel, settingsRow;
-    private TextView speedText, countText, startBtn, addBtn, gearBtn;
+    private TextView speedText, countText, startBtn, addBtn;
+    private WindowManager.LayoutParams panelLp;
     private View addLayer;
 
     private final List<View> markers = new ArrayList<>();
     private final List<Point> pts = new ArrayList<>();
-    private long hold = 60;      // 每次按下时长
-    private int loop = 0;        // 0 = 无限
+    private long hold = 60;
+    private int loop = 0;
     private boolean running = false;
     private boolean addMode = false;
     private long clicked = 0;
     private long rounds = 0;
     private final Handler ui = new Handler(Looper.getMainLooper());
     private Runnable task;
+    private int retryCount = 0;
 
     static class Point {
         float x, y;
-        long delay;   // 相对上一动作的间隔
+        long delay;
         Point(float x, float y, long d) { this.x = x; this.y = y; this.delay = d; }
     }
 
@@ -76,11 +78,10 @@ public class AutoClickActivity extends Activity {
         root.setPadding(dp(18), dp(26), dp(18), dp(24));
         root.setBackground(Tools.bgWithGlow(this));
 
-        TextView title = Tools.pageTitle(this, "自动点击器");
-        root.addView(title);
+        root.addView(Tools.pageTitle(this, "自动点击器"));
 
         TextView sub = new TextView(this);
-        sub.setText("悬浮面板 · 多点连点 · 每点独立延时");
+        sub.setText("悬浮面板 · 多点宏 · 每点独立延时");
         sub.setTextSize(12);
         sub.setTextColor(Tools.subTextColor(this));
         sub.setPadding(0, dp(6), 0, dp(14));
@@ -93,7 +94,7 @@ public class AutoClickActivity extends Activity {
         status.setBackground(Tools.liquidGlassCard(this, 16));
         root.addView(status);
 
-        root.addView(btn("① 开启无障碍服务（点按手势靠它）", true, v ->
+        root.addView(btn("① 开启无障碍服务（点击靠它下发）", true, v ->
                 startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))), gap(12));
         root.addView(btn("② 允许悬浮窗", false, v -> {
             if (!Settings.canDrawOverlays(this)) {
@@ -113,9 +114,9 @@ public class AutoClickActivity extends Activity {
         }), gap(10));
 
         TextView tip = new TextView(this);
-        tip.setText("· 面板上「＋」后点屏幕落点，点可拖动，长按可改间隔/删除\n"
-                + "· 「▶」开始，一轮里按每个点自己的延时依次点击\n"
-                + "· 面板能拖到边上，退到后台继续点；「✕」停止并收起");
+        tip.setText("· 面板「＋」进入拾取，点屏幕落点；再点「✓」退出拾取\n"
+                + "· 圆点拖动改位置，点一下圆点改这个点的间隔或删除\n"
+                + "· 「▶」开始，面板可折叠/拖动，退后台继续点；「✕」停止收起");
         tip.setTextSize(12);
         tip.setTextColor(Tools.subTextColor(this));
         tip.setLineSpacing(dp(5), 1f);
@@ -144,23 +145,30 @@ public class AutoClickActivity extends Activity {
     }
 
     private LinearLayout.LayoutParams gap(int top) {
-        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        p.topMargin = dp(top);
-        return p;
+        return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT) {{ topMargin = dp(top); }};
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        refreshStatus();
+    }
+
+    private void refreshStatus() {
         boolean a = isAccessEnabled();
         boolean o = Settings.canDrawOverlays(this);
-        status.setText((a ? "✅ 无障碍已开启" : "❌ 无障碍未开启") + "    " + (o ? "✅ 悬浮窗已允许" : "❌ 悬浮窗未允许")
-                + "\n已存 " + pts.size() + " 个点击点 · 长按时长 " + hold + "ms");
+        status.setText((a ? "✅ 无障碍已开启" : "❌ 无障碍未开启")
+                + "    " + (o ? "✅ 悬浮窗已允许" : "❌ 悬浮窗未允许")
+                + "\n" + (a && !AutoClickService.ready()
+                ? "服务还没连上，关掉再重开一次无障碍开关"
+                : "已存 " + pts.size() + " 个点 · 按住 " + hold + "ms")
+                + " · " + (loop == 0 ? "无限循环" : "循环 " + loop + " 轮"));
         status.setTextColor(a && o ? Tools.textColor(this) : 0xFFB44A4A);
-        if (a && !AutoClickService.ready()) {
-            // 服务刚被打开时可能还没连上，稍后再刷一次
-            ui.postDelayed(this::onResume, 1200);
+        // 只重试 3 次，绝不递归自己
+        if (a && !AutoClickService.ready() && retryCount < 3) {
+            retryCount++;
+            ui.postDelayed(this::refreshStatus, 1000);
         }
     }
 
@@ -176,7 +184,9 @@ public class AutoClickActivity extends Activity {
 
     // ---------------- 悬浮面板 ----------------
     private void showPanel() {
-        wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+        if (panelShown) return;
+        if (wm == null) wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+
         panel = new LinearLayout(this);
         panel.setOrientation(LinearLayout.VERTICAL);
         GradientDrawable bg = new GradientDrawable();
@@ -185,9 +195,7 @@ public class AutoClickActivity extends Activity {
         bg.setStroke(dp(1), 0x5534D399);
         panel.setBackground(bg);
         panel.setPadding(dp(8), dp(8), dp(8), dp(8));
-        Tools.setElevation(panel, 10);
 
-        // 第一行：拖动 + 加 + 启停 + 速度 + 设置 + 关闭
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
@@ -196,7 +204,7 @@ public class AutoClickActivity extends Activity {
         drag.setText("⠿");
         drag.setTextColor(0xFF9AD9C6);
         drag.setTextSize(17);
-        drag.setPadding(dp(8), 0, dp(8), 0);
+        drag.setPadding(dp(8), dp(4), dp(8), dp(4));
         row.addView(drag);
 
         addBtn = pill("＋", 0xFF1F7A6A);
@@ -209,21 +217,22 @@ public class AutoClickActivity extends Activity {
 
         speedText = new TextView(this);
         speedText.setTextColor(Color.WHITE);
-        speedText.setTextSize(11);
+        speedText.setTextSize(10);
         speedText.setGravity(Gravity.CENTER);
-        row.addView(speedText, box(70, 38));
+        speedText.setText("—");
+        row.addView(speedText, box(64, 38));
 
-        gearBtn = pill("⚙", 0xFF39424E);
-        gearBtn.setOnClickListener(v -> settingsRow.setVisibility(
+        TextView gear = pill("⚙", 0xFF39424E);
+        gear.setTextSize(14);
+        gear.setOnClickListener(v -> settingsRow.setVisibility(
                 settingsRow.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE));
-        row.addView(gearBtn, box(40, 38));
+        row.addView(gear, box(40, 38));
 
         TextView close = pill("✕", 0xFF444C55);
         close.setOnClickListener(v -> hidePanel());
         row.addView(close, box(38, 38));
         panel.addView(row);
 
-        // 第二行：设置（默认折叠）
         settingsRow = new LinearLayout(this);
         settingsRow.setOrientation(LinearLayout.VERTICAL);
         settingsRow.setVisibility(View.GONE);
@@ -232,18 +241,34 @@ public class AutoClickActivity extends Activity {
         r2.setOrientation(LinearLayout.HORIZONTAL);
         r2.setGravity(Gravity.CENTER_VERTICAL);
         r2.setPadding(0, dp(6), 0, 0);
-        r2.addView(step("按住", v -> { hold = hold >= 400 ? 50 : hold + 50; refresh(); saveConfig(); }),
-                box(72, 34));
-        r2.addView(step("循环", v -> { loop = loop >= 20 ? 0 : loop + 5; refresh(); saveConfig(); }),
-                box(72, 34));
+        r2.addView(step("按住 " + hold + "ms", v -> {
+            hold = hold >= 400 ? 50 : hold + 50;
+            rebuildSettings(r2);
+        }), box(0, 34, 1));
+        r2.addView(step(loop == 0 ? "循环 ∞" : "循环 " + loop, v -> {
+            loop = loop >= 20 ? 0 : loop + 5;
+            rebuildSettings(r2);
+        }), box(0, 34, 1));
+        r2.addView(step("清空点", v -> {
+            new AlertDialog.Builder(this).setTitle("清空全部点击点")
+                    .setPositiveButton("清空", (d, w) -> {
+                        pts.clear(); redrawMarkers(); refresh(); saveConfig();
+                    }).setNegativeButton("取消", null).show();
+        }), box(0, 34, 1));
+        settingsRow.addView(r2);
+
+        LinearLayout r3 = new LinearLayout(this);
+        r3.setOrientation(LinearLayout.HORIZONTAL);
+        r3.setGravity(Gravity.CENTER_VERTICAL);
         TextView profile = pill("存方案", 0xFF2C3A46);
         profile.setTextSize(11);
         profile.setOnClickListener(v -> saveProfileDialog());
-        LinearLayout.LayoutParams pp = box(0, 34);
-        pp.weight = 1;
-        pp.leftMargin = dp(4);
-        r2.addView(profile, pp);
-        settingsRow.addView(r2);
+        r3.addView(profile, box(0, 34, 1));
+        TextView loadProf = pill("载入", 0xFF2C3A46);
+        loadProf.setTextSize(11);
+        loadProf.setOnClickListener(v -> loadProfileDialog());
+        r3.addView(loadProf, box(0, 34, 1));
+        settingsRow.addView(r3);
 
         countText = new TextView(this);
         countText.setTextColor(0xFFAFB8C1);
@@ -252,19 +277,18 @@ public class AutoClickActivity extends Activity {
         settingsRow.addView(countText);
         panel.addView(settingsRow);
 
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
+        panelLp = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
                 Build.VERSION.SDK_INT >= 26 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
                         : WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                         | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
                 PixelFormat.TRANSLUCENT);
-        lp.gravity = Gravity.TOP | Gravity.RIGHT;
-        SharedPreferences sp = getSharedPreferences(PREF, MODE_PRIVATE);
-        lp.x = dp(8);
-        lp.y = sp.getInt("panelY", dp(140));
+        panelLp.gravity = Gravity.TOP | Gravity.RIGHT;
+        panelLp.x = dp(8);
+        panelLp.y = getSharedPreferences(PREF, MODE_PRIVATE).getInt("panelY", dp(140));
 
-        final WindowManager.LayoutParams flp = lp;
+        final WindowManager.LayoutParams flp = panelLp;
         drag.setOnTouchListener(new View.OnTouchListener() {
             float downX, downY;
             int ox, oy;
@@ -278,14 +302,16 @@ public class AutoClickActivity extends Activity {
                     flp.y = oy + (int) (e.getRawY() - downY);
                     try { wm.updateViewLayout(panel, flp); } catch (Throwable ignored) {}
                     return true;
-                } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                } else if (e.getAction() == MotionEvent.ACTION_UP
+                        || e.getAction() == MotionEvent.ACTION_CANCEL) {
                     getSharedPreferences(PREF, MODE_PRIVATE).edit().putInt("panelY", flp.y).apply();
+                    return true;
                 }
                 return false;
             }
         });
         try {
-            wm.addView(panel, lp);
+            wm.addView(panel, panelLp);
         } catch (Throwable t) {
             toast("面板加不上：" + t.getMessage());
             panel = null;
@@ -294,6 +320,26 @@ public class AutoClickActivity extends Activity {
         panelShown = true;
         refresh();
         redrawMarkers();
+    }
+
+    private void rebuildSettings(LinearLayout r2) {
+        r2.removeAllViews();
+        r2.addView(step("按住 " + hold + "ms", v -> {
+            hold = hold >= 400 ? 50 : hold + 50;
+            rebuildSettings(r2);
+        }), box(0, 34, 1));
+        r2.addView(step(loop == 0 ? "循环 ∞" : "循环 " + loop, v -> {
+            loop = loop >= 20 ? 0 : loop + 5;
+            rebuildSettings(r2);
+        }), box(0, 34, 1));
+        r2.addView(step("清空点", v -> {
+            new AlertDialog.Builder(this).setTitle("清空全部点击点")
+                    .setPositiveButton("清空", (d, w) -> {
+                        pts.clear(); redrawMarkers(); refresh(); saveConfig();
+                    }).setNegativeButton("取消", null).show();
+        }), box(0, 34, 1));
+        refresh();
+        saveConfig();
     }
 
     private TextView pill(String text, int color) {
@@ -315,6 +361,7 @@ public class AutoClickActivity extends Activity {
         t.setTextColor(0xFF9AD9C6);
         t.setTextSize(11);
         t.setGravity(Gravity.CENTER);
+        t.setSingleLine(true);
         GradientDrawable g = new GradientDrawable();
         g.setColor(0xFF232B33);
         g.setCornerRadius(dp(9));
@@ -324,7 +371,12 @@ public class AutoClickActivity extends Activity {
     }
 
     private LinearLayout.LayoutParams box(int w, int h) {
+        return box(w, h, 0);
+    }
+
+    private LinearLayout.LayoutParams box(int w, int h, float weight) {
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(dp(w), dp(h));
+        p.weight = weight;
         p.leftMargin = dp(4);
         return p;
     }
@@ -342,11 +394,10 @@ public class AutoClickActivity extends Activity {
 
     private void refresh() {
         if (speedText == null) return;
-        long cycle = cycle();
-        speedText.setText(cycle > 0 ? (60000 / Math.max(1, cycle)) + "轮/分" : "—");
+        long cyc = cycle();
+        speedText.setText((60000 / Math.max(60, cyc)) + "轮/分");
         if (countText != null) {
-            countText.setText("已点 " + clicked + " 次 · " + rounds + " 轮 · 按住 " + hold + "ms · "
-                    + (loop == 0 ? "无限循环" : loop + " 轮"));
+            countText.setText("已点 " + clicked + " · " + rounds + " 轮 · 一轮 " + cyc + "ms");
         }
         if (startBtn != null) startBtn.setText(running ? "■" : "▶");
         if (addBtn != null) addBtn.setText(addMode ? "✓" : "＋");
@@ -354,9 +405,8 @@ public class AutoClickActivity extends Activity {
 
     private long cycle() {
         long c = 0;
-        for (Point p : pts) c += p.delay;
-        if (c < 60) c = 60;
-        return c;
+        for (Point p : pts) c += Math.max(20, p.delay);
+        return Math.max(60, c);
     }
 
     // ---------------- 落点 ----------------
@@ -366,16 +416,18 @@ public class AutoClickActivity extends Activity {
 
     private void enterAddMode() {
         if (running) stopRun(true);
+        if (wm == null) wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         addMode = true;
         addLayer = new View(this);
         addLayer.setBackgroundColor(0x33000000);
         addLayer.setOnTouchListener((v, e) -> {
             if (e.getAction() == MotionEvent.ACTION_UP) {
+                if (pts.size() >= 10) { toast("最多 10 个点，再多手势不稳"); return true; }
                 pts.add(new Point(e.getRawX(), e.getRawY(), 120));
                 redrawMarkers();
                 refresh();
                 saveConfig();
-                toast("已加第 " + pts.size() + " 个点（默认间隔 120ms，长按可改）");
+                toast("已加第 " + pts.size() + " 个点");
             }
             return true;
         });
@@ -386,9 +438,21 @@ public class AutoClickActivity extends Activity {
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                         | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
                 PixelFormat.TRANSLUCENT);
-        try { wm.addView(addLayer, lp); } catch (Throwable t) {
+        try {
+            // 关键修复：先把面板摘掉，按「层 → 面板 → 点」顺序重挂，面板才点得到
+            if (panel != null && panelShown) {
+                try { wm.removeView(panel); } catch (Throwable ignored) {}
+            }
+            wm.addView(addLayer, lp);
+            if (panel != null && panelShown) wm.addView(panel, panelLp);
+            removeMarkers();
+            redrawMarkers();
+        } catch (Throwable t) {
             toast("加不了点：" + t.getMessage());
             addMode = false;
+            if (panel != null && panelShown) {
+                try { wm.addView(panel, panelLp); } catch (Throwable ignored) {}
+            }
             return;
         }
         refresh();
@@ -401,12 +465,13 @@ public class AutoClickActivity extends Activity {
             try { wm.removeView(addLayer); } catch (Throwable ignored) {}
         }
         addLayer = null;
+        try { if (panel != null) wm.updateViewLayout(panel, panelLp); } catch (Throwable ignored) {}
         refresh();
     }
 
     private void redrawMarkers() {
         removeMarkers();
-        if (wm == null || panel == null) return;
+        if (wm == null || !panelShown || panel == null) return;
         for (int i = 0; i < pts.size(); i++) {
             final int idx = i;
             final Point p = pts.get(i);
@@ -420,38 +485,39 @@ public class AutoClickActivity extends Activity {
             g.setColor(0xD9E04A4A);
             g.setStroke(dp(2), 0xFFFFFFFF);
             dot.setBackground(g);
-            dot.setElevation(dp(4));
 
             WindowManager.LayoutParams lp = markerParams((int) p.x, (int) p.y);
-
             final WindowManager.LayoutParams dlp = lp;
+
             dot.setOnTouchListener(new View.OnTouchListener() {
                 float dx, dy;
                 int ox, oy;
-                long downAt;
+                boolean moved;
                 @Override
                 public boolean onTouch(View v, MotionEvent e) {
                     if (e.getAction() == MotionEvent.ACTION_DOWN) {
                         dx = e.getRawX(); dy = e.getRawY(); ox = dlp.x; oy = dlp.y;
-                        downAt = System.currentTimeMillis();
+                        moved = false;
                         return true;
                     } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
-                        dlp.x = ox + (int) (e.getRawX() - dx);
-                        dlp.y = oy + (int) (e.getRawY() - dy);
+                        int nx = ox + (int) (e.getRawX() - dx);
+                        int ny = oy + (int) (e.getRawY() - dy);
+                        if (Math.abs(nx - ox) > dp(6) || Math.abs(ny - oy) > dp(6)) moved = true;
+                        dlp.x = nx;
+                        dlp.y = ny;
                         try { wm.updateViewLayout(v, dlp); } catch (Throwable ignored) {}
                         p.x = dlp.x + dp(17);
                         p.y = dlp.y + dp(17);
                         return true;
-                    } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                    } else if (e.getAction() == MotionEvent.ACTION_UP
+                            || e.getAction() == MotionEvent.ACTION_CANCEL) {
                         saveConfig();
-                        if (System.currentTimeMillis() - downAt < 400) {
-                            v.performClick();
-                        }
+                        if (!moved && e.getAction() == MotionEvent.ACTION_UP) editPoint(idx);
+                        return true;   // 吞掉 UP，避免又触发一次 click
                     }
                     return false;
                 }
             });
-            dot.setOnClickListener(v -> editPoint(idx));
             try {
                 wm.addView(dot, lp);
                 markers.add(dot);
@@ -468,14 +534,14 @@ public class AutoClickActivity extends Activity {
                         | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
                 PixelFormat.TRANSLUCENT);
         lp.gravity = Gravity.TOP | Gravity.LEFT;
-        lp.x = cx - dp(17);
-        lp.y = cy - dp(17);
+        lp.x = Math.max(0, cx - dp(17));
+        lp.y = Math.max(dp(24), cy - dp(17));   // 别跑到状态栏里，否则点不到
         return lp;
     }
 
     private void editPoint(int idx) {
         if (idx < 0 || idx >= pts.size()) return;
-        Point p = pts.get(idx);
+        final Point p = pts.get(idx);
         LinearLayout box = new LinearLayout(this);
         box.setOrientation(LinearLayout.VERTICAL);
         box.setPadding(dp(20), dp(10), dp(20), 0);
@@ -513,34 +579,60 @@ public class AutoClickActivity extends Activity {
     // ---------------- 运行 ----------------
     private void startRun() {
         if (pts.isEmpty()) { toast("先点「＋」加至少一个点击点"); return; }
+        if (addMode) exitAddMode();
         if (!AutoClickService.ready()) { toast("无障碍没连上，去设置开 IK工具箱 的自动点击服务"); return; }
         stopRun(false);
         running = true;
         clicked = 0;
         rounds = 0;
         refresh();
+
         task = new Runnable() {
             @Override
             public void run() {
                 if (!running) return;
-                boolean ok = AutoClickService.macro(pts, hold);
-                if (ok) {
-                    clicked += pts.size();
-                    rounds++;
-                    if (loop > 0 && rounds >= loop) {
-                        stopRun(true);
-                        toast("跑完 " + loop + " 轮");
-                        return;
-                    }
+                if (!AutoClickService.ready()) {
+                    stopRun(false);
+                    toast("无障碍连接断了，已停止");
+                    return;
+                }
+                // 手势分片下发：单次 ≤850ms、≤8 指，长延时也不会丢点
+                List<Object[]> segs = AutoClickService.buildSegments(pts, hold);
+                boolean any = false;
+                for (final Object[] seg : segs) {
+                    final long off = (Long) seg[1];
+                    final GestureDescription gd = (GestureDescription) seg[0];
+                    ui.postDelayed(() -> {
+                        if (!running) return;
+                        AutoClickService.dispatch(gd);
+                    }, off);
+                    any = true;
+                }
+                if (!any) { stopRun(false); toast("点位参数异常，已停止"); return; }
+                clicked += pts.size();
+                rounds++;
+                if (loop > 0 && rounds >= loop) {
+                    stopRun(true);
+                    toast("跑完 " + loop + " 轮");
+                    return;
                 }
                 refresh();
-                ui.postDelayed(this, Math.max(60, cycle()));
+                // 下一轮至少等本轮手势全部结束
+                long next = Math.max(cycle(), lastOffset(segs) + hold + 40);
+                ui.postDelayed(this, next);
             }
         };
         ui.post(task);
     }
 
+    private long lastOffset(List<Object[]> segs) {
+        long o = 0;
+        for (Object[] s : segs) o = Math.max(o, (Long) s[1]);
+        return o;
+    }
+
     private void stopRun(boolean notify) {
+        boolean was = running;
         running = false;
         if (task != null) ui.removeCallbacks(task);
         refresh();
@@ -557,7 +649,6 @@ public class AutoClickActivity extends Activity {
                 .setPositiveButton("保存", (d, w) -> {
                     String name = ed.getText().toString().trim();
                     if (name.isEmpty()) name = "方案" + System.currentTimeMillis() % 1000;
-                    saveConfig();
                     try {
                         SharedPreferences sp = getSharedPreferences(PREF, MODE_PRIVATE);
                         JSONObject prof = new JSONObject();
@@ -572,6 +663,36 @@ public class AutoClickActivity extends Activity {
                 })
                 .setNegativeButton("取消", null)
                 .show();
+    }
+
+    private void loadProfileDialog() {
+        try {
+            JSONObject all = new JSONObject(getSharedPreferences(PREF, MODE_PRIVATE)
+                    .getString("profiles", "{}"));
+            if (all.length() == 0) { toast("还没存过方案"); return; }
+            List<String> names = new ArrayList<>();
+            for (java.util.Iterator<String> it = all.keys(); it.hasNext(); ) names.add(it.next());
+            String[] arr = names.toArray(new String[0]);
+            new AlertDialog.Builder(this)
+                    .setTitle("载入方案")
+                    .setItems(arr, (d, which) -> {
+                        try {
+                            JSONObject prof = all.getJSONObject(arr[which]);
+                            JSONArray a = prof.getJSONArray("points");
+                            pts.clear();
+                            for (int i = 0; i < a.length(); i++) {
+                                JSONObject o = a.getJSONObject(i);
+                                pts.add(new Point((float) o.getDouble("x"),
+                                        (float) o.getDouble("y"), o.optLong("d", 120)));
+                            }
+                            hold = prof.optLong("hold", 60);
+                            loop = prof.optInt("loop", 0);
+                            redrawMarkers(); refresh(); saveConfig();
+                            toast("已载入 " + arr[which]);
+                        } catch (Throwable ignored) {}
+                    })
+                    .show();
+        } catch (Throwable ignored) {}
     }
 
     private JSONArray ptsJson() {
@@ -590,8 +711,9 @@ public class AutoClickActivity extends Activity {
 
     private void saveConfig() {
         try {
-            SharedPreferences.Editor ed = getSharedPreferences(PREF, MODE_PRIVATE).edit();
-            ed.putString("points", ptsJson().toString()).putLong("hold", hold).putInt("loop", loop).apply();
+            getSharedPreferences(PREF, MODE_PRIVATE).edit()
+                    .putString("points", ptsJson().toString())
+                    .putLong("hold", hold).putInt("loop", loop).apply();
         } catch (Throwable ignored) {}
     }
 
@@ -629,7 +751,7 @@ public class AutoClickActivity extends Activity {
         return (int) (v * getResources().getDisplayMetrics().density + 0.5f);
     }
 
-    /** 无障碍服务：一次手势里排好所有点，避免互相打断 */
+    /** 无障碍服务：分片手势，避免超时/超指被系统丢弃 */
     public static class AutoClickService extends AccessibilityService {
         private static AutoClickService instance;
 
@@ -653,25 +775,42 @@ public class AutoClickActivity extends Activity {
             super.onDestroy();
         }
 
-        static boolean macro(List<Point> pts, long holdMs) {
-            if (instance == null || pts.isEmpty()) return false;
-            try {
-                GestureDescription.Builder b = new GestureDescription.Builder();
-                long t = 0;
-                final long maxDur = 1000;   // dispatchGesture 单次手势上限
-                for (Point p : pts) {
-                    Path path = new Path();
-                    path.moveTo(p.x, p.y);
-                    long start = Math.min(t, maxDur - 1);
-                    long dur = Math.min(Math.max(30, holdMs), maxDur - start);
-                    if (dur <= 0) break;
-                    b.addStroke(new GestureDescription.StrokeDescription(path, start, dur));
-                    t += Math.max(20, p.delay);
+        static boolean dispatch(GestureDescription gd) {
+            if (instance == null) return false;
+            try { return instance.dispatchGesture(gd, null, null); }
+            catch (Throwable t) { return false; }
+        }
+
+        /** 返回 [{GestureDescription, 绝对起始偏移}]，按 850ms/8 指切片 */
+        static List<Object[]> buildSegments(List<Point> pts, long holdMs) {
+            List<Object[]> out = new ArrayList<>();
+            List<GestureDescription.StrokeDescription> cur = new ArrayList<>();
+            long curStart = 0;
+            long t = 0;
+            long h = Math.max(30, Math.min(400, holdMs));
+            for (Point p : pts) {
+                long rel = t - curStart;
+                boolean overflow = (!cur.isEmpty() && (cur.size() >= AutoClickActivity.MAX_STROKES
+                        || rel + h > AutoClickActivity.SEG_MAX));
+                if (overflow) {
+                    out.add(new Object[]{build(cur), curStart});
+                    cur = new ArrayList<>();
+                    curStart = t;
+                    rel = 0;
                 }
-                return instance.dispatchGesture(b.build(), null, null);
-            } catch (Throwable t) {
-                return false;
+                Path path = new Path();
+                path.moveTo(p.x, p.y);
+                cur.add(new GestureDescription.StrokeDescription(path, Math.max(0, rel), h));
+                t += Math.max(20, p.delay);
             }
+            if (!cur.isEmpty()) out.add(new Object[]{build(cur), curStart});
+            return out;
+        }
+
+        private static GestureDescription build(List<GestureDescription.StrokeDescription> strokes) {
+            GestureDescription.Builder b = new GestureDescription.Builder();
+            for (GestureDescription.StrokeDescription s : strokes) b.addStroke(s);
+            return b.build();
         }
     }
 }
