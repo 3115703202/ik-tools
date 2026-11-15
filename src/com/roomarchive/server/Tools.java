@@ -80,8 +80,8 @@ public class Tools {
                     TetrisGameActivity.class, true, SEC_ENT),
 
             // ===== 工具栏 =====
-            new Tool("lens", "看见", "objdetect", "实时圈出人/动物/物品 · 本机推理", 0xFF14B8A6,
-                    ObjectDetectActivity.class, true, SEC_TOOL),
+            new Tool("lens", "看见", "objdetect", "LENS 网页版 · 实时识别 · 摄像头", 0xFF14B8A6,
+                    LensActivity.class, true, SEC_TOOL),
             new Tool("objdetect", "物体识别", "objdetect", "实时识别人物车辆 · AI本地推理", 0xFF0EA5E9,
                     ObjectDetectActivity.class, true, SEC_TOOL),
             new Tool("simcall", "模拟通话", "phone", "悬浮来电界面 · 铃声/接听/挂断 · 纯娱乐", 0xFF16A34A,

@@ -259,6 +259,7 @@
         <activity android:name=".HandBulletActivity" android:exported="false"
             android:screenOrientation="landscape" />
         <activity android:name=".AudioDecibelActivity" android:exported="false" />
+        <activity android:name=".LensActivity" android:screenOrientation="portrait" />
         <activity android:name=".ObjectDetectActivity" android:exported="false" />
         <activity android:name=".SimCallActivity" android:exported="false"
             android:showWhenLocked="true" android:turnScreenOn="true" android:excludeFromRecents="true" />
