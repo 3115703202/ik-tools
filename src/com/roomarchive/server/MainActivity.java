@@ -26,6 +26,7 @@ import java.util.List;
 public class MainActivity extends BaseActivity {
 
     private android.widget.ScrollView mScroll;
+    private boolean noticeDialogShown = false;
     private View entTitleView;
 
     @Override
@@ -33,6 +34,12 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         buildUi();
         autoCheckUpdate();
+        NoticeCenter.fetch(this, () -> runOnUiThread(() -> {
+            if (NoticeCenter.shouldShow(this)) {
+                showNoticeDialog();
+                NoticeCenter.markShown(this);
+            }
+        }));
         // 公告只在首次安装后第一次打开时弹（记录 SharedPreferences，杀后台重进不再弹）
         boolean noticed = getSharedPreferences("ik", MODE_PRIVATE).getBoolean("noticed_v316", false);
         if (!noticed) {
@@ -148,6 +155,8 @@ public class MainActivity extends BaseActivity {
 
     /** 公告弹窗：参考 Shizuku 样式——白色圆角大卡片 + 左侧图标 + 名称/版本 + GitHub 链接 */
     private void showNoticeDialog() {
+        if (noticeDialogShown) return;
+        noticeDialogShown = true;
         final android.app.AlertDialog d = new android.app.AlertDialog.Builder(this).create();
         d.setCancelable(false);
 
@@ -183,7 +192,7 @@ public class MainActivity extends BaseActivity {
         nameCol.setOrientation(LinearLayout.VERTICAL);
         nameCol.setPadding(dp(14), 0, 0, 0);
         TextView name = new TextView(this);
-        name.setText("IK工具箱");
+        Brand.apply(name);
         name.setTextSize(20);
         name.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         name.setTextColor(Color.rgb(28, 32, 48));
@@ -199,8 +208,10 @@ public class MainActivity extends BaseActivity {
         box.addView(spacer(14));
 
         // 公告正文
+        String nt = NoticeCenter.title(this);
+        String nb = NoticeCenter.body(this);
         TextView b1 = new TextView(this);
-        b1.setText("本软件永久免费 · 无广告 · 无收费");
+        b1.setText(nt.isEmpty() ? "本软件永久免费 · 无广告 · 无收费" : nt);
         b1.setTextSize(14);
         b1.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         b1.setTextColor(Color.rgb(28, 32, 48));
@@ -208,14 +219,16 @@ public class MainActivity extends BaseActivity {
         box.addView(spacer(6));
 
         TextView b2 = new TextView(this);
-        b2.setText("如遇到收费、卡密，是诈骗软件，请勿相信！");
+        b2.setText(nb.isEmpty() ? "如遇到收费、卡密，是诈骗软件，请勿相信！" : nb);
+        b2.setLineSpacing(0, 1.3f);
         b2.setTextSize(12);
         b2.setTextColor(Color.rgb(220, 80, 70));
         box.addView(b2);
         box.addView(spacer(10));
 
         TextView b3 = new TextView(this);
-        b3.setText("v4.5.3：网盘下载接管与文件校验修复 + Shizuku 重启加固");
+        b3.setText(nb.isEmpty() ? "v4.5.3：网盘下载接管与文件校验修复 + Shizuku 重启加固"
+                : NoticeCenter.time(this));
         b3.setTextSize(12);
         b3.setTextColor(Color.rgb(100, 110, 125));
         b3.setLineSpacing(0, 1.3f);
@@ -340,7 +353,7 @@ public class MainActivity extends BaseActivity {
         head.setOrientation(LinearLayout.VERTICAL);
         head.setPadding(dp(16), dp(16), dp(16), dp(12));
         TextView title = new TextView(this);
-        title.setText("IK工具箱");
+        Brand.apply(title);
         title.setTextSize(28);
         title.setTextColor(Tools.textColor(this));
         title.setGravity(Gravity.CENTER);

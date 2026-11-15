@@ -1,12 +1,17 @@
 package com.roomarchive.server;
 
 import android.content.ComponentName;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import java.io.File;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -82,6 +87,8 @@ public class SkinActivity extends BaseActivity {
         root.addView(grid);
 
         root.addView(spacer(16));
+        root.addView(customCard());
+        root.addView(spacer(16));
         root.addView(tipCard());
 
         setContentView(sv);
@@ -138,6 +145,182 @@ public class SkinActivity extends BaseActivity {
         texts.addView(previewMeta);
         card.addView(texts);
         return card;
+    }
+
+    private static final int REQ_CUSTOM_ICON = 7001;
+    private ImageView customPreview;
+    private EditText customName;
+
+    private View customCard() {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(16), dp(16), dp(16), dp(16));
+        card.setBackground(Tools.liquidGlassCard(this, 22));
+        Tools.setElevation(card, 10);
+
+        TextView t = new TextView(this);
+        t.setText("自己起名 · 自己选图");
+        t.setTextSize(15);
+        t.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        t.setTextColor(Tools.textColor(this));
+        card.addView(t);
+
+        TextView d = new TextView(this);
+        d.setText("名字用在开屏、主界面、关于页；图片用在开屏和桌面快捷方式");
+        d.setTextSize(11);
+        d.setTextColor(Tools.subTextColor(this));
+        d.setPadding(0, dp(4), 0, dp(10));
+        card.addView(d);
+
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        card.addView(row);
+
+        customPreview = new ImageView(this);
+        customPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(dp(16));
+        bg.setColor(0x22FFFFFF);
+        customPreview.setBackground(bg);
+        customPreview.setClipToOutline(true);
+        customPreview.setOutlineProvider(new android.view.ViewOutlineProvider() {
+            @Override public void getOutline(View v, android.graphics.Outline o) {
+                o.setRoundRect(0, 0, v.getWidth(), v.getHeight(), dp(16));
+            }
+        });
+        row.addView(customPreview, new LinearLayout.LayoutParams(dp(64), dp(64)));
+        Bitmap bm = Brand.icon(this, 256);
+        if (bm != null) customPreview.setImageBitmap(bm);
+
+        customName = new EditText(this);
+        customName.setText(Brand.name(this));
+        customName.setTextSize(14);
+        customName.setSingleLine(true);
+        customName.setHint("输入想显示的名字");
+        customName.setTextColor(Tools.textColor(this));
+        customName.setHintTextColor(Tools.subTextColor(this));
+        LinearLayout.LayoutParams np = new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1);
+        np.leftMargin = dp(12);
+        row.addView(customName, np);
+
+        LinearLayout act = new LinearLayout(this);
+        act.setOrientation(LinearLayout.HORIZONTAL);
+        act.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams al = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        al.topMargin = dp(12);
+        card.addView(act, al);
+
+        TextView pick = new TextView(this);
+        pick.setText("选图片");
+        pick.setGravity(Gravity.CENTER);
+        pick.setTextSize(13);
+        pick.setTextColor(Tools.accentColor(this));
+        pick.setBackground(Tools.pillButton(this, 40, false));
+        act.addView(pick, new LinearLayout.LayoutParams(0, dp(40), 1));
+        pick.setOnClickListener(v -> {
+            Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            i.addCategory(Intent.CATEGORY_OPENABLE);
+            i.setType("image/*");
+            startActivityForResult(i, REQ_CUSTOM_ICON);
+        });
+
+        TextView save = new TextView(this);
+        save.setText("保存并应用");
+        save.setGravity(Gravity.CENTER);
+        save.setTextSize(13);
+        save.setTextColor(0xFFFFFFFF);
+        save.setBackground(Tools.pillButton(this, 40, true));
+        LinearLayout.LayoutParams sl = new LinearLayout.LayoutParams(0, dp(40), 1);
+        sl.leftMargin = dp(10);
+        act.addView(save, sl);
+        save.setOnClickListener(v -> saveBrand());
+
+        TextView shortcut = new TextView(this);
+        shortcut.setText("生成桌面快捷方式（带你的名字和图片）");
+        shortcut.setGravity(Gravity.CENTER);
+        shortcut.setTextSize(12);
+        shortcut.setTextColor(Tools.accentColor(this));
+        shortcut.setBackground(Tools.pillButton(this, 40, false));
+        LinearLayout.LayoutParams shl = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(40));
+        shl.topMargin = dp(10);
+        card.addView(shortcut, shl);
+        shortcut.setOnClickListener(v -> makeShortcut());
+
+        TextView note = new TextView(this);
+        note.setText("说明：Android 不允许运行时改系统桌面图标，系统图标只能选下面预置样式；你的图片会用于开屏、App 内标识，并生成一个独立桌面快捷方式。");
+        note.setTextSize(10);
+        note.setTextColor(Tools.subTextColor(this));
+        note.setLineSpacing(dp(3), 1f);
+        note.setPadding(0, dp(8), 0, 0);
+        card.addView(note);
+
+        return card;
+    }
+
+    @Override
+    protected void onActivityResult(int req, int res, Intent data) {
+        super.onActivityResult(req, res, data);
+        if (req != REQ_CUSTOM_ICON || res != RESULT_OK || data == null || data.getData() == null) return;
+        try {
+            java.io.InputStream in = getContentResolver().openInputStream(data.getData());
+            Bitmap bm = BitmapFactory.decodeStream(in);
+            in.close();
+            if (bm == null) throw new Exception("图片解码失败");
+            File f = new File(getFilesDir(), "custom_icon.png");
+            java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
+            bm.compress(Bitmap.CompressFormat.PNG, 95, fos);
+            fos.close();
+            Brand.save(this, customName.getText().toString(), f.getAbsolutePath());
+            customPreview.setImageBitmap(bm);
+            Toast.makeText(this, "图片已保存", Toast.LENGTH_SHORT).show();
+        } catch (Throwable t) {
+            Toast.makeText(this, "选图失败：" + t.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void saveBrand() {
+        String name = customName.getText().toString().trim();
+        if (name.isEmpty()) { Toast.makeText(this, "名字不能为空", Toast.LENGTH_SHORT).show(); return; }
+        File f = Brand.iconFile(this);
+        Brand.save(this, name, f == null ? "" : f.getAbsolutePath());
+        previewName.setText(name);
+        Toast.makeText(this, "已保存，开屏和主界面会显示新名字", Toast.LENGTH_SHORT).show();
+    }
+
+    private void makeShortcut() {
+        String name = customName.getText().toString().trim();
+        if (name.isEmpty()) name = "IK工具箱";
+        Bitmap bm = Brand.icon(this, 288);
+        if (bm == null) { Toast.makeText(this, "先选一张图片", Toast.LENGTH_SHORT).show(); return; }
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= 26) {
+                android.content.pm.ShortcutManager sm =
+                        (android.content.pm.ShortcutManager) getSystemService(SHORTCUT_SERVICE);
+                android.content.pm.ShortcutInfo info = new android.content.pm.ShortcutInfo.Builder(this, "ik_custom")
+                        .setShortLabel(name)
+                        .setLongLabel(name)
+                        .setIcon(android.graphics.drawable.Icon.createWithBitmap(bm))
+                        .setIntent(new Intent(this, SplashActivity.class).setAction(Intent.ACTION_MAIN))
+                        .build();
+                if (sm != null) {
+                    sm.requestPinShortcut(info, null);
+                    Toast.makeText(this, "已请求固定到桌面，按桌面提示确认", Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Intent i = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
+                i.putExtra(Intent.EXTRA_SHORTCUT_NAME, name);
+                i.putExtra(Intent.EXTRA_SHORTCUT_ICON, bm);
+                i.putExtra(Intent.EXTRA_SHORTCUT_INTENT, new Intent(this, SplashActivity.class));
+                sendBroadcast(i);
+                Toast.makeText(this, "已添加桌面快捷方式", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Throwable t) {
+            Toast.makeText(this, "生成快捷方式失败：" + t.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private View tipCard() {

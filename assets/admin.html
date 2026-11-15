@@ -47,6 +47,12 @@ body{font-family:-apple-system,"PingFang SC",system-ui,sans-serif;background:#05
 .row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px}
 .row:last-child{border-bottom:none}
 .row .l{color:#c9d8ee}.row .r{color:#7fe9ff;text-align:right;word-break:break-all}
+.inp{width:100%;height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;font-size:13px;padding:0 12px;outline:none;margin-top:8px}
+.ta{width:100%;min-height:96px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;font-size:13px;padding:10px 12px;outline:none;margin-top:8px;resize:vertical;font-family:inherit}
+.act{display:flex;gap:8px;margin-top:10px}
+.act .a{flex:1;height:42px;border-radius:12px;border:1px solid rgba(0,212,255,.35);background:rgba(0,212,255,.14);color:#bff4ff;font-size:13px;font-weight:600}
+.act .b{flex:1;height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#e6f0ff;font-size:13px}
+.st{font-size:11px;color:#8fa3bf;margin-top:8px;word-break:break-all}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{font-size:12px;padding:7px 11px;border-radius:11px;background:rgba(255,255,255,.07);
   border:1px solid rgba(255,255,255,.12);color:#d7e6fb}
@@ -79,6 +85,19 @@ body{font-family:-apple-system,"PingFang SC",system-ui,sans-serif;background:#05
   <div class="sec"><h2>存储</h2><div id="sto"></div><div class="bar"><i id="stoBar" style="width:0"></i></div></div>
   <div class="sec"><h2>文件分布（本 App 产物目录）</h2><div id="files"></div></div>
   <div class="sec"><h2>记录与本地服务</h2><div id="rec"></div></div>
+  <div class="sec">
+    <h2>公告推送（只推 App 公告）</h2>
+    <div class="sub" style="text-align:left;margin:0 0 6px">所有装了 IK工具箱 的人，下次打开会在公告弹窗里看到。发布需要 GitHub Token，填一次记住。</div>
+    <input class="inp" id="nTitle" placeholder="公告标题">
+    <textarea class="ta" id="nBody" placeholder="公告内容（纯文字，简洁一点）"></textarea>
+    <input class="inp" id="nToken" placeholder="GitHub Token（只存本机浏览器）" type="password">
+    <div class="act">
+      <button class="b" onclick="saveNoticeLocal()">只存本机</button>
+      <button class="a" onclick="publishNotice()">发布给所有人</button>
+    </div>
+    <div class="st" id="nStatus"></div>
+  </div>
+
   <div class="sec"><h2>功能清单</h2><div class="chips" id="tools"></div></div>
 
   <div class="foot">仅展示本机与本 App 自身数据<br>不包含任何他人隐私内容</div>
@@ -101,6 +120,7 @@ function login(){
   $('gate').style.display='none';
   $('wrap').style.display='block';
   render();
+  fillNotice();
 }
 function row(l,r){return '<div class="row"><span class="l">'+esc(l)+'</span><span class="r">'+esc(r)+'</span></div>'}
 function render(){
@@ -135,6 +155,43 @@ function render(){
     return '<div style="width:100%;margin-top:8px;color:#8fa3bf;font-size:11px">'+esc(g.section)+'</div>'+
       (g.names||[]).map(function(n){return '<span class="chip">'+esc(n)+'</span>'}).join('')
   }).join('');
+}
+var _n={id:0,title:'',content:'',time:''};
+function nStatus(t){$('nStatus').textContent=t}
+function b64utf8(str){var bytes=new TextEncoder().encode(str),bin='';for(var i=0;i<bytes.length;i++)bin+=String.fromCharCode(bytes[i]);return btoa(bin)}
+function fillNotice(){
+  var n=DATA.notice||{};
+  if(n.title){$('nTitle').value=n.title;$('nBody').value=n.content||'';_n=n;
+    nStatus('当前线上公告：'+(n.title||'')+' · '+(n.time||''))}
+  var t=localStorage.getItem('gh_token');if(t)$('nToken').value=t;
+}
+function saveNoticeLocal(){
+  var t=$('nTitle').value.trim(),c=$('nBody').value.trim();
+  if(!t||!c){nStatus('标题和正文都要填');return}
+  var n={id:Date.now(),title:t,content:c,time:new Date().toLocaleString('zh-CN')};
+  try{ if(AdminBridge.saveNotice(JSON.stringify(n))){ _n=n; nStatus('已存到本机，重开 App 生效') } else nStatus('保存失败') }
+  catch(e){ nStatus('只能在 App 内保存') }
+}
+async function publishNotice(){
+  var title=$('nTitle').value.trim(),body=$('nBody').value.trim();
+  if(!title||!body){nStatus('标题和正文都要填');return}
+  var token=$('nToken').value.trim();
+  if(!token){nStatus('先填 GitHub Token');return}
+  localStorage.setItem('gh_token',token);
+  var notice={id:Date.now(),title:title,content:body,time:new Date().toLocaleString('zh-CN')};
+  var api='https://api.github.com/repos/3115703202/ik-tools/contents/notice.json';
+  var h={Authorization:'Bearer '+token,Accept:'application/vnd.github+json','Content-Type':'application/json'};
+  nStatus('发布中…');
+  try{
+    var sha=null;
+    var g=await fetch(api+'?ref=main',{headers:h});
+    if(g.ok){sha=(await g.json()).sha}
+    var payload={message:'notice: '+title,content:b64utf8(JSON.stringify(notice,null,2)),branch:'main'};
+    if(sha)payload.sha=sha;
+    var r=await fetch(api,{method:'PUT',headers:h,body:JSON.stringify(payload)});
+    if(r.ok){ nStatus('已发布，等 Pages 构建 1-2 分钟后，用户下次打开就能收到') }
+    else{ nStatus('发布失败：'+((await r.json()).message||r.status)) }
+  }catch(e){ nStatus('发布出错：'+e) }
 }
 function tile(k,v){return '<div class="tile"><div class="k">'+esc(k)+'</div><div class="v">'+esc(v)+'</div></div>'}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&$('gate').style.display!=='none')login()});

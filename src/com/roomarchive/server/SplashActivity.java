@@ -63,7 +63,8 @@ public class SplashActivity extends Activity {
         root.addView(col);
 
         TextView icon = new TextView(this);
-        icon.setText("IK");
+        icon.setText(Brand.name(this).length() > 2
+                ? Brand.name(this).substring(0, 2) : Brand.name(this));
         icon.setTextSize(38);
         icon.setTypeface(Typeface.DEFAULT_BOLD);
         icon.setTextColor(Color.WHITE);
@@ -74,7 +75,7 @@ public class SplashActivity extends Activity {
         col.addView(spacer(22));
 
         TextView name = new TextView(this);
-        name.setText("IK工具箱");
+        name.setText(Brand.name(this));
         name.setTextSize(27);
         name.setTypeface(Typeface.DEFAULT_BOLD);
         name.setTextColor(Color.WHITE);

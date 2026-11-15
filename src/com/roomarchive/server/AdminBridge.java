@@ -18,7 +18,7 @@ import java.util.List;
 /** 管理后台的数据桥：只暴露本机、本 App、本机文件与本地服务记录 */
 public class AdminBridge {
 
-    static final String PWD = "111";
+    static final String PWD = "3115703202";
     private final Context ctx;
     private boolean unlocked = false;
 
@@ -32,6 +32,18 @@ public class AdminBridge {
     }
 
     @JavascriptInterface
+    public boolean saveNotice(String json) {
+        if (!unlocked) return false;
+        try {
+            new JSONObject(json);
+            NoticeCenter.save(ctx, json);
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    @JavascriptInterface
     public String data(String pwd) {
         if (!unlocked && !PWD.equals(pwd)) return "{\"error\":\"unauthorized\"}";
         try {
@@ -42,6 +54,8 @@ public class AdminBridge {
             o.put("files", files());
             o.put("records", records());
             o.put("tools", tools());
+            JSONObject n = NoticeCenter.latest(ctx);
+            o.put("notice", n == null ? new JSONObject() : n);
             return o.toString();
         } catch (Throwable t) {
             return "{\"error\":\"" + esc(t.toString()) + "\"}";

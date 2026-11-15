@@ -34,7 +34,7 @@ public class AboutActivity extends BaseActivity {
 
         // ===== 页头 =====
         TextView title = new TextView(this);
-        title.setText("IK工具箱");
+        Brand.apply(title);
         title.setTextSize(24);
         title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         title.setTextColor(Tools.textColor(this));
