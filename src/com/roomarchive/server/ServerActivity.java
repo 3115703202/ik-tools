@@ -532,7 +532,7 @@ public class ServerActivity extends BaseActivity implements TunnelService.Listen
                     @Override
                     public void onClick(android.content.DialogInterface d, int w) {
                         Intent it = new Intent(ServerActivity.this, DownloadActivity.class);
-                        it.putExtra("url", "https://aka.doubaocdn.com/s/5vI0D6KiMj");
+                        it.putExtra("url", "https://aka.doubaocdn.com/s/xune67xCpU");
                         startActivity(it);
                     }
                 })

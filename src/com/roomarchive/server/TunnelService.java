@@ -126,10 +126,10 @@ public class TunnelService extends Service {
                 autoDownloadAndRetry("libcloudflared.so");
                 return;
             }
-            // 内核校验：md5 前 12 位（d76be7385d4e=自适应版）
+            // 内核校验：md5 前 12 位（7622fc25bbe3=当前发布版）
             String md5 = md5Of(bin);
             if (md5 != null) {
-                notifyLog("内核校验: md5=" + md5.substring(0, Math.min(12, md5.length())) + "（自适应版）");
+                notifyLog("内核校验: md5=" + md5.substring(0, Math.min(12, md5.length())) + "（当前发布版）");
             }
             notifyLog("内核路径: " + bin.getAbsolutePath());
             // VPN 检测：若系统 VPN 已开启，cloudflared 流量自动走 VPN 出口（可绕开运营商劫持）
@@ -421,7 +421,7 @@ public class TunnelService extends Service {
             @Override
             public void run() {
                 final boolean ok = KernelInstaller.downloadAndInstall(TunnelService.this,
-                        "https://aka.doubaocdn.com/s/5vI0D6KiMj", new KernelInstaller.Log() {
+                        "https://aka.doubaocdn.com/s/xune67xCpU", new KernelInstaller.Log() {
                             @Override
                             public void log(String s) {
                                 notifyLog(s);

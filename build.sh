@@ -30,7 +30,7 @@ rm -rf build && mkdir -p build/gen build/obj build/dex build/assets build/apk bu
 
 # assets（网页 / 模型 / 图片 / 号段库）
 for f in index.html fps3d.html three.min.js phone.dat detect.tflite labelmap.txt \
-         mobilenet_v2.tflite imagenet_labels.txt object_detector.tflite \
+         mobilenet_v2.tflite imagenet_labels.txt \
          gun.png impact.png soldier_orange.png soldier_blue.png soldier_purple.png soldier_green.png; do
   [ -f "assets/$f" ] && cp "assets/$f" "build/assets/$f"
 done
@@ -119,9 +119,9 @@ if [ ! -f keystore/debug.keystore ]; then
 fi
 $BT/apksigner sign \
   --ks keystore/debug.keystore --ks-pass pass:android --key-pass pass:android \
-  --out output/IK工具箱-v4.5.3.apk \
+  --out output/IK工具箱-v4.5.4.apk \
   build/apk/app-aligned.apk
 
 echo ""
-echo "✅ APK 生成：$(pwd)/output/IK工具箱-v4.5.3.apk"
+echo "✅ APK 生成：$(pwd)/output/IK工具箱-v4.5.4.apk"
 ls -la output/

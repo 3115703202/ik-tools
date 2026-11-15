@@ -22,8 +22,8 @@ public class KernelInstaller {
         void log(String s);
     }
 
-    /** 当前自适应版内核的 md5 前缀（云编译参数自适应版） */
-    public static final String ADAPTIVE_MD5 = "8791322fdbea";
+    /** 当前打包内核的 cloudflared md5 前缀（随仓库 assets/cloudflared 一并发布） */
+    public static final String ADAPTIVE_MD5 = "7622fc25bbe3";
 
     /** 下载穿透内核 zip 并安装；返回 true 表示至少一个内核组件就绪 */
     public static boolean downloadAndInstall(Context ctx, String zipUrl, Log log) {
