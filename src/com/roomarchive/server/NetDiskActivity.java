@@ -212,13 +212,22 @@ public class NetDiskActivity extends Activity {
         pd.setCancelable(false);
         pd.show();
         PanDownloader.start(this, url, referer, null, new PanDownloader.Listener() {
+            String[] nameHolder = new String[]{"文件"};
             @Override public void onStart(String name, long total) {
+                nameHolder[0] = name;
                 if (pd.isShowing()) pd.setMessage(name + (total > 0 ? " · " + (total / 1024 / 1024) + "MB" : ""));
             }
             @Override public void onProgress(String name, int percent, long done, long total) {
                 if (pd.isShowing() && percent >= 0) {
                     pd.setProgress(percent);
                     pd.setMessage(name + " · " + (done / 1024 / 1024) + "MB / " + (total / 1024 / 1024) + "MB");
+                }
+            }
+            @Override public void onSpeed(double mbps, int conns) {
+                if (pd.isShowing()) {
+                    pd.setMessage(String.format(java.util.Locale.US,
+                            "%s · %.1f MB/s · %d 连接%s", nameHolder[0], mbps, conns,
+                            conns >= 16 ? "（已满速）" : "（阶梯提速中）"));
                 }
             }
             @Override public void onDone(java.io.File file) {
@@ -285,7 +294,7 @@ public class NetDiskActivity extends Activity {
         card.addView(p);
 
         TextView tip = new TextView(this);
-        tip.setText("内置下载器不支持 BT/磁力（需要 P2P 引擎），磁力链接请复制后用专门客户端打开。");
+        tip.setText("内置下载器不支持 BT/磁力（需要 P2P 引擎），磁力链接请复制后用专门客户端打开。\n直链下载会自动分片，4 连接起步、每 2 秒 +2 条，最高 16 条，速度起来就停。");
         tip.setTextSize(12);
         tip.setTextColor(Tools.subTextColor(this));
         tip.setPadding(0, dp(8), 0, dp(8));
