@@ -31,7 +31,7 @@ public class DownloadActivity extends Activity {
         new Plugin("YOLO-World 模型", "物体识别 AI · 90 类标签 · 约 70MB", "yolo_world.tflite",
             "https://aka.doubaocdn.com/s/lsXODg0wa7"),
         new Plugin("IK工具箱最新版", "App 本体更新包", "IK工具箱-latest.apk",
-            "https://aka.doubaocdn.com/s/YEzQxi1Q1w"),
+            "https://aka.doubaocdn.com/s/GS4UI2C6oT"),
         new Plugin("穿透内核", "内网穿透必需 · cloudflared + frpc · 约 14MB", "kernel.zip",
             "https://aka.doubaocdn.com/s/5vI0D6KiMj"),
     };
