@@ -3,249 +3,157 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IK工具箱 - 69 项安卓实用工具集 · 永久免费无广告</title>
-<meta name="description" content="IK工具箱：69 项安卓实用工具集，核心功能离线运行、永久免费、无广告、不上传文件内容。含娱乐工具、系统工具、服务器与内网穿透、AI 聊天等。">
-<!-- IK-OTA:VER=v4.5.34|CODE=214|URL=https://aka.doubaocdn.com/s/RUeceaHAL7 -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%233b82f6'/%3E%3Cpath d='M16 22h32M16 32h22M16 42h28' stroke='%23fff' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<title>IK工具箱 · 69 项安卓工具 · 本机 AI 与系统级玩法</title>
+<meta name="description" content="IK工具箱：69 项安卓实用工具，内置本机视觉、离线大模型、真实 Telecom 模拟来电与灵动岛。核心功能离线运行，不上传文件内容。">
+<!-- IK-OTA:VER=v4.5.35|CODE=215|URL=https://aka.doubaocdn.com/s/i2xoVKVF8p -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070b10'/%3E%3Cpath d='M18 44V20h7v24zm12 0V20h16v7h-9v5h8v6h-8v6z' fill='%2334d399'/%3E%3C/svg%3E">
 <style>
-  :root{
-    --bg1:#eef4ff; --bg2:#e6edff; --bg3:#f3ecff;
-    --ink:#182033; --ink2:#5b6685; --line:rgba(255,255,255,.85);
-    --brand:#3b82f6; --brand2:#7c3aed; --ok:#16a34a;
-    --glass:rgba(255,255,255,.62); --glass-strong:rgba(255,255,255,.82);
-  }
-  *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","HarmonyOS Sans SC","Noto Sans SC","Microsoft YaHei",sans-serif;
-    color:var(--ink); min-height:100vh; overflow-x:hidden;
-    background:linear-gradient(150deg,var(--bg1),var(--bg2) 46%,var(--bg3));
-    -webkit-font-smoothing:antialiased;
-  }
-  /* 背景光斑：呼应 App 玻璃拟态 */
-  .glow{position:fixed;border-radius:50%;filter:blur(70px);pointer-events:none;z-index:0}
-  .g1{width:420px;height:420px;background:rgba(56,189,248,.35);top:-120px;left:-100px}
-  .g2{width:380px;height:380px;background:rgba(147,163,255,.38);top:120px;right:-120px}
-  .g3{width:400px;height:400px;background:rgba(240,143,216,.32);bottom:-140px;left:24%}
-  .wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:0 20px 60px}
-  /* 顶部导航 */
-  .topnav{position:sticky;top:12px;z-index:9;max-width:640px;margin:12px auto 0;padding:0 20px}
-  .nav-card{
-    display:flex;align-items:center;gap:10px;
-    background:var(--glass-strong);border:1px solid var(--line);
-    border-radius:20px;padding:10px 16px;box-shadow:0 8px 24px rgba(59,84,160,.14);
-    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-  }
-  .nav-logo{width:34px;height:34px;border-radius:10px;flex:0 0 auto;
-    background:linear-gradient(135deg,var(--brand),var(--brand2));
-    display:flex;align-items:center;justify-content:center}
-  .nav-logo svg{width:20px;height:20px}
-  .nav-name{font-weight:700;font-size:16px;letter-spacing:.5px}
-  .nav-ver{margin-left:auto;font-size:12px;color:var(--ink2);background:rgba(59,130,246,.12);
-    border:1px solid rgba(59,130,246,.25);padding:4px 10px;border-radius:999px;white-space:nowrap}
-  /* Hero */
-  .hero{margin-top:34px;text-align:center}
-  .hero-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ok);
-    background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.28);
-    padding:5px 12px;border-radius:999px;font-weight:600}
-  .hero h1{font-size:40px;line-height:1.15;margin:18px 0 12px;font-weight:800;letter-spacing:1px;
-    background:linear-gradient(90deg,#1d4ed8,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .hero p{font-size:15px;color:var(--ink2);line-height:1.7;max-width:460px;margin:0 auto}
-  /* 下载区 */
-  .dl{margin-top:26px;display:flex;flex-direction:column;gap:12px}
-  .dl-main{
-    display:flex;align-items:center;justify-content:center;gap:10px;
-    background:linear-gradient(135deg,var(--brand),var(--brand2));
-    color:#fff;text-decoration:none;font-size:17px;font-weight:700;
-    border-radius:18px;padding:16px;box-shadow:0 12px 28px rgba(80,60,220,.35);
-    transition:transform .12s ease;
-  }
-  .dl-main:active{transform:scale(.97)}
-  .dl-main svg{width:20px;height:20px}
-  .dl-sub{display:flex;gap:10px}
-  .dl-sub a{
-    flex:1;text-align:center;font-size:13px;color:var(--ink2);text-decoration:none;
-    background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:11px;
-    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  }
-  .dl-sub a:active{transform:scale(.97)}
-  .dl-meta{margin-top:10px;text-align:center;font-size:12px;color:var(--ink2);line-height:1.8}
-  /* 区块 */
-  section{margin-top:40px}
-  .sec-title{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:700;margin-bottom:14px}
-  .sec-title::before{content:"";width:5px;height:18px;border-radius:3px;
-    background:linear-gradient(180deg,var(--brand),var(--brand2))}
-  /* 特性玻璃卡 */
-  .feat{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .card{
-    background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:16px 14px;
-    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-    box-shadow:0 6px 18px rgba(59,84,160,.08);
-  }
-  .card b{display:flex;align-items:center;gap:8px;font-size:15px;margin-bottom:6px}
-  .card span{font-size:12px;color:var(--ink2);line-height:1.6}
-  .ico{width:34px;height:34px;border-radius:10px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
-  .ico svg{width:18px;height:18px}
-  .c-blue{background:rgba(59,130,246,.14)} .c-blue svg{stroke:#3b82f6}
-  .c-purple{background:rgba(124,58,237,.14)} .c-purple svg{stroke:#7c3aed}
-  .c-green{background:rgba(22,163,74,.14)} .c-green svg{stroke:#16a34a}
-  .c-orange{background:rgba(245,158,11,.16)} .c-orange svg{stroke:#f59e0b}
-  .c-pink{background:rgba(236,72,153,.13)} .c-pink svg{stroke:#ec4899}
-  .c-cyan{background:rgba(6,182,212,.14)} .c-cyan svg{stroke:#06b6d4}
-  /* 版本记录 */
-  .ver-list{background:var(--glass);border:1px solid var(--line);border-radius:18px;overflow:hidden;
-    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
-  .ver-row{display:flex;align-items:center;gap:12px;padding:13px 16px;font-size:13px}
-  .ver-row + .ver-row{border-top:1px solid rgba(59,84,160,.08)}
-  .ver-tag{font-weight:700;font-size:12px;color:#fff;background:linear-gradient(135deg,var(--brand),var(--brand2));
-    border-radius:8px;padding:3px 9px;flex:0 0 auto}
-  .ver-tag.new{background:linear-gradient(135deg,#16a34a,#4ade80)}
-  .ver-note{color:var(--ink2);flex:1;min-width:0}
-  .ver-date{color:#9aa3bd;font-size:12px;flex:0 0 auto}
-  /* 说明 */
-  .note{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .note div{font-size:12px;color:var(--ink2);background:var(--glass);border:1px solid var(--line);
-    border-radius:14px;padding:12px;text-align:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-  .note b{display:block;font-size:13px;color:var(--ink);margin-bottom:4px}
-  footer{margin-top:44px;text-align:center;font-size:12px;color:#9aa3bd;line-height:1.9}
-  footer a{color:var(--ink2)}
-  @media (max-width:400px){
-    .feat{grid-template-columns:1fr}
-    .hero h1{font-size:34px}
-  }
+:root{--ink:#e8eef4;--muted:#8fa0b3;--dim:#5e6f82;--bg:#070b10;--panel:#0c131b;--line:rgba(160,190,210,.14);--line2:rgba(160,190,210,.28);--mint:#34d399;--blue:#38bdf8;--maxw:1180px}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"HarmonyOS Sans SC","PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.6}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(60% 45% at 78% 8%,rgba(52,211,153,.10),transparent 70%),radial-gradient(45% 35% at 10% 28%,rgba(56,189,248,.08),transparent 70%),linear-gradient(180deg,#0a1118,#070b10 38%,#06090d)}
+.wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 28px}
+nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(18px);background:rgba(7,11,16,.72);border-bottom:1px solid var(--line)}
+.nav{max-width:var(--maxw);margin:0 auto;padding:16px 28px;display:flex;align-items:center;gap:14px}
+.logo{width:34px;height:34px;border:1px solid var(--line2);border-radius:9px;display:grid;place-items:center;background:linear-gradient(160deg,#12202b,#0a1118)}
+.logo svg{width:20px;height:20px}.brand{font-weight:800;letter-spacing:.5px}.brand small{display:block;color:var(--dim);font-size:10px;letter-spacing:2px;font-weight:500}
+.navlinks{margin-left:auto;display:flex;gap:22px;font-size:13px;color:var(--muted)}.navlinks a{color:inherit;text-decoration:none}.navlinks a:hover{color:var(--mint)}
+.nav-ver{font-size:11px;color:var(--mint);border:1px solid rgba(52,211,153,.35);padding:4px 9px;border-radius:999px;white-space:nowrap}
+.navdl{background:var(--mint);color:#04130c;font-weight:800;font-size:13px;padding:8px 16px;border-radius:8px;text-decoration:none}
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;padding:76px 0 60px}
+.kicker{font-size:11px;letter-spacing:2.2px;color:var(--mint);text-transform:uppercase;font-weight:700}
+h1{font-size:clamp(40px,4.6vw,64px);line-height:1.05;letter-spacing:-1.4px;margin:18px 0 20px;font-weight:900}h1 em{font-style:normal;color:var(--mint)}
+.lede{color:var(--muted);font-size:16px;max-width:540px;line-height:1.85}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.btn-main{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(180deg,#4ade80,#22c55e);color:#04140b;text-decoration:none;font-weight:800;font-size:15px;padding:14px 24px;border-radius:10px;box-shadow:0 12px 30px rgba(34,197,94,.22)}.btn-main svg{width:18px;height:18px}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;font-size:14px;padding:14px 20px;border:1px solid var(--line2);border-radius:10px;background:rgba(255,255,255,.03)}
+.meta{margin-top:18px;display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}.meta b{color:var(--ink);font-weight:700}
+.phone{justify-self:center;width:310px;height:640px;border-radius:40px;border:1px solid rgba(190,220,235,.3);background:linear-gradient(160deg,#14222d,#080d13 55%);position:relative;box-shadow:0 40px 100px rgba(0,0,0,.55),inset 0 0 0 7px #0a1017,inset 0 1px 0 rgba(255,255,255,.18);padding:16px;transform:rotate(2deg)}
+.phone::after{content:"";position:absolute;width:80px;height:22px;border-radius:14px;background:#03060a;left:50%;transform:translateX(-50%);top:10px;border:1px solid rgba(120,160,180,.2)}
+.island{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:4;background:#000;border-radius:20px;height:30px;padding:0 12px;display:flex;align-items:center;gap:8px;border:1px solid rgba(120,170,190,.28);box-shadow:0 2px 14px rgba(0,0,0,.6)}
+.island .d{width:6px;height:6px;border-radius:50%;background:var(--mint);box-shadow:0 0 8px var(--mint)}.island span{font-size:10px;color:#cfe9df}.island b{font-size:10px;color:var(--mint)}
+.scr{height:100%;border-radius:28px;background:linear-gradient(180deg,#f7faf8,#edf3ef);overflow:hidden;color:#101b14;display:flex;flex-direction:column}
+.sh{display:flex;align-items:center;gap:8px;padding:40px 16px 12px}.sh .dot{width:8px;height:8px;border-radius:50%;background:#10b981}.sh h3{font-size:16px;font-weight:800}.sh .sw{margin-left:auto;font-size:9px;background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;padding:2px 8px;border-radius:8px}
+.sug{padding:6px 14px;display:grid;gap:7px}.sug div{background:#e9efeb;border:1px solid #dde6e0;border-radius:10px;padding:9px 11px;font-size:10.5px;color:#33463b}
+.chat{margin-top:auto;padding:10px 14px 0;display:flex;flex-direction:column;gap:8px}.b{max-width:82%;padding:9px 11px;border-radius:12px;font-size:10.5px;line-height:1.5}.b.me{align-self:flex-end;background:#16a34a;color:#fff}.b.ai{align-self:flex-start;background:#e9efeb;color:#1f3427}.b small{display:block;margin-top:4px;color:#7d9288;font-size:8px}
+.inp{margin:10px 12px 12px;background:#eef3f0;border:1px solid #dfe8e2;border-radius:14px;height:42px;display:flex;align-items:center;padding:0 12px;font-size:10px;color:#96a89e}.send{margin-left:auto;width:28px;height:28px;border-radius:50%;background:#16a34a;display:grid;place-items:center;color:#fff;font-size:12px}
+.snav{display:flex;border-top:1px solid #e3ebe6;padding:8px 0 10px;font-size:9px;color:#6d8578}.snav div{flex:1;text-align:center}.snav .on{color:#16a34a;font-weight:800}
+.badge-float{position:absolute;right:-38px;bottom:110px;background:rgba(12,19,27,.86);border:1px solid var(--line2);backdrop-filter:blur(12px);border-radius:12px;padding:10px 14px;font-size:11px;color:#bcd0dd;box-shadow:0 10px 30px rgba(0,0,0,.4)}.badge-float b{color:var(--mint)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.stat{padding:24px 8px;border-right:1px solid var(--line)}.stat:last-child{border-right:0}.stat b{display:block;font-size:30px;letter-spacing:-1px;font-variant-numeric:tabular-nums}.stat span{font-size:11px;color:var(--dim);letter-spacing:.5px}.stat b i{font-style:normal;color:var(--mint);font-size:16px;margin-left:4px}
+section{padding:70px 0 0}.sec-head{display:grid;grid-template-columns:1fr auto;align-items:end;gap:20px;margin-bottom:26px}.sec-head h2{font-size:clamp(26px,3vw,38px);letter-spacing:-.6px}.sec-head p{color:var(--muted);font-size:13px;margin-top:8px}.sec-idx{font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
+.cards{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.card{border:1px solid var(--line);background:linear-gradient(160deg,rgba(255,255,255,.045),rgba(255,255,255,.012));border-radius:14px;padding:22px;min-width:0}
+.card h3{font-size:17px;display:flex;align-items:center;gap:9px;margin-bottom:8px}.card h3 svg{width:19px;height:19px;color:var(--mint);flex:0 0 auto}.card p{font-size:12.5px;color:var(--muted);line-height:1.75}.card .tag{display:inline-block;margin-top:12px;font-size:10px;color:var(--mint);border:1px solid rgba(52,211,153,.25);border-radius:5px;padding:3px 7px}
+.c1{grid-column:span 7}.c2{grid-column:span 5}.c3{grid-column:span 4}.c4{grid-column:span 4}.c5{grid-column:span 4}.card.big{padding:30px}.card.big h3{font-size:21px}.card.big p{font-size:13.5px}
+.models{margin-top:16px;border:1px solid var(--line);border-radius:14px;overflow:hidden}.mrow{display:grid;grid-template-columns:1.1fr .7fr .9fr auto;gap:12px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);font-size:12px}.mrow:last-child{border-bottom:0}.mrow b{font-size:13px}.mrow span{color:var(--muted)}.mrow em{font-style:normal;color:var(--dim);font-size:11px}.mrow a{color:var(--mint);text-decoration:none;font-size:11px;border:1px solid rgba(52,211,153,.3);padding:4px 9px;border-radius:6px}.mrow .fast{color:var(--mint)}
+.dlbox{margin-top:20px;border:1px solid var(--line2);border-radius:16px;padding:34px;display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center;background:radial-gradient(70% 120% at 0% 0%,rgba(52,211,153,.11),transparent 60%),linear-gradient(150deg,#0d1720,#0a1118)}.dlbox h2{font-size:30px;letter-spacing:-.5px}.dlbox p{color:var(--muted);font-size:13px;margin-top:8px}.dl-side{display:flex;flex-direction:column;gap:9px;min-width:210px}.dl-side a{text-align:center}.dl-side small{text-align:center;color:var(--dim);font-size:10px}.hash{margin-top:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:var(--dim);word-break:break-all}
+.tl{margin-top:8px;border-left:1px solid var(--line2);padding-left:22px}.tl .item{position:relative;padding:0 0 24px}.tl .item::before{content:"";position:absolute;left:-27px;top:6px;width:9px;height:9px;border-radius:50%;background:var(--mint);box-shadow:0 0 12px rgba(52,211,153,.6)}.tl .item:not(:first-child)::before{background:#33465a;box-shadow:none}.tl .v{font-size:13px;font-weight:800;color:var(--mint);font-variant-numeric:tabular-nums}.tl p{font-size:12.5px;color:var(--muted);margin-top:3px;max-width:760px}
+.faq{border-top:1px solid var(--line)}.faq details{border-bottom:1px solid var(--line);padding:18px 0}.faq summary{cursor:pointer;font-size:14px;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:16px}.faq summary::after{content:"+";color:var(--mint);font-weight:400}.faq details[open] summary::after{content:"−"}.faq p{color:var(--muted);font-size:12.5px;margin-top:10px;max-width:820px}
+footer{margin-top:70px;border-top:1px solid var(--line);padding:28px 0 40px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;color:var(--dim);font-size:11px}footer b{color:var(--muted)}
+@media (max-width:920px){.hero{grid-template-columns:1fr;gap:40px;padding:54px 0 40px}.phone{width:280px;height:580px;transform:none}.badge-float{right:-10px;bottom:80px}.cards{grid-template-columns:repeat(2,1fr)}.c1,.c2,.c3,.c4,.c5{grid-column:span 1}.stats{grid-template-columns:repeat(2,1fr)}.stat:nth-child(2){border-right:0}.stat:nth-child(3),.stat:nth-child(4){border-top:1px solid var(--line)}.navlinks{display:none}.dlbox{grid-template-columns:1fr;padding:26px}}
+@media (max-width:560px){.wrap{padding:0 18px}.nav{padding:14px 18px}h1{font-size:40px}.cards{grid-template-columns:1fr}.mrow{grid-template-columns:1fr auto;row-gap:4px}.mrow em{display:none}.phone{width:100%;max-width:290px}.badge-float{display:none}.stats b{font-size:26px}}
+@media (prefers-reduced-motion:reduce){*{animation:none;transition:none}}
 </style>
 </head>
 <body>
-  <div class="glow g1" aria-hidden="true"></div>
-  <div class="glow g2" aria-hidden="true"></div>
-  <div class="glow g3" aria-hidden="true"></div>
-
-  <!-- ===== 顶部导航 ===== -->
-  <nav class="topnav">
-    <div class="nav-card">
-      <div class="nav-logo">
-        <svg viewBox="0 0 64 64" fill="none"><path d="M18 22h28M18 32h18M18 42h24" stroke="#fff" stroke-width="6" stroke-linecap="round"/></svg>
+<nav><div class="nav">
+  <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round"><path d="M4 17V7h3v10M11 17V7h6v3h-4v2h3v2h-3v3"/></svg></div>
+  <div class="brand">IK工具箱<small>IK TOOLBOX</small></div>
+  <div class="navlinks"><a href="#ability">能力</a><a href="#models">本地 AI</a><a href="#download">下载</a><a href="#log">更新</a></div>
+  <span class="nav-ver">v4.5.35 · 215</span>
+  <a class="navdl" href="https://aka.doubaocdn.com/s/i2xoVKVF8p">下载 APK</a>
+</div></nav>
+<div class="wrap">
+  <section class="hero" style="padding-top:76px">
+    <div>
+      <div class="kicker">ANDROID TOOLBOX / 69 TOOLS</div>
+      <h1>把手机<br>变成一台<br><em>真正的工具</em>。</h1>
+      <p class="lede">69 项功能，不是 69 个网页入口。本机视觉、离线大模型、真实 Telecom 来电、系统灵动岛，全部在手机里跑。核心功能不联网，文件不上传。</p>
+      <div class="actions">
+        <a class="btn-main" href="https://aka.doubaocdn.com/s/i2xoVKVF8p"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 19h16"/></svg>下载最新 APK</a>
+        <a class="btn-ghost" href="#ability">看看能做什么</a>
       </div>
-      <div class="nav-name">IK工具箱</div>
-      <div class="nav-ver">最新 v4.5.34</div>
+      <div class="meta"><span><b>69</b> 项工具</span><span><b>4</b> 个本地模型</span><span><b>0</b> 广告</span><span><b>离线</b> 优先</span></div>
     </div>
-  </nav>
-
-  <div class="wrap">
-    <!-- ===== Hero ===== -->
-    <header class="hero">
-      <div class="hero-badge">永久免费 · 无广告 · 离线运行</div>
-      <h1>IK工具箱</h1>
-      <p>69 项安卓实用工具集：服务器与内网穿透、AI 聊天、图片视频处理、系统优化、娱乐小游戏，一个 App 全搞定。</p>
-    </header>
-
-    <!-- ===== 下载区 ===== -->
-    <div class="dl">
-      <a class="dl-main" href="https://aka.doubaocdn.com/s/RUeceaHAL7">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 21h16"/></svg>
-        下载最新版 APK（v4.5.34）
-      </a>
-      <div class="dl-sub">
-        <a href="https://github.com/3115703202/ik-tools" target="_blank" rel="noopener">源码仓库</a>
-        <a href="https://aka.doubaocdn.com/s/RUeceaHAL7">国内直链下载</a>
-        <a href="#guide">安装说明</a>
-        <a href="#versions">版本记录</a>
+    <div class="phone">
+      <div class="island"><i class="d"></i><span id="islandTime">22:41</span><b>87%</b></div>
+      <div class="scr">
+        <div class="sh"><i class="dot"></i><h3>Qwen2.5 0.5B</h3><span class="sw">本地离线</span></div>
+        <div class="sug"><div>用三句话介绍你自己</div><div>帮我把这句话改得更正式</div><div>解释一下什么是量化</div><div>写一首关于秋天的五言绝句</div></div>
+        <div class="chat"><div class="b me">你好。</div><div class="b ai">你好，有什么可以帮你？<small>7 tok/s · 1.0s · 本机推理</small></div></div>
+        <div class="inp">问点什么…<span class="send">➤</span></div>
+        <div class="snav"><div>模型市场</div><div class="on">对话</div></div>
       </div>
-      <div class="dl-meta">
-        安卓 7.0+ 通用 · 约 17MB · 固定签名，可覆盖升级<br>
-        GitHub：<code>github.com/3115703202/ik-tools</code> · 国内直连：<code>aka.doubaocdn.com/s/tzDln6K9Fd</code>
-      </div>
+      <div class="badge-float"><b>0 上传</b><br>画面与对话只在本机</div>
     </div>
+  </section>
 
-    <!-- ===== 特性 ===== -->
-    <section>
-      <div class="sec-title">核心能力</div>
-      <div class="feat">
-        <div class="card"><b><span class="ico c-blue"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M18 20a6 6 0 0 0-12 0M12 10a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></span></b><span class="card-name">房型库共享服务器</span><span>局域网 HTTP 服务 + 一键公网穿透，朋友随时访问</span></div>
-        <div class="card"><b><span class="ico c-purple"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6M9 13h4"/></svg></span></b><span class="card-name">金龙 AI-Pro</span><span>联网大模型问答，内置浏览器直达网页</span></div>
-        <div class="card"><b><span class="ico c-green"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M14.5 4h-9a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><path d="M17 7l3-3v13l-3-3"/></svg></span></b><span class="card-name">图片视频工具</span><span>压缩、转码、抠图、提取封面与音频</span></div>
-        <div class="card"><b><span class="ico c-orange"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 3l7 4v5c0 4-3 7-7 8-4-1-7-4-7-8V7l7-4z"/><path d="M9 12l2 2 4-4"/></svg></span></b><span class="card-name">系统工具</span><span>应用管理、性能跑分、设备检测、壁纸</span></div>
-        <div class="card"><b><span class="ico c-pink"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 20a8 8 0 1 0-8-8 8 8 0 0 0 8 8z"/><path d="M9 11v2M15 11v2"/></svg></span></b><span class="card-name">娱乐小游戏</span><span>像素跳跃、怀旧街机、双人乒乓、弹幕机</span></div>
-        <div class="card"><b><span class="ico c-cyan"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></span></b><span class="card-name">69 项工具全家桶</span><span>工具、娱乐、系统分类清晰，搜索直达</span></div>
-      </div>
-    </section>
-
-    <!-- ===== 版本记录 ===== -->
-    <section id="versions">
-      <div class="sec-title">版本记录</div>
-      <div class="ver-list">
-        <div class="ver-row"><span class="ver-tag new">v4.5.34</span><span class="ver-note">模拟通话真实注册 PhoneAccount（self-managed），走 Telecom 来电；灵动岛补齐 5/5 权限门禁与通知监听/无障碍/电池白名单；本地 AI 增加模型切换与 4 个 GGUF 模型下载，推理参数优化</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag new">v4.5.33</span><span class="ver-note">新增「看见」实时本机视觉、「模拟通话」悬浮来电界面、「灵动岛」顶部胶囊；本地 AI 改为白底绿色对话界面，含推荐问题卡、左右气泡与模型市场/对话底栏</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag new">v4.5.32</span><span class="ver-note">3D 枪战第二轮：突击兵/疾行者/重装兵三种敌人，血量、速度、伤害、射速不同；敌人有走路步态；受击方向红弧、低血量红屏、最高纪录、爆头统计、换弹动作；敌人射击加散布更公平</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag new">v4.5.31</span><span class="ver-note">3D 枪战升级：按住连发、爆头 2.5 倍伤害、轻微辅助瞄准、击杀爆点/倒地、连杀与波次横幅；修敌人子弹穿墙、重开后定时刷怪；敌人会侧移分散；新增暂停和灵敏度滑杆；掉帧自动降分辨率</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag new">v4.5.30</span><span class="ver-note">全量文本排查：修正主界面残留的 v4.5.3、内置 AI 说明里的「7 个工具」、官网与说明里的「51 项」（实际 69 项）；本地 AI 模型容量统一按 491MB 显示；隐私文案改为「不上传文件内容」；开发记录补齐 v4.5.9–v4.5.29</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag new">v4.5.29</span><span class="ver-note">模型下载实时进度（百分比 / MB / 速度）；修复本地 AI 报 invalid argument: --no-conversation；下载中心新增 491MB 模型下载入口并自动取线上最新 APK，后台公告 Token 输入改回正常输入法、发布前先校验 Token</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag new">v4.5.28</span><span class="ver-note">应用外观的「IK工具箱」恢复原始 IK 图标；修复官网 OTA 版本号卡在 v4.5.22、点下载拿到旧包的问题；本地 AI 内核改从原生库目录执行，解决 error=13 Permission denied</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag new">v4.5.22</span><span class="ver-note">应用外观新增 8 套通用桌面图标：主题、云盘、购物、聊天、地图、邮箱、翻译、健康；共 23 套，全部自绘，不冒用第三方品牌</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.21</span><span class="ver-note">后台二次密码改为 3115703202；新增公告推送（发布后所有人打开 App 即收到）；应用外观支持自定义名字与图片，并可生成带自定义图标和名字的桌面快捷方式</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.20</span><span class="ver-note">隐藏管理后台上线：内置浏览器按「抖音 → B站」顺序访问后弹密码，111 进入后再验一次；后台看本机设备、存储、产物文件分布、本地服务配置、功能清单</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.19</span><span class="ver-note">本地 AI 获得手机操控权：无障碍读屏 / 点击 / 滑动 / 返回 / 开应用；新增 AI 权限中心（逐项授权+状态）、文件实验室（图片转 JPG/PNG/WebP、视频提音轨、MP4 重封装、音频转 m4a）</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.18</span><span class="ver-note">补上视频剪辑（无损裁 MP4）、音频剪切（输出 m4a）、滚动长截图（自动拼接+悬浮保存）；修复应用外观闪退；局域网传文件支持手机端多选上传；补回本地 AI 入口与模型下载按钮</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.17</span><span class="ver-note">网盘直链改为分片多连接下载：Range 探测 + 1MB 分片 + 4 连接起步、每 2 秒 +2 至 16 条阶梯提速，速度超 12MB/s 即停；进度框实时显示 MB/s 与连接数</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.16</span><span class="ver-note">新增金属探测：磁力计场强实时显示、自动/手动基线校准、Δ 四档判定、进度条高度随强度变化、提示音随距离加密、越过阈值震动提醒</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.15</span><span class="ver-note">物体识别整条推理链重写（张量自适应 + 输出形状自识别 + 画面旋正 + NMS）；新增本地 AI：内置 llama.cpp 跑 Qwen2.5-0.5B GGUF，模型按需下载后完全离线对话</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.14</span><span class="ver-note">补齐五个硬缺口：局域网传文件（手机开网页互传）、网络测速（延迟+实测下载）、应用备份、隐私检查、电池健康；我的文件加多选/批量重命名/批量删除；修掉屏幕检测等页面漏注册导致点开闪退</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.13</span><span class="ver-note">自动点击器 10 处 bug 全修：拾取层挡住面板、圆点拖完误弹窗、状态刷新递归、手势超时丢点、长延时点被截断等；手势改分片下发（≤850ms / ≤8 指）</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.12</span><span class="ver-note">自动点击重做为多点宏（每点独立延时/按住时长/存方案/悬浮面板折叠）；全景修复相机线程崩溃导致「拍一半停住」，加代理箭头与手动补拍；新增屏幕检测（坏点/触摸）</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.11</span><span class="ver-note">「应用外观」页面重做：顶部桌面预览卡、液体玻璃格子、图标光晕、选中描边+勾选角标、按压回弹，深浅色都跟主题</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.10</span><span class="ver-note">应用外观：15 套桌面名字+图标一键换（activity-alias 切换，免 root）；所有二级页面左上角加玻璃返回箭头</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.9</span><span class="ver-note">新增内置安装器：Shizuku 静默安装、Root 静默安装，完全不弹系统安装界面；没 root 没 Shizuku 还能走普通安装 + 无障碍自动点掉「继续安装」</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.8</span><span class="ver-note">自动点击器重写：悬浮面板加点击点、拖动定位、长按删除、间隔可调、无限/定次循环；补上无障碍 canPerformGestures，之前根本发不出手势。360 全景改为传感器引导：箭头指向要转的方向、到刻度自动拍、满 8 张自动拼接存 Download/IK工具箱/全景</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.7</span><span class="ver-note">产物目录从应用私有 Data 改到系统下载目录 Download/IK工具箱，系统文件管理器和电脑都能直接看到，下载完能删能分享；iOS 式分享 Uri 改走 content://，安卓 7+ 不再报 FileUri 异常</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.6</span><span class="ver-note">修复深色主题只对当前页面生效的问题：切换后回到首页/子页仍是旧配色，现改为主题版本号对比，页面回到前台自动按新主题重建；设置弹窗改为按选中项判断，未变化不再误报"已切换"</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.5</span><span class="ver-note">恢复网盘应用内直下：WebView 内接管下载请求（含 window.open 触发）、蓝奏云免登录直出、文件落进 IK工具箱 目录、HTML 错误页不再当文件保存；保留 v4.5.4 的穿透内核与物体识别直链修复、内置离线识别</span><span class="ver-date">2026-11-15</span></div>
-      <div class="ver-row"><span class="ver-tag">v4.5.4</span><span class="ver-note">修复下载中心穿透内核、物体识别模型直链失效（HTTP 403）；穿透内核重打包并更新国内直链；物体识别改回内置离线检测模型，不再依赖外部大模型下载；清理失效占位模型文件</span><span class="ver-date">2026-11-15</span></div>
-        <div class="ver-row"><span class="ver-tag">v4.5.3</span><span class="ver-note">修复：网盘 window.open 触发的下载被丢弃（点下载没反应）；下载到 HTML 错误页被当文件保存；蓝奏表单被 chunked 拒绝；Shizuku 重启改用精确闹钟定时拉起 + 启动后二次拉取 binder</span><span class="ver-date">2026-11-06</span></div>
-        <div class="ver-row"><span class="ver-tag">v4.5.2</span><span class="ver-note">无线调试修复；网盘应用内直下</span><span class="ver-date">2026-11-06</span></div>
-        <div class="ver-row"><span class="ver-tag">v4.5.1</span><span class="ver-note">3D枪战完全重写：本地引擎、弹道命中、墙体碰撞、波次与结算；手机归属地改离线号段库；物体识别模型换源+下载校验；下载中心/穿透内核/官网链接全部修复</span><span class="ver-date">2026-11-06</span></div>
-        <div class="ver-row"><span class="ver-tag">v4.5.0</span><span class="ver-note">物体识别阈值提至0.6；检查更新联网对比；APK提取上传分享；全量bug修复</span><span class="ver-date">2026-10-24</span></div>
-        <div class="ver-row"><span class="ver-tag">v4.0.3</span><span class="ver-note">检查更新合并到关于页；无线调试加ADB有线启动指引；底部导航三页统一</span><span class="ver-date">2026-10-24</span></div>
-        <div class="ver-row"><span class="ver-tag">v4.0.0</span><span class="ver-note">物体识别阈值提升减少误报；底部导航图标固定；检查更新合并到版本号</span><span class="ver-date">2026-10-24</span></div>
-        <div class="ver-row"><span class="ver-tag">v3.9.4</span><span class="ver-note">底部导航图标固定不压缩；检查更新合并到版本号；百度网盘不再报错</span><span class="ver-date">2026-10-24</span></div>
-        <div class="ver-row"><span class="ver-tag">v3.9.3</span><span class="ver-note">Shizuku无线调试全面修复：主动拉取binder+自动授权+弹窗引导；底部导航图标修复；网盘/视频解析自动下载</span><span class="ver-date">2026-10-24</span></div>
-        <div class="ver-row"><span class="ver-tag">v3.9.0</span><span class="ver-note">Shizuku主动检测引导；百度网盘明确提示需登录；检查更新合并到关于页</span><span class="ver-date">2026-10-24</span></div>
-        <div class="ver-row"><span class="ver-tag">v3.8.2</span><span class="ver-note">网盘解析接NFD云解析真实直链下载；视频解析支持抖音/B站/快手/小红书/TikTok无水印提取；自动跳转下载器高速下载；修复翻译/录屏/文件目录等bug</span><span class="ver-date">2026-10-24</span></div>
-        <div class="ver-row"><span class="ver-tag">v3.7.0</span><span class="ver-note">新增录屏（MP4保存到我的文件）；新增自动点击器（无障碍+悬浮窗）；新增系统信息/翻译/天气/物流查询</span><span class="ver-date">2026-10-24</span></div>
-        <div class="ver-row"><span class="ver-tag">v3.5.0</span><span class="ver-note">网盘解析接真实API（蓝奏云/123云盘直链）；分享面板集成；剪贴板自动弹窗；物体识别阈值优化；新增贪吃蛇/2048/俄罗斯方块</span><span class="ver-date">2026-10-23</span></div>
-        <div class="ver-row"><span class="ver-tag">v3.3.0</span><span class="ver-note">剪贴板自动监听；下载与文件打通；新增3个HTML5游戏；深色模式；全局搜索</span><span class="ver-date">2026-10-23</span></div>
-        <div class="ver-row"><span class="ver-tag">v3.2.0</span><span class="ver-note">新增网盘解析工具：粘贴链接自动识别全平台，支持历史/收藏/剪贴板</span><span class="ver-date">2026-10-23</span></div>
-        <div class="ver-row"><span class="ver-tag">v3.1.9</span><span class="ver-note">Shizuku sticky receiver 自动授权，和MT管理器一样一打开就弹框</span><span class="ver-date">2026-10-23</span></div>
-        <div class="ver-row"><span class="ver-tag">v3.1.8</span><span class="ver-note">Shizuku 连不上根因修复；收藏/我的页底部导航统一4项白卡风格</span><span class="ver-date">2026-10-23</span></div>
-        <div class="ver-row"><span class="ver-tag new">v3.1.4</span><span class="ver-note">新增传感器工具箱（指南针/水平仪/手电筒）；二维码扫码识别；无线调试专项引导页；开屏公告液态玻璃重做</span><span class="ver-date">2026-10-22</span></div>
-        <div class="ver-row"><span class="ver-tag new">v3.1.3</span><span class="ver-note">3D枪战引擎升级：俯仰角视角+后坐力上抬+距离雾化+右半屏滑动瞄准；Shizuku API 升级至 13.1.5；底部导航收窄紧凑化</span><span class="ver-date">2026-10-21</span></div>
-        <div class="ver-row"><span class="ver-tag new">v3.1.2</span><span class="ver-note">修复 Shizuku 无线调试授权：补充 API_V23 权限声明，激活后静默停用/卸载、深度设备信息即可正常使用</span><span class="ver-date">2026-10-21</span></div>
-        <div class="ver-row"><span class="ver-tag new">v3.1.1</span><span class="ver-note">新增《失控进化》房型库入口（内置浏览器直达）；官网下载改国内直连；全文版本信息统一</span><span class="ver-date">2026-10-21</span></div>
-        <div class="ver-row"><span class="ver-tag new">v3.1.0</span><span class="ver-note">官网迁移 GitHub Pages（无水印），检查更新默认走 GitHub 官网，下载多通道</span><span class="ver-date">2026-10-20</span></div>
-        <div class="ver-row"><span class="ver-tag">v3.0.8</span><span class="ver-note">玻璃透明感 UI：彩色光斑背景、悬浮玻璃导航、首页搜索栏</span><span class="ver-date">2026-10-19</span></div>
-        <div class="ver-row"><span class="ver-tag">v3.0.7</span><span class="ver-note">修复检查更新误连本机地址，默认走官网</span><span class="ver-date">2026-10-18</span></div>
-        <div class="ver-row"><span class="ver-tag">v3.0.6</span><span class="ver-note">新增一键网络诊断（VPN 前后对比）</span><span class="ver-date">2026-10-18</span></div>
-        <div class="ver-row"><span class="ver-tag">v3.0.5</span><span class="ver-note">穿透启动 VPN 检测，支持代理出口</span><span class="ver-date">2026-10-18</span></div>
-        <div class="ver-row"><span class="ver-tag">v3.0.4</span><span class="ver-note">frp 免实名引导：内置 OpenFrp 官网入口</span><span class="ver-date">2026-10-18</span></div>
-        <div class="ver-row"><span class="ver-tag">v3.0.3</span><span class="ver-note">OTA 检查更新修复，默认官网直连</span><span class="ver-date">2026-10-18</span></div>
-        <div class="ver-row"><span class="ver-tag">v3.0</span><span class="ver-note">全量 UI 升级：液态玻璃设计系统 + 导航加高对齐</span><span class="ver-date">2026-10-17</span></div>
-      </div>
-    </section>
-
-    <!-- ===== 安装说明 ===== -->
-    <section id="guide">
-      <div class="sec-title">安装说明</div>
-      <div class="note">
-        <div><b>1. 下载 APK</b>点击上方按钮下载安装包</div>
-        <div><b>2. 允许未知来源</b>安装时按系统提示开启「允许安装未知应用」</div>
-        <div><b>3. 覆盖升级</b>旧版直接覆盖安装，数据不丢失</div>
-        <div><b>4. 检查更新</b>App 内「检查更新」自动从本页获取最新版</div>
-      </div>
-    </section>
-
-    <footer>
-      永久免费 · 无广告 · 不上传你的文件 · 核心功能离线可用<br>
-      官网已上线 GitHub Pages，发布页：<a href="https://github.com/3115703202/ik-tools" target="_blank" rel="noopener">github.com/3115703202/ik-tools</a>
-    </footer>
+  <div class="stats">
+    <div class="stat"><b>69<i>项</i></b><span>工具与玩法</span></div>
+    <div class="stat"><b>5<i>类</i></b><span>系统级能力</span></div>
+    <div class="stat"><b>4<i>个</i></b><span>可选 GGUF 模型</span></div>
+    <div class="stat"><b>1<i>秒</i></b><span>短答首响应目标</span></div>
   </div>
+
+  <section id="ability">
+    <div class="sec-head"><div><h2>不是壳，是系统能力</h2><p>能注册进系统的地方，就真的注册；能离线跑的，就不绕网页。</p></div><div class="sec-idx">01 / CAPABILITY</div></div>
+    <div class="cards">
+      <div class="card big c1"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="4"/><path d="M9 6h6"/></svg>真实 Telecom 模拟来电</h3><p>不是一张假截图。App 会注册 <b>PhoneAccount（self-managed）</b>，通过 TelecomManager 发起来电，接听、挂断走系统回调。铃声、震动、通话计时、内置人声都在本机完成，不拨真实号码。</p><span class="tag">无 SecurityException</span></div>
+      <div class="card c2"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="7" rx="3.5"/><path d="M8 8h2M15 8h1"/></svg>灵动岛 5/5 权限</h3><p>悬浮窗、通知监听、无障碍、电池白名单、通知权限逐项校验，缺一项不能启动。通知标题与正文上岛，横屏自动隐藏。</p><span class="tag">通知监听 · 非装饰</span></div>
+      <div class="card c3"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12c4-7 14-7 18 0-4 7-14 7-18 0z"/><circle cx="12" cy="12" r="3"/></svg>看见 · 本机视觉</h3><p>摄像头实时帧进 TFLite，框出人、动物、车辆、碗杯等 90 类物品，再给 1000 类场景线索。人体框粗判站立 / 坐着 / 活动中，画面不上传。</p><span class="tag">90 类 · 实时</span></div>
+      <div class="card c4"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="17" r="3"/></svg>局域网与网盘</h3><p>手机开网页，电脑浏览器直接互传；网盘链接在应用内解析直下，不跳外部浏览器。Broken pipe、断连、续传都已处理。</p></div>
+      <div class="card c5"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3"/><circle cx="12" cy="12" r="3.2"/></svg>3D 枪战</h3><p>Three.js 真 3D，三种兵种、爆头判定、受击方向、低血红屏、最高纪录与自适应分辨率，手机触屏直接玩。</p></div>
+    </div>
+  </section>
+
+  <section id="models">
+    <div class="sec-head"><div><h2>本地 AI，不是一个模型凑数</h2><p>模型市场里选，下载完顶部直接切。短问题压到 160 tokens、1024 上下文、6 线程，目标 1 秒内开口。</p></div><div class="sec-idx">02 / ON-DEVICE AI</div></div>
+    <div class="models">
+      <div class="mrow"><b>Qwen2.5 0.5B</b><span>491 MB</span><em>最快 · 短答约 1 秒</em><span class="fast">推荐</span></div>
+      <div class="mrow"><b>Qwen2.5 1.5B</b><span>约 1.1 GB</span><em>更聪明 · 速度稍慢</em><span>可选</span></div>
+      <div class="mrow"><b>TinyLlama 1.1B</b><span>约 669 MB</span><em>轻量 · 中英对话</em><span>可选</span></div>
+      <div class="mrow"><b>Llama 3.2 1B</b><span>约 800 MB</span><em>通用 · 指令跟随</em><span>可选</span></div>
+    </div>
+    <div class="models" style="margin-top:14px">
+      <div class="mrow"><b>模型切换</b><span>自动扫描</span><em>models 目录下的任意 .gguf</em><span class="fast">已支持</span></div>
+      <div class="mrow"><b>对话界面</b><span>白底绿</span><em>推荐问题卡 / 左右气泡 / 模型市场 · 对话底栏</em><span class="fast">已支持</span></div>
+    </div>
+  </section>
+
+  <section id="download">
+    <div class="dlbox">
+      <div><div class="kicker">DIRECT APK / ANDROID 7.0+</div><h2>下载 IK工具箱 v4.5.35</h2><p>69 项工具 · 215 · 25.6 MB · 覆盖安装保留数据</p><div class="hash">MD5 26b6525cee3d3d0f9cb0dad610f68f25</div></div>
+      <div class="dl-side"><a class="btn-main" href="https://aka.doubaocdn.com/s/i2xoVKVF8p">直接下载 APK</a><a class="btn-ghost" href="https://aka.doubaocdn.com/s/qhrWf4jGAM">完整包 · 源码与记录</a><small>国内 CDN 直链 · 无跳转</small></div>
+    </div>
+  </section>
+
+  <section id="log">
+    <div class="sec-head"><div><h2>最近更新</h2><p>每个版本都改版本号，不只改一行文案。</p></div><div class="sec-idx">03 / CHANGELOG</div></div>
+    <div class="tl">
+      <div class="item"><div class="v">v4.5.35 · 215</div><p>官网全面重做：深色系统级视觉，能力按真实实现重排；本地 AI 模型对比、更新记录与下载区重写。</p></div>
+      <div class="item"><div class="v">v4.5.34 · 214</div><p>模拟通话改为真实注册 PhoneAccount，通过 Telecom 发起来电；灵动岛补齐 5/5 权限门禁与通知监听、无障碍、电池白名单；本地 AI 增加 4 个模型市场与切换，推理参数压缩首响应。</p></div>
+      <div class="item"><div class="v">v4.5.33 · 213</div><p>新增「看见」实时本机视觉、「模拟通话」、「灵动岛」；本地 AI 改为白底绿色对话界面。</p></div>
+      <div class="item"><div class="v">v4.5.32 · 212</div><p>3D 枪战三种兵种、敌人步态、受击方向、低血量红屏、最高纪录、换弹动作与射击散布。</p></div>
+      <div class="item"><div class="v">v4.5.30 · 210</div><p>全量文本排查，修正版本残留、工具数量、模型容量与隐私文案。</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><div><h2>常见问题</h2><p>先把最容易踩的坑说清楚。</p></div><div class="sec-idx">04 / FAQ</div></div>
+    <div class="faq">
+      <details open><summary>模拟通话会被系统拦截吗？</summary><p>会真实注册 PhoneAccount（self-managed）并走 Telecom。若系统或厂商把该账户禁用，App 会显示失败原因并切到本机悬浮来电界面，不会直接崩溃。整个功能仅供娱乐，不拨真实号码。</p></details>
+      <details><summary>灵动岛为什么要 5 个权限？</summary><p>悬浮窗负责显示胶囊，通知监听负责把通知内容送上岛，无障碍负责前台应用识别，电池白名单避免后台被杀，通知权限保证系统通知可见。缺任何一项都会在设置页标红，不能启动。</p></details>
+      <details><summary>本地 AI 真能 1 秒回答吗？</summary><p>0.5B 模型 + 160 tokens 上限 + 1024 上下文 + 6 线程，短问题在主流 arm64 机型上可接近 1 秒；长回答、1.5B/1.1B 模型会明显更慢，这是本机算力决定的，不虚标。</p></details>
+      <details><summary>看见会把画面传出去吗？</summary><p>不会。摄像头帧只在本机交给 TFLite，模型和标签都打包在 APK 内；不依赖外部网页，不上传服务器。</p></details>
+    </div>
+  </section>
+  <footer><span><b>IK工具箱</b> · com.roomarchive.server · 永久免费 · 无广告</span><span>本页为官方发布页 · 只提供直链下载</span></footer>
+</div>
+<script>
+(function(){
+  function tick(){var d=new Date();var h=String(d.getHours()).padStart(2,'0'),m=String(d.getMinutes()).padStart(2,'0');var el=document.getElementById('islandTime');if(el)el.textContent=h+':'+m;}
+  tick();setInterval(tick,30000);
+})();
+</script>
 </body>
 </html>
