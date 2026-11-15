@@ -136,7 +136,9 @@ public class AboutActivity extends BaseActivity {
         card.setPadding(dp(14), dp(12), dp(14), dp(12));
 
         card.addView(groupTitle("最新"));
-        card.addView(timelineRow(accent, "v4.5.30", "本地 AI 模型下载显示百分比/MB/实时速度；修复 llama-cli 不认 --no-conversation 导致的 invalid argument；下载中心新增模型下载入口并自动取线上最新 APK；后台公告 Token 输入改正常输入法、发布前校验 Token"));
+        card.addView(timelineRow(accent, "v4.5.31", "3D 枪战手感升级：按住连发、爆头 2.5 倍伤害、轻微辅助瞄准、击杀爆点与倒地下沉、连杀提示、波次横幅；修复敌人子弹穿墙与重开后定时刷怪；敌人会侧移分散；新增暂停与灵敏度滑杆；连续掉帧自动降分辨率"));
+        card.addView(timelineRow(accent, "v4.5.30", "全量文本排查：修正主界面残留 v4.5.3、内置说明「7 个工具」、官网/说明「51 项」（实际 66 项）；模型容量统一 491MB；隐私文案改为不上传文件内容"));
+        card.addView(timelineRow(accent, "v4.5.29", "本地 AI 模型下载显示百分比/MB/实时速度；修复 llama-cli 不认 --no-conversation 导致的 invalid argument；下载中心新增模型下载入口并自动取线上最新 APK；后台公告 Token 输入改正常输入法、发布前校验 Token"));
         card.addView(timelineRow(accent, "v4.5.28", "恢复原始 IK 图标；官网 OTA 锁版本修复；llama.cpp 内核改为随 APK 打进原生库目录执行，修复 error=13"));
         card.addView(timelineRow(accent, "v4.5.27", "本地 AI 白屏修复；后台二次密码去掉长度截断、兼容全角数字；局域网传文件 Broken pipe 静默"));
         card.addView(timelineRow(accent, "v4.5.3", "网盘 window.open 触发的下载被丢弃问题修复；下载到 HTML 错误页被当文件保存的问题修复；蓝奏表单被 chunked 拒绝修复；Shizuku 重启改用精确闹钟定时拉起 + 启动后二次拉取 binder"));
