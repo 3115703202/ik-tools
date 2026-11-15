@@ -70,8 +70,8 @@ body{font-family:-apple-system,"PingFang SC",system-ui,sans-serif;background:#05
 <div class="gate" id="gate">
   <div class="card">
     <div class="title">管理后台</div>
-    <div class="sub">本机数据控制台<br>再输一次密码才进得去</div>
-    <input class="pwd" id="pwd" type="password" inputmode="numeric" maxlength="16" placeholder="••••">
+    <div class="sub">本机数据控制台 · v4.5.26<br>再输一次密码才进得去</div>
+    <input class="pwd" id="pwd" type="text" inputmode="numeric" autocomplete="off" placeholder="输入 10 位密码">
     <button class="btn" onclick="login()">验证进入</button>
     <div class="err" id="err"></div>
   </div>
@@ -117,12 +117,17 @@ body{font-family:-apple-system,"PingFang SC",system-ui,sans-serif;background:#05
 var DATA=null;
 function $(id){return document.getElementById(id)}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function normPwd(v){
+  return String(v==null?'':v)
+    .replace(/[０-９]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-65248)})
+    .replace(/[^0-9]/g,'');
+}
 function login(){
-  var p=$('pwd').value.trim();
+  var p=normPwd($('pwd').value);
   if(!p){$('err').textContent='请输入密码';return}
   var ok=false;
   try{ ok=window.AdminBridge && AdminBridge.auth(p) }catch(e){ ok=false }
-  if(!ok){$('err').textContent='密码不对';return}
+  if(!ok){$('err').textContent='密码不对（收到 '+p.length+' 位数字）';return}
   var raw='{}';
   try{ raw=AdminBridge.data(p) }catch(e){ $('err').textContent='无法读取数据（请从 App 内打开）';return }
   try{ DATA=JSON.parse(raw) }catch(e){ $('err').textContent='数据解析失败';return }

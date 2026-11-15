@@ -26,6 +26,7 @@ public class AdminBridge {
 
     @JavascriptInterface
     public boolean auth(String pwd) {
+        pwd = pwd == null ? "" : pwd.replaceAll("[^0-9]", "");
         boolean ok = PWD.equals(pwd);
         if (ok) unlocked = true;
         return ok;
@@ -45,7 +46,8 @@ public class AdminBridge {
 
     @JavascriptInterface
     public String data(String pwd) {
-        if (!unlocked && !PWD.equals(pwd)) return "{\"error\":\"unauthorized\"}";
+        String clean = pwd == null ? "" : pwd.replaceAll("[^0-9]", "");
+        if (!unlocked && !PWD.equals(clean)) return "{\"error\":\"unauthorized\"}";
         try {
             JSONObject o = new JSONObject();
             o.put("device", device());
