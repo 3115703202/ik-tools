@@ -106,6 +106,8 @@ public class Tools {
                     QRCodeActivity.class, true, SEC_TOOL),
             new Tool("daily", "每日一签", "daily", "每日寄语 · 心情记录", 0xFF65A30D,
                     DailyYouActivity.class, false, SEC_TOOL),
+            new Tool("screen", "屏幕检测", "screen", "坏点亮点 · 触摸断触", 0xFF0891B2,
+                    ScreenTestActivity.class, true, SEC_TOOL),
             new Tool("bench", "性能跑分", "bench", "CPU/内存/存储跑分", 0xFFF59E0B,
                     PerformanceActivity.class, true, SEC_TOOL),
             new Tool("sensor", "传感器工具箱", "sensor", "指南针 · 水平仪 · 手电筒", 0xFF0D9488,
