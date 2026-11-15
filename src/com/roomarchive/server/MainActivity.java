@@ -53,6 +53,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Presence.ping(this);
         checkClipboardForLink();
         checkShizukuStatus();
     }

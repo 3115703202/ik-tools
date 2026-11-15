@@ -110,7 +110,12 @@ public class TransferServer {
             }
             out.flush();
         } catch (Throwable t) {
-            log("请求失败：" + t.getMessage());
+            String m = t.getMessage() == null ? "" : t.getMessage();
+            if (!(m.contains("Broken pipe") || m.contains("Connection reset")
+                    || m.contains("Socket closed") || m.contains("EPIPE")
+                    || m.contains("Connection closed"))) {
+                log("请求失败：" + m);
+            }
         } finally {
             try { s.close(); } catch (Throwable ignored) {}
         }
@@ -184,7 +189,14 @@ public class TransferServer {
         try (RandomAccessFile raf = new RandomAccessFile(f, "r")) {
             byte[] buf = new byte[8192];
             int n;
-            while ((n = raf.read(buf)) > 0) out.write(buf, 0, n);
+            while ((n = raf.read(buf)) > 0) {
+                try {
+                    out.write(buf, 0, n);
+                } catch (IOException e) {
+                    // 浏览器取消下载/提前断开，正常现象，不要当错误
+                    break;
+                }
+            }
         }
     }
 

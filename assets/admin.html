@@ -56,6 +56,9 @@ body{font-family:-apple-system,"PingFang SC",system-ui,sans-serif;background:#05
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{font-size:12px;padding:7px 11px;border-radius:11px;background:rgba(255,255,255,.07);
   border:1px solid rgba(255,255,255,.12);color:#d7e6fb}
+.online{display:flex;align-items:baseline;gap:8px;margin:6px 0 4px}
+.online b{font-size:40px;line-height:1;color:#7fe9ff;font-weight:700;text-shadow:0 0 22px rgba(0,212,255,.35)}
+.online span{font-size:12px;color:#8fa3bf}
 .bar{height:6px;border-radius:6px;background:rgba(255,255,255,.08);margin-top:10px;overflow:hidden}
 .bar i{display:block;height:100%;background:linear-gradient(90deg,#7fe9ff,#22c1e8,#7c3aed);border-radius:6px}
 .foot{text-align:center;font-size:11px;color:#5c718c;margin-top:22px;line-height:1.8}
@@ -79,6 +82,13 @@ body{font-family:-apple-system,"PingFang SC",system-ui,sans-serif;background:#05
     <h1>IK 管理后台</h1>
     <span class="v" id="ver">v—</span>
   </div>
+  <div class="sec">
+    <h2>实时在线</h2>
+    <div class="online"><b id="onCount">—</b><span>人正在使用</span></div>
+    <div class="st" id="onState">连接心跳中…</div>
+    <div class="chips" id="onList" style="margin-top:10px"></div>
+  </div>
+
   <div class="grid" id="tiles"></div>
 
   <div class="sec"><h2>设备</h2><div id="dev"></div></div>
@@ -121,6 +131,7 @@ function login(){
   $('wrap').style.display='block';
   render();
   fillNotice();
+  startPresence();
 }
 function row(l,r){return '<div class="row"><span class="l">'+esc(l)+'</span><span class="r">'+esc(r)+'</span></div>'}
 function render(){
@@ -192,6 +203,36 @@ async function publishNotice(){
     if(r.ok){ nStatus('已发布，等 Pages 构建 1-2 分钟后，用户下次打开就能收到') }
     else{ nStatus('发布失败：'+((await r.json()).message||r.status)) }
   }catch(e){ nStatus('发布出错：'+e) }
+}
+var seen={},presenceStarted=false;
+function startPresence(){
+  if(presenceStarted) return;
+  presenceStarted=true;
+  try{
+    var es=new EventSource('https://ntfy.sh/ik_online_3115703202_9f4c/sse');
+    es.onopen=function(){ $('onState').textContent='实时连接正常，每 5 秒刷新' };
+    es.onerror=function(){ $('onState').textContent='连接断开，浏览器会自动重连' };
+    es.onmessage=function(e){
+      try{
+        var m=JSON.parse(e.data);
+        if(m.event!=='message') return;
+        var d=JSON.parse(m.message);
+        if(!d.id) return;
+        seen[d.id]={t:Date.now(),model:d.model,v:d.v};
+        tickPresence();
+      }catch(err){}
+    };
+  }catch(err){ $('onState').textContent='当前环境不支持实时连接' }
+  setInterval(tickPresence,5000);
+}
+function tickPresence(){
+  var now=Date.now(),ids=Object.keys(seen),active=[];
+  for(var i=0;i<ids.length;i++) if(now-seen[ids[i]].t<180000) active.push(ids[i]);
+  $('onCount').textContent=active.length;
+  $('onList').innerHTML=active.slice(0,12).map(function(k){
+    var x=seen[k];
+    return '<span class="chip">'+esc(x.model||'设备')+' · v'+esc(x.v||'?')+'</span>'
+  }).join('');
 }
 function tile(k,v){return '<div class="tile"><div class="k">'+esc(k)+'</div><div class="v">'+esc(v)+'</div></div>'}
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&$('gate').style.display!=='none')login()});
