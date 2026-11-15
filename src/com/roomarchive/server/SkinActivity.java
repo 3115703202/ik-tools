@@ -26,7 +26,7 @@ import android.widget.Toast;
 public class SkinActivity extends BaseActivity {
 
     static final Object[][] PRESETS = new Object[][]{
-            {"Default", "IK工具箱", "ic_pick_toolbox", 0xFF0F766E},
+            {"Default", "IK工具箱（原版图标）", "ic_launcher", 0xFF0F766E},
             {"Calc", "计算器", "ic_pick_calc", 0xFF334155},
             {"Photo", "相册", "ic_pick_photo", 0xFF7C3AED},
             {"Files", "文件管理", "ic_pick_files", 0xFF1E40AF},

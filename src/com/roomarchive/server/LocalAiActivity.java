@@ -67,7 +67,7 @@ public class LocalAiActivity extends BaseActivity {
         root.addView(title);
 
         TextView sub = new TextView(this);
-        sub.setText("v4.5.27 · llama.cpp 本地推理 · 不联网 · 数据不出手机");
+        sub.setText("v4.5.28 · llama.cpp 本地推理 · 不联网 · 数据不出手机");
         sub.setTextSize(12);
         sub.setTextColor(Tools.subTextColor(this));
         sub.setGravity(Gravity.CENTER);
