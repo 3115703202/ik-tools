@@ -1,2 +1,2 @@
-VERSION=v4.5.28
-URL=https://aka.doubaocdn.com/s/tzDln6K9Fd
+VERSION=v4.5.29
+URL=https://aka.doubaocdn.com/s/KJ78jBN6Pd

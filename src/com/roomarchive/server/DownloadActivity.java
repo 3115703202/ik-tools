@@ -28,8 +28,8 @@ public class DownloadActivity extends Activity {
     }
 
     Plugin[] plugins = {
-        new Plugin("IK工具箱最新版", "App 本体更新包", "IK工具箱-latest.apk",
-            "https://aka.doubaocdn.com/s/SItRQSs3Kd"),
+        new Plugin("IK工具箱最新版", "App 本体更新包 · 自动取线上最新版，覆盖安装保留数据", "IK工具箱-v4.5.29.apk",
+            "https://aka.doubaocdn.com/s/tzDln6K9Fd"),
         new Plugin("穿透内核", "内网穿透必需 · cloudflared + frpc · 约 14MB", "kernel.zip",
             "https://aka.doubaocdn.com/s/xune67xCpU"),
     };
@@ -53,6 +53,8 @@ public class DownloadActivity extends Activity {
         listRoot.addView(hint);
 
         for (Plugin p : plugins) addPluginCard(p);
+        addAiModelCard();
+        refreshLatestApkUrl();
 
         TextView filesTitle = new TextView(this);
         filesTitle.setText("已下载文件");
@@ -64,6 +66,151 @@ public class DownloadActivity extends Activity {
 
         sv.addView(listRoot);
         setContentView(sv);
+    }
+
+    /** 每次打开下载中心都从线上 version.txt 取最新 APK 地址，避免写死后发新版还下旧包 */
+    void refreshLatestApkUrl() {
+        new Thread(() -> {
+            try {
+                java.net.HttpURLConnection c = (java.net.HttpURLConnection)
+                        new java.net.URL("https://3115703202.github.io/ik-tools/version.txt").openConnection();
+                c.setConnectTimeout(8000);
+                c.setReadTimeout(8000);
+                java.io.BufferedReader br = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(c.getInputStream()));
+                String line, url = null;
+                while ((line = br.readLine()) != null) {
+                    if (line.startsWith("URL=")) url = line.substring(4).trim();
+                }
+                br.close();
+                if (url != null && url.startsWith("https://") && plugins.length > 0) {
+                    plugins[0].urls = new String[]{url};
+                }
+            } catch (Throwable ignored) {}
+        }).start();
+    }
+
+    static final String AI_MODEL = "qwen2.5-0.5b-instruct-q4_k_m.gguf";
+    static final String AI_URL = "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/" + AI_MODEL;
+    static final String AI_URL2 = "https://hf-mirror.com/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/" + AI_MODEL;
+
+    void addAiModelCard() {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(16), dp(14), dp(16), dp(14));
+        card.setBackgroundColor(0x22FFFFFF);
+
+        TextView name = new TextView(this);
+        name.setText("本地 AI 模型 · Qwen2.5-0.5B");
+        name.setTextSize(16);
+        name.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        card.addView(name);
+
+        TextView desc = new TextView(this);
+        desc.setText("491MB · 下完完全离线对话 · 支持断点续传 / 双镜像");
+        desc.setTextSize(13);
+        desc.setPadding(0, dp(4), 0, dp(10));
+        card.addView(desc);
+
+        ProgressBar pb = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+        pb.setMax(100);
+        pb.setVisibility(View.GONE);
+        card.addView(pb);
+
+        TextView pct = new TextView(this);
+        pct.setTextSize(12);
+        pct.setVisibility(View.GONE);
+        card.addView(pct);
+
+        Button dlBtn = new Button(this);
+        java.io.File model = new java.io.File(new java.io.File(FileStore.outDir(this), "models"), AI_MODEL);
+        if (model.exists() && model.length() > 100_000_000L) {
+            dlBtn.setText("已下载 · 打开本地 AI");
+            dlBtn.setOnClickListener(v -> startActivity(new android.content.Intent(this, LocalAiActivity.class)));
+        } else {
+            dlBtn.setText("下载模型（491MB）");
+            dlBtn.setOnClickListener(v -> {
+                dlBtn.setEnabled(false);
+                pb.setVisibility(View.VISIBLE);
+                pct.setVisibility(View.VISIBLE);
+                downloadAiModel(model, pb, pct, dlBtn);
+            });
+        }
+        card.addView(dlBtn);
+        listRoot.addView(card);
+    }
+
+    void downloadAiModel(java.io.File dest, ProgressBar pb, TextView pct, Button btn) {
+        new Thread(() -> {
+            java.io.File dir = dest.getParentFile();
+            if (!dir.exists()) dir.mkdirs();
+            java.io.File tmp = new java.io.File(dir, AI_MODEL + ".part");
+            long have = tmp.exists() ? tmp.length() : 0;
+            boolean ok = false;
+            for (String urlStr : new String[]{AI_URL, AI_URL2}) {
+                try {
+                    java.net.HttpURLConnection c = (java.net.HttpURLConnection) new java.net.URL(urlStr).openConnection();
+                    c.setConnectTimeout(15000);
+                    c.setReadTimeout(20000);
+                    c.setRequestProperty("User-Agent", "IK-Tools");
+                    if (have > 0) c.setRequestProperty("Range", "bytes=" + have + "-");
+                    int code = c.getResponseCode();
+                    if (code != 200 && code != 206) throw new java.io.IOException("HTTP " + code);
+                    long total = c.getContentLengthLong();
+                    if (total > 0) total += have;
+                    java.io.InputStream is = new java.io.BufferedInputStream(c.getInputStream(), 8192);
+                    java.io.OutputStream os = new java.io.FileOutputStream(tmp, have > 0);
+                    byte[] buf = new byte[8192];
+                    int r;
+                    long got = have, last = 0, lastGot = have, lastTime = System.currentTimeMillis();
+                    while ((r = is.read(buf)) > 0) {
+                        os.write(buf, 0, r);
+                        got += r;
+                        long now = System.currentTimeMillis();
+                        if (now - last > 250) {
+                            last = now;
+                            final long g2 = got, t2 = total;
+                            final double sp = (got - lastGot) / 1048576.0 / Math.max(0.25, (now - lastTime) / 1000.0);
+                            lastGot = got; lastTime = now;
+                            runOnUiThread(() -> {
+                                if (t2 > 0) {
+                                    int p = (int) (g2 * 100 / t2);
+                                    pb.setProgress(p);
+                                    pct.setText(String.format("%d%% · %.0f/%.0f MB · %.1f MB/s", p,
+                                            g2 / 1048576.0, t2 / 1048576.0, sp));
+                                } else {
+                                    pct.setText(String.format("%.0f MB · %.1f MB/s", g2 / 1048576.0, sp));
+                                }
+                            });
+                        }
+                    }
+                    os.flush(); os.close(); is.close();
+                    if (tmp.length() < 100_000_000L) throw new java.io.IOException("文件不完整");
+                    if (dest.exists()) dest.delete();
+                    if (!tmp.renameTo(dest)) throw new java.io.IOException("保存失败");
+                    ok = true;
+                    break;
+                } catch (Throwable e) {
+                    have = tmp.exists() ? tmp.length() : 0;
+                    final String msg = e.toString();
+                    runOnUiThread(() -> pct.setText("换源重试：" + msg));
+                }
+            }
+            final boolean fOk = ok;
+            runOnUiThread(() -> {
+                btn.setEnabled(true);
+                pb.setVisibility(fOk ? View.GONE : View.VISIBLE);
+                if (fOk) {
+                    btn.setText("已下载 · 打开本地 AI");
+                    btn.setOnClickListener(v -> startActivity(new android.content.Intent(this, LocalAiActivity.class)));
+                    pct.setText("模型就绪，可离线对话");
+                    Toast.makeText(this, "模型下载完成", Toast.LENGTH_SHORT).show();
+                } else {
+                    btn.setText("重试下载");
+                    pct.setText("下载失败，检查网络后重试（支持断点续传）");
+                }
+            });
+        }).start();
     }
 
     void addPluginCard(Plugin p) {

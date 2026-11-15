@@ -70,7 +70,7 @@ body{font-family:-apple-system,"PingFang SC",system-ui,sans-serif;background:#05
 <div class="gate" id="gate">
   <div class="card">
     <div class="title">管理后台</div>
-    <div class="sub">本机数据控制台 · v4.5.28<br>再输一次密码才进得去</div>
+    <div class="sub">本机数据控制台 · v4.5.29<br>再输一次密码才进得去</div>
     <input class="pwd" id="pwd" type="text" inputmode="numeric" autocomplete="off" placeholder="输入 10 位密码">
     <button class="btn" onclick="login()">验证进入</button>
     <div class="err" id="err"></div>
@@ -100,7 +100,7 @@ body{font-family:-apple-system,"PingFang SC",system-ui,sans-serif;background:#05
     <div class="sub" style="text-align:left;margin:0 0 6px">所有装了 IK工具箱 的人，下次打开会在公告弹窗里看到。发布需要 GitHub Token，填一次记住。</div>
     <input class="inp" id="nTitle" placeholder="公告标题">
     <textarea class="ta" id="nBody" placeholder="公告内容（纯文字，简洁一点）"></textarea>
-    <input class="inp" id="nToken" placeholder="GitHub Token（只存本机浏览器）" type="password">
+    <input class="inp" id="nToken" placeholder="GitHub Token（只存本机浏览器）" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false">
     <div class="act">
       <button class="b" onclick="saveNoticeLocal()">只存本机</button>
       <button class="a" onclick="publishNotice()">发布给所有人</button>
@@ -192,7 +192,7 @@ function saveNoticeLocal(){
 async function publishNotice(){
   var title=$('nTitle').value.trim(),body=$('nBody').value.trim();
   if(!title||!body){nStatus('标题和正文都要填');return}
-  var token=$('nToken').value.trim();
+  var token=String($('nToken').value||'').replace(/[\s"']/g,'');
   if(!token){nStatus('先填 GitHub Token');return}
   localStorage.setItem('gh_token',token);
   var notice={id:Date.now(),title:title,content:body,time:new Date().toLocaleString('zh-CN')};
@@ -200,6 +200,11 @@ async function publishNotice(){
   var h={Authorization:'Bearer '+token,Accept:'application/vnd.github+json','Content-Type':'application/json'};
   nStatus('发布中…');
   try{
+    var who=await fetch('https://api.github.com/user',{headers:{Authorization:'Bearer '+token}});
+    if(who.status!==200){
+      nStatus('Token 无效或已过期（GitHub '+who.status+'）。请到 github.com/settings/tokens 重新生成，勾选 repo 权限');
+      return
+    }
     var sha=null;
     var g=await fetch(api+'?ref=main',{headers:h});
     if(g.ok){sha=(await g.json()).sha}

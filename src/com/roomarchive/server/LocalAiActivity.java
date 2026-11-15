@@ -67,7 +67,7 @@ public class LocalAiActivity extends BaseActivity {
         root.addView(title);
 
         TextView sub = new TextView(this);
-        sub.setText("v4.5.28 · llama.cpp 本地推理 · 不联网 · 数据不出手机");
+        sub.setText("v4.5.29 · llama.cpp 本地推理 · 不联网 · 数据不出手机");
         sub.setTextSize(12);
         sub.setTextColor(Tools.subTextColor(this));
         sub.setGravity(Gravity.CENTER);
@@ -128,7 +128,7 @@ public class LocalAiActivity extends BaseActivity {
         bar.setMax(1000);
         bar.setVisibility(View.GONE);
         LinearLayout.LayoutParams pl = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, dp(6));
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(12));
         pl.topMargin = dp(10);
         card.addView(bar, pl);
 
@@ -240,6 +240,8 @@ public class LocalAiActivity extends BaseActivity {
         downloading = true;
         bar.setVisibility(View.VISIBLE);
         bar.setProgress(0);
+        stateText.setText("● 连接下载源…");
+        dlBtn.setText("下载中…");
         dlBtn.setEnabled(false);
         new Thread(() -> {
             File dir = modelFile().getParentFile();
@@ -264,17 +266,27 @@ public class LocalAiActivity extends BaseActivity {
                     int r;
                     long got = have;
                     long last = 0;
+                    long lastGot = have, lastTime = System.currentTimeMillis();
                     while ((r = is.read(buf)) > 0) {
                         os.write(buf, 0, r);
                         got += r;
-                        if (System.currentTimeMillis() - last > 300) {
-                            last = System.currentTimeMillis();
+                        long now = System.currentTimeMillis();
+                        if (now - last > 200) {
+                            last = now;
                             final long g2 = got, t2 = total;
+                            final double speed = (got - lastGot) / 1048576.0
+                                    / Math.max(0.2, (now - lastTime) / 1000.0);
+                            lastGot = got; lastTime = now;
                             ui.post(() -> {
                                 if (t2 > 0) {
-                                    bar.setProgress((int) (g2 * 1000 / t2));
-                                    logText.setText(String.format("下载中 %.0f / %.0f MB",
-                                            g2 / 1048576.0, t2 / 1048576.0));
+                                    int pct = (int) (g2 * 100 / t2);
+                                    bar.setProgress(pct);
+                                    stateText.setText(String.format(
+                                            "● 下载中 %d%% · %.0f / %.0f MB · %.1f MB/s",
+                                            pct, g2 / 1048576.0, t2 / 1048576.0, speed));
+                                } else {
+                                    stateText.setText(String.format("● 下载中 %.0f MB · %.1f MB/s",
+                                            g2 / 1048576.0, speed));
                                 }
                             });
                         }
@@ -414,7 +426,7 @@ public class LocalAiActivity extends BaseActivity {
                     "-p", prompt,
                     "-n", "220", "-c", "2048", "-t", "4",
                     "--temp", "0.7", "--top-p", "0.9",
-                    "--no-display-prompt", "--no-warmup", "--no-conversation")
+                    "--no-display-prompt", "--no-warmup")
                     .redirectErrorStream(true).start();
             BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             StringBuilder sb = new StringBuilder();
