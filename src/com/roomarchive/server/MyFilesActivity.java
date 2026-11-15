@@ -30,9 +30,11 @@ import java.util.Locale;
 /** 我的文件：查看/分享/删除 App 专属目录里的所有产物 */
 public class MyFilesActivity extends BaseActivity {
 
-    private LinearLayout listBox;
-    private TextView statusView;
+    private LinearLayout listBox, actionBar;
+    private TextView statusView, selectBtn;
     private File dir;
+    private boolean selectMode = false;
+    private final java.util.Set<String> selected = new java.util.HashSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +65,23 @@ public class MyFilesActivity extends BaseActivity {
         root.addView(statusView);
         root.addView(spacer(8));
 
+        selectBtn = new TextView(this);
+        selectBtn.setText("多选");
+        selectBtn.setTextSize(12);
+        selectBtn.setGravity(Gravity.CENTER);
+        selectBtn.setTextColor(Tools.accentColor(this));
+        selectBtn.setPadding(dp(14), dp(8), dp(14), dp(8));
+        android.graphics.drawable.GradientDrawable sb = new android.graphics.drawable.GradientDrawable();
+        sb.setColor((0x1F << 24) | (Tools.accentColor(this) & 0x00FFFFFF));
+        sb.setCornerRadius(dp(14));
+        selectBtn.setBackground(sb);
+        selectBtn.setOnClickListener(v -> toggleSelectMode());
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        slp.gravity = Gravity.CENTER_HORIZONTAL;
+        slp.bottomMargin = dp(6);
+        root.addView(selectBtn, slp);
+
         Button btnRefresh = new Button(this);
         btnRefresh.setText("刷新列表");
         btnRefresh.setTextColor(Tools.accentColor(this));
@@ -84,11 +103,35 @@ public class MyFilesActivity extends BaseActivity {
         listBox.setOrientation(LinearLayout.VERTICAL);
         root.addView(listBox);
 
+        actionBar = new LinearLayout(this);
+        actionBar.setOrientation(LinearLayout.HORIZONTAL);
+        actionBar.setGravity(Gravity.CENTER);
+        actionBar.setVisibility(View.GONE);
+        LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        alp.topMargin = dp(12);
+        root.addView(actionBar, alp);
+        actionBar.addView(action("全选", v -> {
+            selected.clear();
+            for (File f : currentFiles()) selected.add(f.getAbsolutePath());
+            refreshRows();
+        }));
+        actionBar.addView(action("重命名", v -> batchRename()));
+        actionBar.addView(action("删除", v -> batchDelete()));
+        actionBar.addView(action("取消", v -> toggleSelectMode()));
+
         setContentView(scroll);
     }
 
     private void refresh() {
         listBox.removeAllViews();
+        java.util.Set<String> alive = new java.util.HashSet<>();
+        for (File d : FileStore.allDirs(this)) {
+            File[] fs = d.listFiles();
+            if (fs == null) continue;
+            for (File f : fs) if (f.isFile()) alive.add(f.getAbsolutePath());
+        }
+        selected.retainAll(alive);
         // 合并：主目录 + 旧下载目录（兼容v3.3之前的下载文件）
         java.util.List<File> all = new java.util.ArrayList<>();
         java.util.HashSet<String> seen = new java.util.HashSet<>();
@@ -121,6 +164,106 @@ public class MyFilesActivity extends BaseActivity {
         }
     }
 
+    private java.util.List<File> currentFiles() {
+        java.util.List<File> out = new java.util.ArrayList<>();
+        for (File d : FileStore.allDirs(this)) {
+            File[] fs = d.listFiles();
+            if (fs == null) continue;
+            for (File f : fs) {
+                if (f.isFile() && !f.getName().startsWith(".ik_probe")) out.add(f);
+            }
+        }
+        return out;
+    }
+
+    private void toggleSelectMode() {
+        selectMode = !selectMode;
+        selected.clear();
+        selectBtn.setText(selectMode ? "退出多选" : "多选");
+        actionBar.setVisibility(selectMode ? View.VISIBLE : View.GONE);
+        refresh();
+    }
+
+    private void refreshRows() {
+        listBox.removeAllViews();
+        java.util.List<File> all = currentFiles();
+        if (!selectMode) { refresh(); return; }
+        java.util.Collections.sort(all, (a, b) -> Long.compare(b.lastModified(), a.lastModified()));
+        for (File f : all) listBox.addView(fileRow(f));
+    }
+
+    private TextView action(String text, View.OnClickListener l) {
+        TextView t = new TextView(this);
+        t.setText(text);
+        t.setTextSize(12);
+        t.setGravity(Gravity.CENTER);
+        t.setTextColor(Tools.accentColor(this));
+        t.setPadding(dp(16), dp(10), dp(16), dp(10));
+        android.graphics.drawable.GradientDrawable g = new android.graphics.drawable.GradientDrawable();
+        g.setColor((0x1F << 24) | (Tools.accentColor(this) & 0x00FFFFFF));
+        g.setCornerRadius(dp(16));
+        t.setBackground(g);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(dp(4), 0, dp(4), 0);
+        t.setLayoutParams(lp);
+        t.setOnClickListener(l);
+        return t;
+    }
+
+    private void batchRename() {
+        if (selected.isEmpty()) { Toast.makeText(this, "先选文件", Toast.LENGTH_SHORT).show(); return; }
+        android.widget.EditText ed = new android.widget.EditText(this);
+        ed.setHint("前缀，比如 我的图");
+        new AlertDialog.Builder(this)
+                .setTitle("批量重命名（" + selected.size() + " 个）")
+                .setMessage("会按 前缀_001、前缀_002… 顺序重命名，原扩展名保留")
+                .setView(ed)
+                .setPositiveButton("重命名", (d, w) -> {
+                    String prefix = ed.getText().toString().trim();
+                    if (prefix.isEmpty()) prefix = "文件";
+                    java.util.List<File> list = new java.util.ArrayList<>();
+                    for (File f : currentFiles()) if (selected.contains(f.getAbsolutePath())) list.add(f);
+                    java.util.Collections.sort(list, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
+                    int ok = 0;
+                    for (int i = 0; i < list.size(); i++) {
+                        File f = list.get(i);
+                        String name = f.getName();
+                        int dot = name.lastIndexOf('.');
+                        String ext = dot > 0 ? name.substring(dot) : "";
+                        String nn = prefix + "_" + String.format(java.util.Locale.US, "%03d", i + 1) + ext;
+                        File target = new File(f.getParentFile(), nn);
+                        if (target.exists()) continue;
+                        if (f.renameTo(target)) ok++;
+                    }
+                    Toast.makeText(this, "重命名完成 " + ok + "/" + list.size(),
+                            Toast.LENGTH_LONG).show();
+                    selected.clear();
+                    refresh();
+                })
+                .setNegativeButton("取消", null).show();
+    }
+
+    private void batchDelete() {
+        if (selected.isEmpty()) { Toast.makeText(this, "先选文件", Toast.LENGTH_SHORT).show(); return; }
+        new AlertDialog.Builder(this)
+                .setTitle("批量删除")
+                .setMessage("删除选中的 " + selected.size() + " 个文件？不可恢复。")
+                .setPositiveButton("删除", (d, w) -> {
+                    int ok = 0;
+                    for (File f : currentFiles()) {
+                        if (!selected.contains(f.getAbsolutePath())) continue;
+                        try {
+                            if (f.delete() || !f.exists()) ok++;
+                        } catch (Throwable ignored) {}
+                    }
+                    Toast.makeText(this, "已删除 " + ok + " 个", Toast.LENGTH_SHORT).show();
+                    selected.clear();
+                    refresh();
+                })
+                .setNegativeButton("取消", null).show();
+    }
+
     private View fileRow(final File f) {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -140,7 +283,9 @@ public class MyFilesActivity extends BaseActivity {
         texts.setOrientation(LinearLayout.VERTICAL);
         texts.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         TextView name = new TextView(this);
-        name.setText(f.getName());
+        name.setText(selectMode
+                ? (selected.contains(f.getAbsolutePath()) ? "● " : "○ ") + f.getName()
+                : f.getName());
         name.setTextSize(14);
         name.setTextColor(Tools.textColor(this));
         name.setSingleLine(true);
@@ -175,10 +320,28 @@ public class MyFilesActivity extends BaseActivity {
         });
         row.addView(del);
 
+        if (selectMode) {
+            if (selected.contains(f.getAbsolutePath())) {
+                bg.setColor((0x33 << 24) | (Tools.accentColor(this) & 0x00FFFFFF));
+            }
+            share.setVisibility(View.GONE);
+            del.setVisibility(View.GONE);
+            row.setOnClickListener(v -> {
+                String p2 = f.getAbsolutePath();
+                if (selected.contains(p2)) selected.remove(p2); else selected.add(p2);
+                refreshRows();
+            });
+            row.setOnLongClickListener(null);
+            return row;
+        }
+
         row.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                confirmDelete(f);
+                selected.clear();
+                selected.add(f.getAbsolutePath());
+                if (!selectMode) toggleSelectMode();
+                refreshRows();
                 return true;
             }
         });
