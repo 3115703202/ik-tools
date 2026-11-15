@@ -215,7 +215,7 @@ public class MainActivity extends BaseActivity {
         box.addView(spacer(10));
 
         TextView b3 = new TextView(this);
-        b3.setText("v4.0.9：检查更新联网对比/APK上传分享/物体识别优化");
+        b3.setText("v4.5.3：网盘下载接管与文件校验修复 + Shizuku 重启加固");
         b3.setTextSize(12);
         b3.setTextColor(Color.rgb(100, 110, 125));
         b3.setLineSpacing(0, 1.3f);
@@ -438,7 +438,7 @@ public class MainActivity extends BaseActivity {
             }
         }
         TextView foot = new TextView(this);
-        foot.setText("IK工具箱 v4.0.9\n全部功能离线运行，不收集任何数据");
+        foot.setText("IK工具箱 v4.5.3\n全部功能离线运行，不收集任何数据");
         foot.setTextSize(10);
         foot.setTextColor(Tools.subTextColor(this));
         foot.setGravity(Gravity.CENTER);

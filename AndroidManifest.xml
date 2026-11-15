@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.roomarchive.server"
-    android:versionCode="181"
-    android:versionName="4.5.1">
+    android:versionCode="183"
+    android:versionName="4.5.3">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -56,7 +56,6 @@
         <activity android:name=".BrowserActivity" android:exported="false" />
         <activity android:name=".ShikongActivity" android:exported="false" />
         <activity android:name=".WebAppsActivity" android:exported="false" />
-        <activity android:name=".FpsActivity" android:screenOrientation="landscape" />
         <activity android:name=".WebAppViewerActivity" android:exported="false" />
         <activity android:name=".TextEditorActivity" android:exported="false" />
         <activity android:name=".MyFilesActivity" android:exported="false" />
@@ -148,7 +147,6 @@
         <activity android:name=".PanoramaActivity" android:exported="false"/>
         <activity android:name=".AICameraActivity" android:exported="false"/>
         <activity android:name=".RealtimeVoiceActivity" android:exported="false"/>
-        <activity android:name=".VoiceChangerActivity" android:exported="false"/>
         <activity android:name=".PhoneLookupActivity" android:exported="false"/>
     </application>
 </manifest>

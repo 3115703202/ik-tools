@@ -136,6 +136,10 @@ public class AboutActivity extends BaseActivity {
         card.setPadding(dp(14), dp(12), dp(14), dp(12));
 
         card.addView(groupTitle("最新"));
+        card.addView(timelineRow(accent, "v4.5.3", "网盘 window.open 触发的下载被丢弃问题修复；下载到 HTML 错误页被当文件保存的问题修复；蓝奏表单被 chunked 拒绝修复；Shizuku 重启改用精确闹钟定时拉起 + 启动后二次拉取 binder"));
+        card.addView(timelineRow(accent, "v4.5.2", "无线调试修复；网盘支持应用内直接下载"));
+        card.addView(timelineRow(accent, "v4.5.1", "3D枪战完全重写：本地引擎、弹道命中、墙体碰撞、波次与结算；手机归属地改离线号段库；物体识别模型换源 + 下载校验；下载中心 / 穿透内核 / 官网链接全部修复"));
+        card.addView(timelineRow(accent, "v4.5.0", "物体识别阈值提至 0.6；检查更新联网对比；APK 提取上传分享；全量 bug 修复"));
         card.addView(timelineRow(accent, "v4.0.8", "检查更新真正联网对比版本；APK提取后上传生成分享链接"));
         card.addView(timelineRow(accent, "v4.0.3", "检查更新合并到关于页；无线调试加ADB有线启动指引；底部导航三页统一"));
         card.addView(timelineRow(accent, "v4.0.0", "物体识别阈值提升减少误报；网盘解析接NFD直链；视频解析无水印下载"));
@@ -328,7 +332,7 @@ public class AboutActivity extends BaseActivity {
                     Toast.makeText(this, "检查失败，请检查网络", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                String cur = "v4.5.1";
+                String cur = "v4.5.3";
                 try {
                     cur = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
                     if (!cur.startsWith("v")) cur = "v" + cur;
