@@ -67,7 +67,7 @@ public class LocalAiActivity extends BaseActivity {
         root.addView(title);
 
         TextView sub = new TextView(this);
-        sub.setText("v4.5.26 · llama.cpp 本地推理 · 不联网 · 数据不出手机");
+        sub.setText("v4.5.27 · llama.cpp 本地推理 · 不联网 · 数据不出手机");
         sub.setTextSize(12);
         sub.setTextColor(Tools.subTextColor(this));
         sub.setGravity(Gravity.CENTER);
@@ -402,8 +402,11 @@ public class LocalAiActivity extends BaseActivity {
     void runLlama(String q, TextView wait) {
         String answer;
         try {
-            File bin = new File(getFilesDir(), "llama-cli");
-            if (!bin.exists() || bin.length() < 1_000_000L) extractBinary(bin);
+            File bin = new File(getApplicationInfo().nativeLibraryDir, "libllama-cli.so");
+            if (!bin.exists() || bin.length() < 1_000_000L) {
+                bin = new File(getFilesDir(), "llama-cli");
+                if (!bin.exists() || bin.length() < 1_000_000L) extractBinary(bin);
+            }
             String prompt = "<|im_start|>system\n你是IK工具箱内置的本地AI，用简体中文回答，简洁直接，不啰嗦。你可以操控这台手机，可用命令：[读屏] [点击:文字] [滑动:上] [返回] [主页] [打开:包名] [页面:文件实验室]。需要动手时在回答最后单独一行写命令，不要解释命令。<|im_end|>\n"
                     + "<|im_start|>user\n" + q + "<|im_end|>\n<|im_start|>assistant\n";
             proc = new ProcessBuilder(bin.getAbsolutePath(),

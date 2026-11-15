@@ -32,7 +32,7 @@ rm -rf build && mkdir -p build/gen build/obj build/dex build/assets build/apk bu
 for f in index.html fps3d.html three.min.js phone.dat detect.tflite labelmap.txt \
          mobilenet_v2.tflite imagenet_labels.txt \
          gun.png impact.png soldier_orange.png soldier_blue.png soldier_purple.png soldier_green.png \
-         llama-cli admin.html; do
+         admin.html; do
   [ -f "assets/$f" ] && cp "assets/$f" "build/assets/$f"
 done
 # 穿透内核（cloudflared/frpc）按需下载，不打进 APK，APK 保持瘦身
@@ -43,6 +43,8 @@ cp $LG_SO/arm64-v8a/libnativegauss.so build/lib/arm64-v8a/libnativegauss.so
 cp $LG_SO/armeabi-v7a/libnativegauss.so build/lib/armeabi-v7a/libnativegauss.so
 cp $TF_SO/arm64-v8a/libtensorflowlite_jni.so build/lib/arm64-v8a/libtensorflowlite_jni.so
 cp $TF_SO/armeabi-v7a/libtensorflowlite_jni.so build/lib/armeabi-v7a/libtensorflowlite_jni.so
+# llama.cpp 推理内核：必须放进原生库目录才能执行（Android 10+ 禁止执行应用数据目录里的文件）
+cp assets/llama-cli build/lib/arm64-v8a/libllama-cli.so
 echo "  原生库就位（liquidglass + tflite）"
 
 echo "[1/7] aapt2 compile 资源..."
@@ -97,9 +99,9 @@ with zipfile.ZipFile(src, "r") as zin, zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEF
         zout.writestr(item, zin.read(item.filename))
     zout.write("build/dex/classes.dex", "classes.dex")
     for abi in ("arm64-v8a", "armeabi-v7a"):
-        for so in ("libnativegauss.so", "libtensorflowlite_jni.so"):
+        for so in ("libnativegauss.so", "libtensorflowlite_jni.so", "libllama-cli.so"):
             p = f"build/lib/{abi}/{so}"
-            if os.path.exists(p):
+            if os.path.exists(p) and not (so == "libllama-cli.so" and abi != "arm64-v8a"):
                 zout.write(p, f"lib/{abi}/{so}", zipfile.ZIP_DEFLATED)
                 print(f"  {so} -> {abi}")
 shutil.move(tmp, src)
@@ -120,9 +122,9 @@ if [ ! -f keystore/debug.keystore ]; then
 fi
 $BT/apksigner sign \
   --ks keystore/debug.keystore --ks-pass pass:android --key-pass pass:android \
-  --out output/IK工具箱-v4.5.26.apk \
+  --out output/IK工具箱-v4.5.27.apk \
   build/apk/app-aligned.apk
 
 echo ""
-echo "✅ APK 生成：$(pwd)/output/IK工具箱-v4.5.26.apk"
+echo "✅ APK 生成：$(pwd)/output/IK工具箱-v4.5.27.apk"
 ls -la output/
