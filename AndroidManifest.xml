@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.roomarchive.server"
-    android:versionCode="197"
-    android:versionName="4.5.17">
+    android:versionCode="198"
+    android:versionName="4.5.18">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -274,6 +274,11 @@
         <activity android:name=".LocalAiActivity" android:exported="false"
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity android:name=".MetalDetectorActivity" android:exported="false" />
+        <activity android:name=".LongShotActivity" android:exported="false" />
+        <activity android:name=".VideoTrimActivity" android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity android:name=".AudioTrimActivity" android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity android:name=".WifiTransferActivity" android:exported="false"
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity android:name=".SpeedTestActivity" android:exported="false" />
@@ -286,5 +291,8 @@
         <activity android:name=".AICameraActivity" android:exported="false"/>
         <activity android:name=".RealtimeVoiceActivity" android:exported="false"/>
         <activity android:name=".PhoneLookupActivity" android:exported="false"/>
+    <service android:name=".LongShotActivity$ShotService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
     </application>
 </manifest>

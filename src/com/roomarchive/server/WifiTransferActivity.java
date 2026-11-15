@@ -2,7 +2,11 @@ package com.roomarchive.server;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -17,6 +21,7 @@ public class WifiTransferActivity extends BaseActivity {
     private TextView urlText, stateText, logText, actionBtn;
     private TransferServer server;
     private LinearLayout logBox;
+    private static final int REQ_PICK = 1001;
 
     @Override
     protected void onCreate(Bundle b) {
@@ -70,6 +75,18 @@ public class WifiTransferActivity extends BaseActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT, dp(48)));
         actionBtn.setOnClickListener(v -> toggle());
         card.addView(actionBtn);
+
+        TextView pick = new TextView(this);
+        pick.setText("选文件放进共享");
+        pick.setGravity(Gravity.CENTER);
+        pick.setTextSize(13);
+        pick.setTextColor(Tools.accentColor(this));
+        pick.setBackground(Tools.pillButton(this, 42, false));
+        LinearLayout.LayoutParams pk = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(42));
+        pk.topMargin = dp(10);
+        card.addView(pick, pk);
+        pick.setOnClickListener(v -> pickFiles());
 
         TextView copy = new TextView(this);
         copy.setText("复制地址");
@@ -142,6 +159,71 @@ public class WifiTransferActivity extends BaseActivity {
             server = null;
             toast("启动失败：" + t.getMessage() + "（端口可能被占用）");
         }
+    }
+
+    private void pickFiles() {
+        try {
+            Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            i.addCategory(Intent.CATEGORY_OPENABLE);
+            i.setType("*/*");
+            i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+            startActivityForResult(i, REQ_PICK);
+        } catch (Throwable t) {
+            toast("打不开文件选择器：" + t.getMessage());
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int req, int res, Intent data) {
+        super.onActivityResult(req, res, data);
+        if (req != REQ_PICK || res != RESULT_OK || data == null) return;
+        java.util.List<Uri> uris = new java.util.ArrayList<>();
+        if (data.getClipData() != null) {
+            ClipData cd = data.getClipData();
+            for (int i = 0; i < cd.getItemCount(); i++) uris.add(cd.getItemAt(i).getUri());
+        } else if (data.getData() != null) {
+            uris.add(data.getData());
+        }
+        if (uris.isEmpty()) return;
+        final File dir = new File(FileStore.outDir(this), "传文件");
+        dir.mkdirs();
+        new Thread(() -> {
+            int ok = 0;
+            for (Uri u : uris) {
+                try {
+                    String name = null;
+                    Cursor cur = getContentResolver().query(u,
+                            new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null);
+                    if (cur != null) {
+                        if (cur.moveToFirst()) name = cur.getString(0);
+                        cur.close();
+                    }
+                    if (name == null || name.trim().isEmpty()) {
+                        name = "文件_" + System.currentTimeMillis();
+                    }
+                    File out = new File(dir, name);
+                    if (out.exists()) {
+                        String base = name, ext = "";
+                        int dot = name.lastIndexOf('.');
+                        if (dot > 0) { base = name.substring(0, dot); ext = name.substring(dot); }
+                        out = new File(dir, base + "_" + System.currentTimeMillis() + ext);
+                    }
+                    java.io.InputStream in = getContentResolver().openInputStream(u);
+                    java.io.FileOutputStream fos = new java.io.FileOutputStream(out);
+                    byte[] buf = new byte[8192];
+                    int r;
+                    while (in != null && (r = in.read(buf)) > 0) fos.write(buf, 0, r);
+                    if (in != null) in.close();
+                    fos.close();
+                    ok++;
+                } catch (Throwable ignored) {}
+            }
+            final int okk = ok;
+            runOnUiThread(() -> {
+                appendLog("已放入共享 " + okk + "/" + uris.size() + " 个文件");
+                toast("已放入 " + okk + " 个文件，浏览器刷新就能看到");
+            });
+        }).start();
     }
 
     private void appendLog(String s) {

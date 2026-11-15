@@ -178,9 +178,17 @@ public class SkinActivity extends BaseActivity {
         box.setOrientation(LinearLayout.VERTICAL);
         box.setGravity(Gravity.CENTER);
         box.setPadding(dp(8), dp(14), dp(8), dp(12));
-        GradientDrawable bg = (GradientDrawable) Tools.liquidGlassCard(this, 18);
-        if (selected) bg.setStroke(dp(2), Tools.accentColor(this));
-        box.setBackground(bg);
+        android.graphics.drawable.Drawable glass = Tools.liquidGlassCard(this, 18);
+        if (selected) {
+            GradientDrawable ring = new GradientDrawable();
+            ring.setCornerRadius(dp(18));
+            ring.setColor(0x00000000);
+            ring.setStroke(dp(2), Tools.accentColor(this));
+            box.setBackground(new android.graphics.drawable.LayerDrawable(
+                    new android.graphics.drawable.Drawable[]{glass, ring}));
+        } else {
+            box.setBackground(glass);
+        }
         if (selected) Tools.setElevation(box, 6);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0,
                 LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
