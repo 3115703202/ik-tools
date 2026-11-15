@@ -264,6 +264,8 @@
         <activity android:name=".FpsActivity" android:screenOrientation="portrait" />
         <activity android:name=".SecurityShieldActivity" android:screenOrientation="portrait" />
         <activity android:name=".PetActivity" android:screenOrientation="portrait" />
+        <activity android:name=".AdBlockActivity" />
+        <activity android:name=".DesktopActivity" android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity android:name=".LensActivity" android:screenOrientation="portrait" />
         <activity android:name=".ObjectDetectActivity" android:exported="false" />
         <activity android:name=".SimCallActivity" android:exported="false"

@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -227,6 +228,15 @@ public class BrowserActivity extends BaseActivity {
         s.setBlockNetworkImage(noImage);
         if (adminMode) wv.addJavascriptInterface(new AdminBridge(this), "AdminBridge");
         wv.setWebViewClient(new WebViewClient() {
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                try {
+                    if (AdBlock.on(BrowserActivity.this) && AdBlock.blocked(request.getUrl().toString()))
+                        return new WebResourceResponse("text/plain", "utf-8", new java.io.ByteArrayInputStream(new byte[0]));
+                } catch (Throwable ignored) {}
+                return super.shouldInterceptRequest(view, request);
+            }
+
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 return handleUrl(view, request.getUrl().toString());
