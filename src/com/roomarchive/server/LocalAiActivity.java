@@ -52,38 +52,52 @@ public class LocalAiActivity extends BaseActivity {
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         final android.widget.FrameLayout host = new android.widget.FrameLayout(this);
-        host.setBackground(Tools.bgWithGlow(this));
+        host.setBackgroundColor(0xFFF6FAF8);
         setContentView(host);
         try {
         ScrollView sv = new ScrollView(this);
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackground(Tools.bgWithGlow(this));
-        root.setPadding(dp(16), dp(22), dp(16), dp(80));
+        root.setBackgroundColor(0xFFF6FAF8);
+        root.setPadding(dp(16), dp(18), dp(16), dp(96));
         sv.addView(root);
 
-        TextView title = Tools.pageTitle(this, "本地 AI · 离线大模型");
-        title.setGravity(Gravity.CENTER);
-        root.addView(title);
+        LinearLayout head = new LinearLayout(this);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        View dot = new View(this);
+        android.graphics.drawable.GradientDrawable dotBg = new android.graphics.drawable.GradientDrawable();
+        dotBg.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+        dotBg.setColor(0xFF10B981);
+        dot.setBackground(dotBg);
+        LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(dp(10), dp(10));
+        dlp.rightMargin = dp(9);
+        head.addView(dot, dlp);
+        TextView title = new TextView(this);
+        title.setText("Qwen2.5 0.5B");
+        title.setTextSize(22);
+        title.setTextColor(0xFF111827);
+        title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        head.addView(title);
+        root.addView(head);
 
         TextView sub = new TextView(this);
-        sub.setText("v4.5.32 · llama.cpp 本地推理 · 不联网 · 数据不出手机");
+        sub.setText("本地离线 · 上下文 4096 · 不联网 · 数据不出手机");
         sub.setTextSize(12);
-        sub.setTextColor(Tools.subTextColor(this));
-        sub.setGravity(Gravity.CENTER);
-        sub.setPadding(0, dp(6), 0, dp(14));
+        sub.setTextColor(0xFF6B7280);
+        sub.setPadding(dp(19), dp(4), 0, dp(14));
         root.addView(sub);
 
         LinearLayout capCard = new LinearLayout(this);
         capCard.setOrientation(LinearLayout.VERTICAL);
         capCard.setPadding(dp(16), dp(14), dp(16), dp(14));
-        capCard.setBackground(Tools.liquidGlassCard(this, 20));
+        capCard.setBackground(paper(0xFFFFFFFF, 18, 0xFFE5E7EB));
         Tools.setElevation(capCard, 8);
         root.addView(capCard);
 
         a11yState = new TextView(this);
         a11yState.setTextSize(12);
-        a11yState.setTextColor(Tools.subTextColor(this));
+        a11yState.setTextColor(0xFF4B5563);
         capCard.addView(a11yState);
 
         LinearLayout capRow = new LinearLayout(this);
@@ -103,13 +117,13 @@ public class LocalAiActivity extends BaseActivity {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
         card.setPadding(dp(16), dp(16), dp(16), dp(16));
-        card.setBackground(Tools.liquidGlassCard(this, 20));
+        card.setBackground(paper(0xFFFFFFFF, 18, 0xFFE5E7EB));
         Tools.setElevation(card, 8);
         root.addView(card);
 
         stateText = new TextView(this);
         stateText.setTextSize(13);
-        stateText.setTextColor(Tools.subTextColor(this));
+        stateText.setTextColor(0xFF374151);
         card.addView(stateText);
 
         dlBtn = new TextView(this);
@@ -117,7 +131,7 @@ public class LocalAiActivity extends BaseActivity {
         dlBtn.setGravity(Gravity.CENTER);
         dlBtn.setTextSize(14);
         dlBtn.setTextColor(0xFFFFFFFF);
-        dlBtn.setBackground(Tools.pillButton(this, 44, true));
+        dlBtn.setBackground(green(44));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, dp(44));
         lp.topMargin = dp(12);
@@ -134,7 +148,7 @@ public class LocalAiActivity extends BaseActivity {
 
         logText = new TextView(this);
         logText.setTextSize(11);
-        logText.setTextColor(Tools.subTextColor(this));
+        logText.setTextColor(0xFF6B7280);
         logText.setPadding(0, dp(8), 0, 0);
         logText.setText("提示：首次需下载 491MB 模型，存到 Download/IK工具箱/models，之后完全离线");
         card.addView(logText);
@@ -147,7 +161,7 @@ public class LocalAiActivity extends BaseActivity {
         LinearLayout inputRow = new LinearLayout(this);
         inputRow.setOrientation(LinearLayout.HORIZONTAL);
         inputRow.setGravity(Gravity.CENTER_VERTICAL);
-        inputRow.setBackground(Tools.liquidGlassCard(this, 26));
+        inputRow.setBackground(paper(0xFFF1F5F3, 22, 0xFFE5E7EB));
         inputRow.setPadding(dp(14), dp(6), dp(6), dp(6));
         LinearLayout.LayoutParams irl = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -158,18 +172,20 @@ public class LocalAiActivity extends BaseActivity {
         input.setHint("问点什么…（完全离线回答）");
         input.setTextSize(14);
         input.setBackground(null);
-        input.setTextColor(Tools.textColor(this));
-        input.setHintTextColor(Tools.subTextColor(this));
+        input.setTextColor(0xFF111827);
+        input.setHintTextColor(0xFF9CA3AF);
         inputRow.addView(input, new LinearLayout.LayoutParams(0,
                 LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 
         sendBtn = new TextView(this);
-        sendBtn.setText("发送");
+        sendBtn.setText("➤");
         sendBtn.setGravity(Gravity.CENTER);
-        sendBtn.setTextSize(13);
+        sendBtn.setTextSize(17);
         sendBtn.setTextColor(0xFFFFFFFF);
-        sendBtn.setBackground(Tools.pillButton(this, 36, true));
-        inputRow.addView(sendBtn, new LinearLayout.LayoutParams(dp(64), dp(36)));
+        sendBtn.setBackground(green(36));
+        inputRow.addView(sendBtn, new LinearLayout.LayoutParams(dp(46), dp(40)));
+        ((LinearLayout.LayoutParams) sendBtn.getLayoutParams()).leftMargin = dp(8);
+        ((LinearLayout.LayoutParams) sendBtn.getLayoutParams()).rightMargin = dp(4);
         sendBtn.setOnClickListener(v -> send());
 
         scroll = sv;
@@ -178,6 +194,8 @@ public class LocalAiActivity extends BaseActivity {
                 android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
                 android.widget.FrameLayout.LayoutParams.MATCH_PARENT));
         refreshState();
+        suggestions();
+        bottomNav(host);
         } catch (Throwable t) {
             TextView err = new TextView(this);
             err.setText("本地 AI 页面加载失败：" + t + "\n\n请截图这段文字发给开发者");
@@ -380,10 +398,10 @@ public class LocalAiActivity extends BaseActivity {
         t.setTextSize(14);
         t.setTextIsSelectable(true);
         t.setPadding(dp(14), dp(10), dp(14), dp(10));
-        t.setTextColor(me ? 0xFFFFFFFF : Tools.textColor(this));
+        t.setTextColor(me ? 0xFFFFFFFF : 0xFF1F2937);
         android.graphics.drawable.GradientDrawable g = new android.graphics.drawable.GradientDrawable();
         g.setCornerRadius(dp(16));
-        g.setColor(me ? Tools.accentColor(this) : 0x33FFFFFF);
+        g.setColor(me ? 0xFF16A34A : 0xFFEDF2EF);
         t.setBackground(g);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -391,6 +409,65 @@ public class LocalAiActivity extends BaseActivity {
         lp.topMargin = dp(8);
         chatBox.addView(t, lp);
         scroll.post(() -> scroll.fullScroll(View.FOCUS_DOWN));
+    }
+
+    android.graphics.drawable.GradientDrawable paper(int color, int radius, int stroke) {
+        android.graphics.drawable.GradientDrawable g = new android.graphics.drawable.GradientDrawable();
+        g.setCornerRadius(dp(radius));
+        g.setColor(color);
+        g.setStroke(dp(1), stroke);
+        return g;
+    }
+
+    android.graphics.drawable.GradientDrawable green(int radius) {
+        android.graphics.drawable.GradientDrawable g = new android.graphics.drawable.GradientDrawable(
+                android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{0xFF22C55E, 0xFF16A34A});
+        g.setCornerRadius(dp(radius));
+        return g;
+    }
+
+    void suggestions() {
+        String[] qs = {"用三句话介绍你自己", "帮我把这句话改得更正式：这个方案我觉得还行",
+                "解释一下什么是量化（Quantization）", "写一首关于秋天的五言绝句"};
+        for (String q : qs) {
+            TextView t = new TextView(this);
+            t.setText(q);
+            t.setTextSize(14);
+            t.setTextColor(0xFF374151);
+            t.setPadding(dp(16), dp(14), dp(16), dp(14));
+            t.setBackground(paper(0xFFEDF2EF, 18, 0xFFE2E8E5));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
+            lp.topMargin = dp(9);
+            t.setOnClickListener(v -> { input.setText(q); input.setSelection(q.length()); });
+            chatBox.addView(t, lp);
+        }
+    }
+
+    void bottomNav(android.widget.FrameLayout host) {
+        LinearLayout nav = new LinearLayout(this);
+        nav.setOrientation(LinearLayout.HORIZONTAL);
+        nav.setGravity(Gravity.CENTER);
+        nav.setPadding(dp(10), dp(8), dp(10), dp(12));
+        nav.setBackgroundColor(0xFFF6FAF8);
+        String[] names = {"模型市场", "对话"};
+        for (int i = 0; i < names.length; i++) {
+            TextView t = new TextView(this);
+            t.setText(names[i]);
+            t.setTextSize(12);
+            t.setGravity(Gravity.CENTER);
+            t.setTextColor(i == 1 ? 0xFF16A34A : 0xFF6B7280);
+            t.setPadding(dp(30), dp(10), dp(30), dp(12));
+            if (i == 1) t.setBackground(paper(0xFFDCFCE7, 18, 0xFFBBF7D0));
+            final int idx = i;
+            t.setOnClickListener(v -> {
+                if (idx == 0) startActivity(new Intent(this, DownloadActivity.class));
+            });
+            nav.addView(t);
+        }
+        android.widget.FrameLayout.LayoutParams nlp = new android.widget.FrameLayout.LayoutParams(-1, -2);
+        nlp.gravity = Gravity.BOTTOM;
+        host.addView(nav, nlp);
     }
 
     void send() {

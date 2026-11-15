@@ -80,8 +80,14 @@ public class Tools {
                     TetrisGameActivity.class, true, SEC_ENT),
 
             // ===== 工具栏 =====
+            new Tool("lens", "看见", "objdetect", "实时圈出人/动物/物品 · 本机推理", 0xFF14B8A6,
+                    ObjectDetectActivity.class, true, SEC_TOOL),
             new Tool("objdetect", "物体识别", "objdetect", "实时识别人物车辆 · AI本地推理", 0xFF0EA5E9,
                     ObjectDetectActivity.class, true, SEC_TOOL),
+            new Tool("simcall", "模拟通话", "phone", "悬浮来电界面 · 铃声/接听/挂断 · 纯娱乐", 0xFF16A34A,
+                    SimCallActivity.class, true, SEC_TOOL),
+            new Tool("island", "灵动岛", "device", "顶部胶囊 · 时间/电量/展开卡片", 0xFF06B6D4,
+                    IslandActivity.class, true, SEC_TOOL),
             new Tool("download", "下载中心", "download", "模型/内核/更新包 · 进度可视化", 0xFF2563EB,
                     DownloadActivity.class, true, SEC_TOOL),
             new Tool("netdisk", "网盘解析", "netdisk", "粘贴链接 · 应用内直下 · 不跳浏览器", 0xFF0EA5E9,

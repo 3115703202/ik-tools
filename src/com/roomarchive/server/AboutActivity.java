@@ -136,6 +136,7 @@ public class AboutActivity extends BaseActivity {
         card.setPadding(dp(14), dp(12), dp(14), dp(12));
 
         card.addView(groupTitle("最新"));
+        card.addView(timelineRow(accent, "v4.5.33", "新增「看见」本机视觉入口、悬浮窗版「模拟通话」、免无障碍的「灵动岛」；本地 AI 换成白底绿色对话界面：模型状态栏、四张推荐问题卡、左右气泡、底部模型市场/对话导航"));
         card.addView(timelineRow(accent, "v4.5.32", "3D 枪战第二轮：突击兵/疾行者/重装兵三种敌人（血量、速度、伤害、射速不同），敌人双腿摆动与走路起伏；受击方向红色弧提示、低血量红屏脉冲、最高纪录本地保存、结算显示爆头数；换弹时枪身下沉侧转；敌人射击加散布，避免六人同时百发百中"));
         card.addView(timelineRow(accent, "v4.5.31", "3D 枪战手感升级：按住连发、爆头 2.5 倍伤害、轻微辅助瞄准、击杀爆点与倒地下沉、连杀提示、波次横幅；修复敌人子弹穿墙与重开后定时刷怪；敌人会侧移分散；新增暂停与灵敏度滑杆；连续掉帧自动降分辨率"));
         card.addView(timelineRow(accent, "v4.5.30", "全量文本排查：修正主界面残留 v4.5.3、内置说明「7 个工具」、官网/说明「51 项」（实际 66 项）；模型容量统一 491MB；隐私文案改为不上传文件内容"));

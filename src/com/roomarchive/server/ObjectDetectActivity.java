@@ -222,14 +222,14 @@ public class ObjectDetectActivity extends Activity implements TextureView.Surfac
         top.setGravity(Gravity.CENTER_VERTICAL);
         top.setPadding(dp(12), dp(10), dp(12), dp(10));
         TextView title = new TextView(this);
-        title.setText("物体识别 · 实时");
+        title.setText("看见 · 本机视觉");
         title.setTextSize(16);
         title.setTextColor(Color.WHITE);
         title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         title.setShadowLayer(dp(2), 0, dp(1), 0x99000000);
         top.addView(title);
         stateView = new TextView(this);
-        stateView.setText("识别中");
+        stateView.setText("识别中 · 本机推理");
         stateView.setTextSize(11);
         stateView.setTextColor(0xFF7CFF9B);
         stateView.setPadding(dp(8), dp(2), dp(8), dp(2));
@@ -565,8 +565,9 @@ public class ObjectDetectActivity extends Activity implements TextureView.Surfac
             } else {
                 for (int i = 0; i < Math.min(shown.size(), 6); i++) {
                     Detected d = shown.get(i);
-                    sb.append(String.format("#%s %s %.0f%%\n  距 %.1fm 约%.2fm×%.2fm\n",
-                            Integer.toHexString(d.color & 0xFFFFFF), d.label, d.score * 100,
+                    String action = d.cls == 1 ? " · " + personAction(d.rect) : "";
+                    sb.append(String.format("#%s %s%s %.0f%%\n  距 %.1fm 约%.2fm×%.2fm\n",
+                            Integer.toHexString(d.color & 0xFFFFFF), d.label, action, d.score * 100,
                             d.distM, d.widthM, d.widthM));
                 }
             }
@@ -630,6 +631,15 @@ public class ObjectDetectActivity extends Activity implements TextureView.Surfac
             }
         }
         return out;
+    }
+
+    String personAction(float[] r) {
+        float h = Math.abs(r[2] - r[0]), w = Math.abs(r[3] - r[1]);
+        if (w <= 0.001f) return "人物";
+        float ratio = h / w;
+        if (ratio > 1.75f) return "站立";
+        if (ratio < 1.10f) return "坐着/蹲着";
+        return "活动中";
     }
 
     int labelColor(int cls) {

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.roomarchive.server"
-    android:versionCode="212"
-    android:versionName="4.5.32">
+    android:versionCode="213"
+    android:versionName="4.5.33">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -258,6 +258,10 @@
             android:screenOrientation="landscape" />
         <activity android:name=".AudioDecibelActivity" android:exported="false" />
         <activity android:name=".ObjectDetectActivity" android:exported="false" />
+        <activity android:name=".SimCallActivity" android:exported="false"
+            android:showWhenLocked="true" android:turnScreenOn="true" android:excludeFromRecents="true" />
+        <activity android:name=".IslandActivity" android:exported="false" />
+        <service android:name=".IslandService" android:exported="false" />
         <activity android:name=".DownloadActivity" android:exported="false" />
         <activity android:name=".NetDiskWebActivity" android:exported="false"
             android:configChanges="orientation|screenSize|keyboardHidden" />
