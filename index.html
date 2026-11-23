@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IK工具箱 · 76 项安卓工具 · 本机 AI 与系统级玩法</title>
 <meta name="description" content="IK工具箱：76 项安卓实用工具，内置LENS 实时视觉、离线大模型、真实 Telecom 模拟来电与灵动岛。核心功能离线运行，不上传文件内容。">
-<!-- IK-OTA:VER=v4.5.49|CODE=230|URL=https://aka.doubaocdn.com/s/NIDtjXXH79 -->
+<!-- IK-OTA:VER=v4.5.50|CODE=231|URL=https://aka.doubaocdn.com/s/wIKq7dQN2O -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070b10'/%3E%3Cpath d='M18 44V20h7v24zm12 0V20h16v7h-9v5h8v6h-8v6z' fill='%2334d399'/%3E%3C/svg%3E">
 <style>
 :root{--ink:#e8eef4;--muted:#8fa0b3;--dim:#5e6f82;--bg:#070b10;--panel:#0c131b;--line:rgba(160,190,210,.14);--line2:rgba(160,190,210,.28);--mint:#34d399;--blue:#38bdf8;--maxw:1180px}
@@ -60,7 +60,7 @@ footer{margin-top:70px;border-top:1px solid var(--line);padding:28px 0 40px;disp
   <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round"><path d="M4 17V7h3v10M11 17V7h6v3h-4v2h3v2h-3v3"/></svg></div>
   <div class="brand">IK工具箱<small>IK TOOLBOX</small></div>
   <div class="navlinks"><a href="#ability">能力</a><a href="#models">本地 AI</a><a href="#download">下载</a><a href="#log">更新</a></div>
-  <span class="nav-ver">v4.5.49 · 230</span>
+  <span class="nav-ver">v4.5.50 · 231</span>
   <a class="navdl" href="https://aka.doubaocdn.com/s/NIDtjXXH79">下载 APK</a>
 </div></nav>
 <div class="wrap">
@@ -103,7 +103,7 @@ footer{margin-top:70px;border-top:1px solid var(--line);padding:28px 0 40px;disp
       <div class="card c3"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12c4-7 14-7 18 0-4 7-14 7-18 0z"/><circle cx="12" cy="12" r="3"/></svg>看见 · LENS 网页版</h3><p>直接加载你指定的 LENS 识别页，摄像头由 App 授权给网页，模型、标签与识别设置保持网页原样；不套壳、不改数据。</p><span class="tag">LENS · 摄像头</span></div>
       <div class="card c4"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="17" r="3"/></svg>局域网与网盘</h3><p>手机开网页，电脑浏览器直接互传；网盘链接在应用内解析直下，不跳外部浏览器。Broken pipe、断连、续传都已处理。</p></div>
       <div class="card c5"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3"/><circle cx="12" cy="12" r="3.2"/></svg>3D 枪战</h3><p>Three.js 真 3D，三种兵种、爆头判定、受击方向、低血红屏、最高纪录与自适应分辨率，手机触屏直接玩。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v4.5.49：陀螺仪与入口修复</h3><p>3D 枪战新增原生陀螺仪瞄准，开始页可开关并记住设置；我的页补回「关于 / 检查更新」入口并显示当前版本；金属探测仪补全用途与适用边界说明；APK 上传改为固定长度流式 multipart，带进度，避免整包进内存。</p></div></div>
+      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v4.5.50：陀螺仪方向、空壳与动画修复</h3><p>修正 3D 枪战陀螺仪上下反向；计算器改为真实表达式解析，不再永远显示 0；录音机补麦克风授权；局域网上传改流式落盘，避免 80MB 整包 OOM；应用备份补存储权限、批量进度和拆分包 ZIP；检查更新统一兜底；新增「本机自检」与全站入场、卡片、按压回弹动画。</p></div></div>
     </div>
   </section>
 
@@ -123,14 +123,15 @@ footer{margin-top:70px;border-top:1px solid var(--line);padding:28px 0 40px;disp
 
   <section id="download">
     <div class="dlbox">
-      <div><div class="kicker">DIRECT APK / ANDROID 7.0+</div><h2>下载 IK工具箱 v4.5.49</h2><p>76 项工具 · 230 · 25.7 MB · 覆盖安装保留数据</p><div class="hash">MD5 cd1ca99bf8789c0836ca4c3ce37c4b11</div></div>
-      <div class="dl-side"><a class="btn-main" href="https://aka.doubaocdn.com/s/NIDtjXXH79">直接下载 APK</a><a class="btn-ghost" href="https://aka.doubaocdn.com/s/cZemSRVGjF">完整包 · 源码与记录</a><small>国内 CDN 直链 · 无跳转</small></div>
+      <div><div class="kicker">DIRECT APK / ANDROID 7.0+</div><h2>下载 IK工具箱 v4.5.50</h2><p>76 项工具 · 231 · 25.7 MB · 覆盖安装保留数据</p><div class="hash">MD5 e770b687bf65d84c5da8536ab29355bb</div></div>
+      <div class="dl-side"><a class="btn-main" href="https://aka.doubaocdn.com/s/wIKq7dQN2O">直接下载 APK</a><a class="btn-ghost" href="https://aka.doubaocdn.com/s/LYmV9A4Mqw">完整包 · 源码与记录</a><small>国内 CDN 直链 · 无跳转</small></div>
     </div>
   </section>
 
   <section id="log">
     <div class="sec-head"><div><h2>最近更新</h2><p>每个版本都改版本号，不只改一行文案。</p></div><div class="sec-idx">03 / CHANGELOG</div></div>
     <div class="tl">
+      <div class="item"><div class="v">v4.5.50 · 231</div><p>修正 3D 枪战陀螺仪上下方向；计算器真实表达式解析；录音机运行时授权；LAN 上传流式落盘；应用备份进度与拆分包 ZIP；新增本机自检；全站动画重做。</p></div>
       <div class="item"><div class="v">v4.5.49 · 230</div><p>3D 枪战新增原生陀螺仪瞄准，开始页可开关并记住设置；我的页补回「关于 / 检查更新」入口并显示当前版本；金属探测仪补全用途与适用边界说明；APK 上传改为固定长度流式 multipart，带进度，避免整包进内存。</p></div>
       <div class="item"><div class="v">v4.5.48 · 228</div><p>AI 拍照修复人脸回调在相机线程直接改 TextView 导致的崩溃；补相机权限申请、后台释放与回前台自动重开；拍照保存和快门失败提示统一回主线程。</p></div>
       <div class="item"><div class="v">v4.5.47 · 227</div><p>扫码页修复取景画面被 0 高度遮住，授权后自动重开相机；相机转后台立即释放；模型断点续传不再拼接损坏分片；官网不可达时兜底码修正为 227，不再误判最新。</p></div>
