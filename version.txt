@@ -1,3 +1,3 @@
-VERSION=v4.5.51
-URL=https://aka.doubaocdn.com/s/mBja9Lmmgi
-CODE=232
+VERSION=v4.5.52
+URL=https://aka.doubaocdn.com/s/TFDTPV1tiU
+CODE=233
