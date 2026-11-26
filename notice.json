@@ -1,6 +1,6 @@
 {
-  "id": 202611262355,
-  "title": "v5.0.4：无线调试从引导页变成功能页",
-  "content": "按 Android 版本分流：Android 10 及以下走 USB / root，Android 11+ 才走系统无线调试；读取本机 IP、无线调试开关和 adbd 端口；用 NsdManager 扫描 _adb-tls-connect / _adb-tls-pairing 动态端口；生成并复制 adb pair / adb connect 命令；补冻结、Sui、root、多用户、电池白名单、配对设备入口；Shizuku 命令 10 秒超时，拉 binder 移出 UI 线程。",
-  "time": "2026-11-26 23:35"
+  "id": 202611262356,
+  "title": "v5.0.5：无线调试不卡 UI，也不乱填别人的端口",
+  "content": "无线调试性能与可靠性优化：网络、端口、Shizuku、root 探测全部移出 UI 线程；扫描申请 MulticastLock，只接受本机 IPv4 的 ADB 服务，忽略局域网其他设备；Wi-Fi 切换/断网自动清空旧端口和命令；IP、端口、6 位配对码校验；显示 Shizuku App 版本与电池白名单；修复 stderr 管道假超时；识别 KernelSU / APatch / Magisk。",
+  "time": "2026-11-26 23:56"
 }
