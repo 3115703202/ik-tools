@@ -1,6 +1,6 @@
 {
-  "id": 202611262300,
-  "title": "v5.0.3：修掉 Shizuku 主动连接的两个硬错误",
-  "content": "复检「无线调试」时发现：getBinder 调用传了 null extras，Shizuku 直接返回 null；返回 Bundle 的键名又写成了 container，正确键是 moe.shizuku.privileged.api.intent.extra.BINDER。两处已改，Shizuku 已运行、工具箱后启动时也能连上。",
-  "time": "2026-11-26 23:00"
+  "id": 202611262355,
+  "title": "v5.0.4：无线调试从引导页变成功能页",
+  "content": "按 Android 版本分流：Android 10 及以下走 USB / root，Android 11+ 才走系统无线调试；读取本机 IP、无线调试开关和 adbd 端口；用 NsdManager 扫描 _adb-tls-connect / _adb-tls-pairing 动态端口；生成并复制 adb pair / adb connect 命令；补冻结、Sui、root、多用户、电池白名单、配对设备入口；Shizuku 命令 10 秒超时，拉 binder 移出 UI 线程。",
+  "time": "2026-11-26 23:35"
 }
