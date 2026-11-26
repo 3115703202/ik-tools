@@ -1,6 +1,6 @@
 {
-  "id": 202611262245,
-  "title": "v5.0.2：「无线调试」页已重做",
-  "content": "整页可上下滚动，底部 ADB 命令和授权按钮不再被裁；停止每 1.5 秒整页重绘，点击不再丢、滚动不再回弹；授权回调切回主线程并释放监听，修掉反复进出页面的闪退隐患。",
-  "time": "2026-11-26 22:45"
+  "id": 202611262300,
+  "title": "v5.0.3：修掉 Shizuku 主动连接的两个硬错误",
+  "content": "复检「无线调试」时发现：getBinder 调用传了 null extras，Shizuku 直接返回 null；返回 Bundle 的键名又写成了 container，正确键是 moe.shizuku.privileged.api.intent.extra.BINDER。两处已改，Shizuku 已运行、工具箱后启动时也能连上。",
+  "time": "2026-11-26 23:00"
 }
