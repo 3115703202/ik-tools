@@ -1,6 +1,6 @@
 {
-  "id": 202611270003,
-  "title": "v5.0.8：修 Shizuku 未激活与无线调试误报",
-  "content": "真机修复 Shizuku 权限名缺少 .api 导致 binder 拿不到、授权列表不显示 IK；补 Provider 可见性，状态改为未连接并直接请求授权；修次要按钮白字不可见；Android 12 无线调试关闭时不再误报 5555。",
-  "time": "2026-11-27 19:07"
+  "id": 202611270004,
+  "title": "v5.0.9：无线调试权限名再修正",
+  "content": "5.0.8 的 moe.shizuku.privileged.api.permission.API_V23 仍是错的；官方客户端权限是 moe.shizuku.manager.permission.API_V23。权限名不对，Shizuku 服务端不枚举 IK，也不下发 binder，所以一直未连接。5.0.9 已改对，安装后杀进程重开或重启 Shizuku 再授权。",
+  "time": "2026-11-27 21:12"
 }
