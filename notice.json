@@ -1,6 +1,6 @@
 {
-  "id": 202611270004,
-  "title": "v5.0.9：无线调试权限名再修正",
-  "content": "5.0.8 的 moe.shizuku.privileged.api.permission.API_V23 仍是错的；官方客户端权限是 moe.shizuku.manager.permission.API_V23。权限名不对，Shizuku 服务端不枚举 IK，也不下发 binder，所以一直未连接。5.0.9 已改对，安装后杀进程重开或重启 Shizuku 再授权。",
-  "time": "2026-11-27 21:12"
+  "id": 202611270005,
+  "title": "v5.0.10：无线调试可自救",
+  "content": "诊断区新增客户端权限自检；未连接时可一键重启 IK 重新绑定，强制 Shizuku 重新下发 binder；主按钮改为打开 Shizuku 手动授权。",
+  "time": "2026-11-27 21:27"
 }
