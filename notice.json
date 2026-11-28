@@ -1,6 +1,6 @@
 {
-  "id": "202611280012",
-  "title": "v5.0.22：图标隐身 exit 255 修复",
-  "body": "pm disable 被 shell 拒绝，改为 pm disable-user；隐藏 IK 自己不再被踢回桌面。",
-  "url": "https://aka.doubaocdn.com/s/LRpVWhGzAG"
+  "id": "202611280013",
+  "title": "v5.0.23：安装/更新优先走无线调试",
+  "body": "Shizuku 已授权时，核心、IK 更新、安装器、备份恢复、下载 APK 全部优先 pm install -S 静默安装；失败再回退系统安装器。官网同步重做。",
+  "url": "https://aka.doubaocdn.com/s/JdTkDJyJNE"
 }
