@@ -1,7 +1,7 @@
 {
-  "id": "202611280016",
-  "title": "v5.0.26：换桌面图标不再多出原版 IK",
-  "body": "启动时校正 alias 的旧代码只遍历前 15 套，选中 Theme/Cloud/Shop/Chat/Map/Mail/Translate/Health 时会被误判成没有启用任何 alias，又把 Default 打开，桌面上就多出原版 IK。5.0.26 遍历全部 23 套，只保留当前选中那一套；图标隐身时跳过校正。",
-  "url": "https://aka.doubaocdn.com/s/wBcrz0SabO",
+  "id": "202611280017",
+  "title": "v5.0.27：Shizuku 授权不再反复失败",
+  "body": "attachApplication 事务码之前写成 17，实际 AIDL 里 17 是 shouldShowRequestPermissionRationale，18 才是 attach。服务端没完成 attach，bindApplication 回调不来，权限状态一直 false。5.0.27 改回 18；连接必须等 bindApplication；授权状态 1.5 秒缓存，id 探测移到后台，不再卡 UI 10 秒。",
+  "url": "https://aka.doubaocdn.com/s/wssZxCg5MY",
   "date": "2026-11-28"
 }
