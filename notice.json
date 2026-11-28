@@ -1,6 +1,6 @@
 {
-  "id": 202611280008,
-  "title": "v5.0.18：安装确认页与授权探测",
-  "content": "状态 -1 是 STATUS_PENDING_USER_ACTION，旧代码没拉起系统安装页。5.0.18 正确打开确认页。授权检查失败后用 id 探测 shell，能执行即视为已授权。",
-  "time": "2026-11-28 17:20"
+  "id": 202611280009,
+  "title": "v5.0.19：Shizuku API 版本写错",
+  "content": "SERVER_VERSION 3→13、BINDER_TRANSACTION_transact 2→1；服务端不再把 IK 当 pre-v13，授权才能真正生效。核心安装改直拉系统安装器。",
+  "time": "2026-11-28 17:30"
 }
