@@ -1,6 +1,6 @@
 {
-  "id": "202611280013",
-  "title": "v5.0.23：安装/更新优先走无线调试",
-  "body": "Shizuku 已授权时，核心、IK 更新、安装器、备份恢复、下载 APK 全部优先 pm install -S 静默安装；失败再回退系统安装器。官网同步重做。",
-  "url": "https://aka.doubaocdn.com/s/JdTkDJyJNE"
+  "id": "202611280014",
+  "title": "v5.0.24：图标隐身重做，第三方完全隐藏",
+  "body": "第三方优先 pm hide 整包隐藏，桌面、设置列表、最近任务一起消失；ROM 拦截时退回整包停用或组件停用。隐藏失败弹完整异常；隐藏 IK 自己先删旧快捷方式，恢复走通知栏或拨号。",
+  "url": "https://aka.doubaocdn.com/s/Enfrszj9U8"
 }
