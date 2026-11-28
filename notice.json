@@ -1,6 +1,6 @@
 {
-  "id": 202611280006,
-  "title": "v5.0.16：穿透内核资源已恢复",
-  "content": "旧穿透内核 CDN 403 过期，下载卡连接中。已重打 14.31MB arm64 内核包，新地址 OpL4sb4ui0，三处下载入口已换新。",
-  "time": "2026-11-28 16:45"
+  "id": 202611280007,
+  "title": "v5.0.17：安装失败与授权缓存",
+  "content": "修 PackageInstaller「Files still open」：写入流关闭后再 commit。修 Shizuku 已授权仍待授权：清掉 permissionGranted 缓存重新查询。",
+  "time": "2026-11-28 17:05"
 }
