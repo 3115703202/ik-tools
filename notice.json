@@ -1,7 +1,7 @@
 {
-  "id": "202611280017",
-  "title": "v5.0.27：Shizuku 授权不再反复失败",
-  "body": "attachApplication 事务码之前写成 17，实际 AIDL 里 17 是 shouldShowRequestPermissionRationale，18 才是 attach。服务端没完成 attach，bindApplication 回调不来，权限状态一直 false。5.0.27 改回 18；连接必须等 bindApplication；授权状态 1.5 秒缓存，id 探测移到后台，不再卡 UI 10 秒。",
-  "url": "https://aka.doubaocdn.com/s/wssZxCg5MY",
+  "id": "202611280018",
+  "title": "v5.0.28：内置核心可查更新、可伪装图标",
+  "body": "内置特权页新增「核心版本与更新」：显示内置核心和已装核心版本，发现新版可一键覆盖安装，数据保留；核心升级到 1.2。新增核心伪装图标，可把桌面上的「IK 特权核心」换成计算器、相册、文件管理、相机、天气、设置；另加「应用伪装」，可给任意已安装应用生成自定义名字和图标的桌面入口，不改原应用。",
+  "url": "https://aka.doubaocdn.com/s/dUU0QFthuz",
   "date": "2026-11-28"
 }
