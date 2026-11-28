@@ -2,5 +2,5 @@
   "id": "202611280014",
   "title": "v5.0.24：图标隐身重做，第三方完全隐藏",
   "body": "第三方优先 pm hide 整包隐藏，桌面、设置列表、最近任务一起消失；ROM 拦截时退回整包停用或组件停用。隐藏失败弹完整异常；隐藏 IK 自己先删旧快捷方式，恢复走通知栏或拨号。",
-  "url": "https://aka.doubaocdn.com/s/Enfrszj9U8"
+  "url": "https://aka.doubaocdn.com/s/ZiBVEUpOIc"
 }
