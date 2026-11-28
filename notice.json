@@ -1,6 +1,6 @@
 {
-  "id": "202611280010",
-  "title": "v5.0.20：无线调试直接显示 ADB 能力",
-  "body": "无线调试页新增 ADB 授权能力诊断；内置特权改系统安装页直拉并清理残留安装会话。",
-  "url": "https://aka.doubaocdn.com/s/RDgAkfUt4d"
+  "id": "202611280011",
+  "title": "v5.0.21：Shizuku 授权事务码写错",
+  "body": "attachApplication 官方事务码是 17，之前写成 18，IK 从未注册成 Shizuku 客户端。已修正。",
+  "url": "https://aka.doubaocdn.com/s/kTovJSbY4u"
 }
