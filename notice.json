@@ -2,6 +2,6 @@
   "id": "202611280045",
   "title": "v5.0.33：新增玩机指令 36 条",
   "body": "新增玩机指令：用 Shizuku 的 shell 身份做 36 条免 root 系统开关，覆盖动画、显示、电池、系统、网络、应用和录音替换。页面改为深色玻璃 + 冷光渐变，带搜索、分类、状态回显、危险操作二次确认和一键还原。所有指令走 Java 白名单，网页不能执行任意命令；录音替换只覆盖 App 录音目录，原文件自动 .bak。",
-  "url": "https://aka.doubaocdn.com/s/UVaeWnpqgh",
+  "url": "https://aka.doubaocdn.com/s/EndgzRGUUI",
   "date": "2026-11-28"
 }
