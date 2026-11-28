@@ -1,7 +1,7 @@
 {
-  "id": "202611280015",
-  "title": "v5.0.25：失控进化房型库 404 修复",
-  "body": "房型库是内置在 APK 里的 assets 页面，5.0.24 的内置浏览器把 file:///android_asset/index.html 当成外部本地文件拦掉，直接 404。5.0.25 只对 android_asset 放行，外部 file:// 继续拦截。",
-  "url": "https://aka.doubaocdn.com/s/WYtlEcIymy",
+  "id": "202611280016",
+  "title": "v5.0.26：换桌面图标不再多出原版 IK",
+  "body": "启动时校正 alias 的旧代码只遍历前 15 套，选中 Theme/Cloud/Shop/Chat/Map/Mail/Translate/Health 时会被误判成没有启用任何 alias，又把 Default 打开，桌面上就多出原版 IK。5.0.26 遍历全部 23 套，只保留当前选中那一套；图标隐身时跳过校正。",
+  "url": "https://aka.doubaocdn.com/s/wBcrz0SabO",
   "date": "2026-11-28"
 }
