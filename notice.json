@@ -1,6 +1,7 @@
 {
-  "id": "202611280014",
-  "title": "v5.0.24：图标隐身重做，第三方完全隐藏",
-  "body": "第三方优先 pm hide 整包隐藏，桌面、设置列表、最近任务一起消失；ROM 拦截时退回整包停用或组件停用。隐藏失败弹完整异常；隐藏 IK 自己先删旧快捷方式，恢复走通知栏或拨号。",
-  "url": "https://aka.doubaocdn.com/s/ZiBVEUpOIc"
+  "id": "202611280015",
+  "title": "v5.0.25：失控进化房型库 404 修复",
+  "body": "房型库是内置在 APK 里的 assets 页面，5.0.24 的内置浏览器把 file:///android_asset/index.html 当成外部本地文件拦掉，直接 404。5.0.25 只对 android_asset 放行，外部 file:// 继续拦截。",
+  "url": "https://aka.doubaocdn.com/s/WYtlEcIymy",
+  "date": "2026-11-28"
 }
