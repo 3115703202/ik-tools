@@ -1,3 +1,3 @@
 VERSION=v5.0.12
-URL=https://aka.doubaocdn.com/s/LgR4wZrodc
+URL=https://aka.doubaocdn.com/s/lxUqbMjEp6
 CODE=255
