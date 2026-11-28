@@ -2,217 +2,495 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IK工具箱 · 78 项安卓工具 · 图标隐身与本机 AI</title>
-<meta name="description" content="IK工具箱：78 项安卓实用工具，内置本机实时视觉、离线大模型、真实 Telecom 模拟来电与灵动岛。核心功能离线运行，不上传文件内容。">
-<!-- IK-OTA:VER=v5.0.22|CODE=265|URL=https://aka.doubaocdn.com/s/LRpVWhGzAG -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070b10'/%3E%3Cpath d='M18 44V20h7v24zm12 0V20h16v7h-9v5h8v6h-8v6z' fill='%2334d399'/%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IK工具箱 · 78 项系统级安卓工具</title>
+<meta name="description" content="IK工具箱：78 项安卓工具，Shizuku 无线调试、内置特权核心、图标隐身、本机 GGUF 大模型、3D 枪战、局域网互传。核心功能离线运行。">
+<!-- IK-OTA:VER=v5.0.23|CODE=266|URL=https://aka.doubaocdn.com/s/JdTkDJyJNE -->
+<meta name="theme-color" content="#05070d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23070b12'/%3E%3Cpath d='M17 46V18h8v28zM31 46V18h18v8h-10v5h9v7h-9v8z' fill='%235eead4'/%3E%3C/svg%3E">
 <style>
-:root{--ink:#e8eef4;--muted:#8fa0b3;--dim:#5e6f82;--bg:#070b10;--panel:#0c131b;--line:rgba(160,190,210,.14);--line2:rgba(160,190,210,.28);--mint:#34d399;--blue:#38bdf8;--maxw:1180px}
-*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"HarmonyOS Sans SC","PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.6}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(60% 45% at 78% 8%,rgba(52,211,153,.10),transparent 70%),radial-gradient(45% 35% at 10% 28%,rgba(56,189,248,.08),transparent 70%),linear-gradient(180deg,#0a1118,#070b10 38%,#06090d)}
-.wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 28px}
-nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(18px);background:rgba(7,11,16,.72);border-bottom:1px solid var(--line)}
-.nav{max-width:var(--maxw);margin:0 auto;padding:16px 28px;display:flex;align-items:center;gap:14px}
-.logo{width:34px;height:34px;border:1px solid var(--line2);border-radius:9px;display:grid;place-items:center;background:linear-gradient(160deg,#12202b,#0a1118)}
-.logo svg{width:20px;height:20px}.brand{font-weight:800;letter-spacing:.5px}.brand small{display:block;color:var(--dim);font-size:10px;letter-spacing:2px;font-weight:500}
-.navlinks{margin-left:auto;display:flex;gap:22px;font-size:13px;color:var(--muted)}.navlinks a{color:inherit;text-decoration:none}.navlinks a:hover{color:var(--mint)}
-.nav-ver{font-size:11px;color:var(--mint);border:1px solid rgba(52,211,153,.35);padding:4px 9px;border-radius:999px;white-space:nowrap}
-.navdl{background:var(--mint);color:#04130c;font-weight:800;font-size:13px;padding:8px 16px;border-radius:8px;text-decoration:none}
-.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;padding:76px 0 60px}
-.kicker{font-size:11px;letter-spacing:2.2px;color:var(--mint);text-transform:uppercase;font-weight:700}
-h1{font-size:clamp(40px,4.6vw,64px);line-height:1.05;letter-spacing:-1.4px;margin:18px 0 20px;font-weight:900}h1 em{font-style:normal;color:var(--mint)}
-.lede{color:var(--muted);font-size:16px;max-width:540px;line-height:1.85}
-.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
-.btn-main{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(180deg,#4ade80,#22c55e);color:#04140b;text-decoration:none;font-weight:800;font-size:15px;padding:14px 24px;border-radius:10px;box-shadow:0 12px 30px rgba(34,197,94,.22)}.btn-main svg{width:18px;height:18px}
-.btn-ghost{display:inline-flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;font-size:14px;padding:14px 20px;border:1px solid var(--line2);border-radius:10px;background:rgba(255,255,255,.03)}
-.meta{margin-top:18px;display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}.meta b{color:var(--ink);font-weight:700}
-.phone{justify-self:center;width:310px;height:640px;border-radius:40px;border:1px solid rgba(190,220,235,.3);background:linear-gradient(160deg,#14222d,#080d13 55%);position:relative;box-shadow:0 40px 100px rgba(0,0,0,.55),inset 0 0 0 7px #0a1017,inset 0 1px 0 rgba(255,255,255,.18);padding:16px;transform:rotate(2deg)}
-.phone::after{content:"";position:absolute;width:80px;height:22px;border-radius:14px;background:#03060a;left:50%;transform:translateX(-50%);top:10px;border:1px solid rgba(120,160,180,.2)}
-.island{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:4;background:#000;border-radius:20px;height:30px;padding:0 12px;display:flex;align-items:center;gap:8px;border:1px solid rgba(120,170,190,.28);box-shadow:0 2px 14px rgba(0,0,0,.6)}
-.island .d{width:6px;height:6px;border-radius:50%;background:var(--mint);box-shadow:0 0 8px var(--mint)}.island span{font-size:10px;color:#cfe9df}.island b{font-size:10px;color:var(--mint)}
-.scr{height:100%;border-radius:28px;background:linear-gradient(180deg,#f7faf8,#edf3ef);overflow:hidden;color:#101b14;display:flex;flex-direction:column}
-.sh{display:flex;align-items:center;gap:8px;padding:40px 16px 12px}.sh .dot{width:8px;height:8px;border-radius:50%;background:#10b981}.sh h3{font-size:16px;font-weight:800}.sh .sw{margin-left:auto;font-size:9px;background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;padding:2px 8px;border-radius:8px}
-.sug{padding:6px 14px;display:grid;gap:7px}.sug div{background:#e9efeb;border:1px solid #dde6e0;border-radius:10px;padding:9px 11px;font-size:10.5px;color:#33463b}
-.chat{margin-top:auto;padding:10px 14px 0;display:flex;flex-direction:column;gap:8px}.b{max-width:82%;padding:9px 11px;border-radius:12px;font-size:10.5px;line-height:1.5}.b.me{align-self:flex-end;background:#16a34a;color:#fff}.b.ai{align-self:flex-start;background:#e9efeb;color:#1f3427}.b small{display:block;margin-top:4px;color:#7d9288;font-size:8px}
-.inp{margin:10px 12px 12px;background:#eef3f0;border:1px solid #dfe8e2;border-radius:14px;height:42px;display:flex;align-items:center;padding:0 12px;font-size:10px;color:#96a89e}.send{margin-left:auto;width:28px;height:28px;border-radius:50%;background:#16a34a;display:grid;place-items:center;color:#fff;font-size:12px}
-.snav{display:flex;border-top:1px solid #e3ebe6;padding:8px 0 10px;font-size:9px;color:#6d8578}.snav div{flex:1;text-align:center}.snav .on{color:#16a34a;font-weight:800}
-.badge-float{position:absolute;right:-38px;bottom:110px;background:rgba(12,19,27,.86);border:1px solid var(--line2);backdrop-filter:blur(12px);border-radius:12px;padding:10px 14px;font-size:11px;color:#bcd0dd;box-shadow:0 10px 30px rgba(0,0,0,.4)}.badge-float b{color:var(--mint)}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.stat{padding:24px 8px;border-right:1px solid var(--line)}.stat:last-child{border-right:0}.stat b{display:block;font-size:30px;letter-spacing:-1px;font-variant-numeric:tabular-nums}.stat span{font-size:11px;color:var(--dim);letter-spacing:.5px}.stat b i{font-style:normal;color:var(--mint);font-size:16px;margin-left:4px}
-section{padding:70px 0 0}.sec-head{display:grid;grid-template-columns:1fr auto;align-items:end;gap:20px;margin-bottom:26px}.sec-head h2{font-size:clamp(26px,3vw,38px);letter-spacing:-.6px}.sec-head p{color:var(--muted);font-size:13px;margin-top:8px}.sec-idx{font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
-.cards{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.card{border:1px solid var(--line);background:linear-gradient(160deg,rgba(255,255,255,.045),rgba(255,255,255,.012));border-radius:14px;padding:22px;min-width:0}
-.card h3{font-size:17px;display:flex;align-items:center;gap:9px;margin-bottom:8px}.card h3 svg{width:19px;height:19px;color:var(--mint);flex:0 0 auto}.card p{font-size:12.5px;color:var(--muted);line-height:1.75}.card .tag{display:inline-block;margin-top:12px;font-size:10px;color:var(--mint);border:1px solid rgba(52,211,153,.25);border-radius:5px;padding:3px 7px}
-.c1{grid-column:span 7}.c2{grid-column:span 5}.c3{grid-column:span 4}.c4{grid-column:span 4}.c5{grid-column:span 4}.card.big{padding:30px}.card.big h3{font-size:21px}.card.big p{font-size:13.5px}
-.models{margin-top:16px;border:1px solid var(--line);border-radius:14px;overflow:hidden}.mrow{display:grid;grid-template-columns:1.1fr .7fr .9fr auto;gap:12px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);font-size:12px}.mrow:last-child{border-bottom:0}.mrow b{font-size:13px}.mrow span{color:var(--muted)}.mrow em{font-style:normal;color:var(--dim);font-size:11px}.mrow a{color:var(--mint);text-decoration:none;font-size:11px;border:1px solid rgba(52,211,153,.3);padding:4px 9px;border-radius:6px}.mrow .fast{color:var(--mint)}
-.dlbox{margin-top:20px;border:1px solid var(--line2);border-radius:16px;padding:34px;display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center;background:radial-gradient(70% 120% at 0% 0%,rgba(52,211,153,.11),transparent 60%),linear-gradient(150deg,#0d1720,#0a1118)}.dlbox h2{font-size:30px;letter-spacing:-.5px}.dlbox p{color:var(--muted);font-size:13px;margin-top:8px}.dl-side{display:flex;flex-direction:column;gap:9px;min-width:210px}.dl-side a{text-align:center}.dl-side small{text-align:center;color:var(--dim);font-size:10px}.hash{margin-top:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:var(--dim);word-break:break-all}
-.tl{margin-top:8px;border-left:1px solid var(--line2);padding-left:22px}.tl .item{position:relative;padding:0 0 24px}.tl .item::before{content:"";position:absolute;left:-27px;top:6px;width:9px;height:9px;border-radius:50%;background:var(--mint);box-shadow:0 0 12px rgba(52,211,153,.6)}.tl .item:not(:first-child)::before{background:#33465a;box-shadow:none}.tl .v{font-size:13px;font-weight:800;color:var(--mint);font-variant-numeric:tabular-nums}.tl p{font-size:12.5px;color:var(--muted);margin-top:3px;max-width:760px}
-.faq{border-top:1px solid var(--line)}.faq details{border-bottom:1px solid var(--line);padding:18px 0}.faq summary{cursor:pointer;font-size:14px;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:16px}.faq summary::after{content:"+";color:var(--mint);font-weight:400}.faq details[open] summary::after{content:"−"}.faq p{color:var(--muted);font-size:12.5px;margin-top:10px;max-width:820px}
-footer{margin-top:70px;border-top:1px solid var(--line);padding:28px 0 40px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;color:var(--dim);font-size:11px}footer b{color:var(--muted)}
-@media (max-width:920px){.hero{grid-template-columns:1fr;gap:40px;padding:54px 0 40px}.phone{width:280px;height:580px;transform:none}.badge-float{right:-10px;bottom:80px}.cards{grid-template-columns:repeat(2,1fr)}.c1,.c2,.c3,.c4,.c5{grid-column:span 1}.stats{grid-template-columns:repeat(2,1fr)}.stat:nth-child(2){border-right:0}.stat:nth-child(3),.stat:nth-child(4){border-top:1px solid var(--line)}.navlinks{display:none}.dlbox{grid-template-columns:1fr;padding:26px}}
-@media (max-width:560px){.wrap{padding:0 18px}.nav{padding:14px 18px}h1{font-size:40px}.cards{grid-template-columns:1fr}.mrow{grid-template-columns:1fr auto;row-gap:4px}.mrow em{display:none}.phone{width:100%;max-width:290px}.badge-float{display:none}.stats b{font-size:26px}}
-@media (prefers-reduced-motion:reduce){*{animation:none;transition:none}}
+:root{
+  --bg:#05070d; --ink:#eef5f7; --muted:#93a4b4; --dim:#5f7183;
+  --line:rgba(176,208,224,.14); --line2:rgba(176,208,224,.26);
+  --mint:#5eead4; --cyan:#67d8ff; --blue:#6f8cff; --amber:#ffc46b;
+  --glass:linear-gradient(150deg,rgba(255,255,255,.075),rgba(255,255,255,.018));
+  --max:1200px; --r:22px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--ink);line-height:1.65;overflow-x:hidden;
+  font-family:-apple-system,BlinkMacSystemFont,"HarmonyOS Sans SC","PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(52% 38% at 84% 6%,rgba(94,234,212,.15),transparent 68%),
+    radial-gradient(42% 32% at 8% 18%,rgba(103,216,255,.12),transparent 72%),
+    radial-gradient(50% 45% at 50% 100%,rgba(111,140,255,.07),transparent 72%),
+    linear-gradient(180deg,#08101a 0%,#05070d 46%,#04060a 100%);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.55;
+  background-image:radial-gradient(rgba(255,255,255,.13) .6px,transparent .6px);
+  background-size:26px 26px;mask-image:linear-gradient(180deg,rgba(0,0,0,.4),transparent 65%);
+}
+a{color:inherit;text-decoration:none}
+img,svg{display:block}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 28px}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:40;background:rgba(5,7,13,.88);backdrop-filter:blur(22px) saturate(140%);border-bottom:1px solid var(--line)}
+.nav-in{max-width:var(--max);margin:0 auto;padding:14px 28px;display:flex;align-items:center;gap:14px}
+.logo{width:38px;height:38px;flex:0 0 38px;border:1px solid var(--line2);border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,#122331,#0a1119);box-shadow:inset 0 1px 0 rgba(255,255,255,.16)}
+.logo svg{width:21px;height:21px}
+.brand{font-weight:800;font-size:15px;letter-spacing:.4px;white-space:nowrap}
+.brand small{display:block;font-size:9px;color:var(--dim);letter-spacing:2.2px;font-weight:500;margin-top:-2px}
+.links{margin-left:auto;display:flex;gap:24px;font-size:13px;color:var(--muted)}
+.links a{position:relative;padding:4px 0}
+.links a::after{content:"";position:absolute;left:0;right:100%;bottom:0;height:1px;background:var(--mint);transition:right .25s}
+.links a:hover{color:var(--ink)}
+.links a:hover::after{right:0}
+.ver{font-size:10.5px;color:var(--mint);border:1px solid rgba(94,234,212,.34);background:rgba(94,234,212,.07);padding:5px 10px;border-radius:999px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.dl-top{background:var(--mint);color:#03221d;font-size:12.5px;font-weight:800;padding:9px 16px;border-radius:10px;white-space:nowrap;box-shadow:0 8px 24px rgba(94,234,212,.18)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.68fr);gap:56px;align-items:center;padding:78px 0 56px}
+.eyebrow{font-size:10.5px;letter-spacing:2.4px;color:var(--mint);font-weight:800;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--mint);opacity:.8}
+h1{font-size:clamp(44px,6.2vw,82px);line-height:1.02;letter-spacing:-2.4px;margin:20px 0 22px;font-weight:900}
+h1 span{display:block;background:linear-gradient(100deg,#5eead4 0%,#67d8ff 48%,#8fa5ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{max-width:560px;color:var(--muted);font-size:15.5px;line-height:1.9}
+.lede b{color:var(--ink);font-weight:700}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:12px;padding:14px 22px;font-size:14px;font-weight:800;transition:transform .18s,box-shadow .18s,background .18s}
+.btn:active{transform:scale(.98)}
+.btn-main{background:linear-gradient(180deg,#7ff3df,#42d7c1);color:#03211b;box-shadow:0 14px 38px rgba(66,215,193,.22)}
+.btn-main:hover{transform:translateY(-1px);box-shadow:0 18px 46px rgba(66,215,193,.28)}
+.btn-ghost{background:rgba(255,255,255,.035);border:1px solid var(--line2);color:var(--ink)}
+.btn svg{width:18px;height:18px}
+.meta{display:flex;gap:20px;flex-wrap:wrap;margin-top:22px;color:var(--dim);font-size:11px}
+.meta b{color:var(--ink);font-weight:700;margin-right:3px}
+.hero-note{margin-top:12px;color:var(--dim);font-size:10.5px}
+
+/* phone */
+.phone-stage{position:relative;display:flex;justify-content:center;perspective:1200px}
+.phone-stage::before{content:"";position:absolute;inset:8% 4% 12%;background:radial-gradient(circle,rgba(94,234,212,.18),transparent 66%);filter:blur(24px)}
+.phone{
+  position:relative;z-index:1;width:min(342px,100%);height:690px;border-radius:42px;padding:9px;
+  background:linear-gradient(155deg,#20303e,#070b11 55%,#15232e);
+  border:1px solid rgba(198,230,238,.32);
+  box-shadow:0 48px 100px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.14),inset 0 0 26px rgba(255,255,255,.06);
+  transform:rotateY(-7deg) rotateX(2deg) rotateZ(1.5deg);
+}
+.screen{height:100%;border-radius:33px;background:#eff6f3;color:#0b1914;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:86px;height:25px;border-radius:16px;background:#030507;z-index:4;border:1px solid rgba(120,180,190,.22)}
+.status{display:flex;justify-content:space-between;padding:15px 20px 2px;font-size:10px;color:#2e443a;font-variant-numeric:tabular-nums;z-index:3}
+.status .r{display:flex;gap:4px;align-items:center}
+.status i{display:inline-block;width:9px;height:6px;border:1px solid #2e443a;border-radius:2px;position:relative}
+.status i::after{content:"";position:absolute;inset:1px;background:#2e443a;border-radius:1px}
+.app-head{display:flex;align-items:center;gap:9px;padding:18px 18px 8px}
+.app-ic{width:34px;height:34px;border-radius:10px;background:linear-gradient(145deg,#2f7dff,#1543a8);display:grid;place-items:center;color:#fff;font-weight:900;font-size:13px;box-shadow:0 6px 18px rgba(31,100,255,.28)}
+.app-title{font-size:15px;font-weight:900;letter-spacing:-.3px}
+.app-title small{display:block;font-size:8px;color:#7b948a;letter-spacing:1.4px;font-weight:600}
+.live{margin-left:auto;font-size:9px;font-weight:800;color:#147a4f;background:#d9f7e8;border:1px solid #b9ebd3;padding:3px 8px;border-radius:999px;display:flex;align-items:center;gap:4px}
+.live::before{content:"";width:5px;height:5px;border-radius:50%;background:#16a34a}
+.search{margin:8px 16px 0;height:34px;border-radius:12px;background:#e3eee8;border:1px solid #d6e4dc;display:flex;align-items:center;padding:0 10px;color:#8aa096;font-size:9.5px;gap:6px}
+.search svg{width:12px;height:12px;stroke:#6c897c}
+.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px 0}
+.mini{border-radius:14px;padding:11px 11px 10px;background:#fff;border:1px solid #dfeae4;min-height:82px;position:relative;overflow:hidden}
+.mini::after{content:"";position:absolute;right:-18px;top:-18px;width:54px;height:54px;border-radius:50%;background:radial-gradient(circle,rgba(94,234,212,.28),transparent 68%)}
+.mini .mi{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;background:#e4fbf4;color:#0f8f70;font-size:11px;font-weight:900;margin-bottom:7px}
+.mini b{display:block;font-size:11px;letter-spacing:-.2px}
+.mini span{display:block;font-size:8px;color:#7b948a;margin-top:2px}
+.mini .num{position:absolute;right:10px;bottom:9px;font-size:17px;font-weight:900;color:#11896c;letter-spacing:-.8px}
+.mini.warn .mi{background:#fff2dc;color:#b46a00}
+.mini.warn .num{color:#b46a00}
+.mini.blue .mi{background:#e6efff;color:#2b62d9}
+.mini.blue .num{color:#2b62d9}
+.recent{padding:12px 16px 0}
+.recent h4{font-size:10px;color:#5c776b;font-weight:800;display:flex;justify-content:space-between;margin-bottom:6px}
+.recent h4 span{color:#a0b2aa;font-weight:500}
+.row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #e3ede7;font-size:9.5px}
+.row .ri{width:24px;height:24px;border-radius:7px;background:#edf5f1;display:grid;place-items:center;font-size:8px;color:#37705c;flex:0 0 24px}
+.row b{font-size:10px;display:block;line-height:1.2}
+.row small{font-size:8px;color:#8ca299}
+.row .go{margin-left:auto;color:#15926d;font-size:8px;font-weight:800}
+.tabbar{margin-top:auto;display:flex;border-top:1px solid #dfeae4;padding:8px 4px 10px;font-size:8px;color:#80988e;background:#f8fcfa}
+.tabbar div{flex:1;text-align:center}
+.tabbar b{display:block;font-size:11px;color:#15926d;margin-bottom:1px}
+.floating{position:absolute;z-index:3;right:8px;bottom:108px;background:rgba(8,15,22,.9);border:1px solid var(--line2);backdrop-filter:blur(14px);border-radius:13px;padding:11px 14px;box-shadow:0 18px 44px rgba(0,0,0,.45);font-size:10px;color:#b9ced8;line-height:1.5}
+.floating b{color:var(--mint);font-size:12px}
+.floating small{display:block;color:#748797;font-size:8.5px}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.022);overflow:hidden;backdrop-filter:blur(14px)}
+.stat{padding:21px 22px;border-right:1px solid var(--line);min-width:0}
+.stat:last-child{border-right:0}
+.stat b{display:block;font-size:30px;letter-spacing:-1.2px;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat b i{font-style:normal;font-size:13px;color:var(--mint);margin-left:3px;letter-spacing:0}
+.stat span{font-size:10px;color:var(--dim);letter-spacing:.4px;display:block;margin-top:5px}
+
+/* sections */
+section{padding-top:86px;scroll-margin-top:76px}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:24px}
+.sec-k{font-size:10px;letter-spacing:2px;color:var(--mint);font-weight:800;margin-bottom:7px}
+.sec-head h2{font-size:clamp(27px,3.5vw,44px);line-height:1.15;letter-spacing:-1.2px;font-weight:900}
+.sec-head p{color:var(--muted);font-size:13px;max-width:560px;margin-top:7px}
+.sec-num{color:var(--dim);font-size:10.5px;font-variant-numeric:tabular-nums;white-space:nowrap;padding-bottom:4px}
+
+.bento{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;align-items:start}
+.card{
+  border:1px solid var(--line);background:var(--glass);border-radius:var(--r);padding:26px;
+  position:relative;overflow:hidden;min-width:0;backdrop-filter:blur(12px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+}
+.card::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(80% 90% at 100% 0%,rgba(94,234,212,.09),transparent 58%)}
+.card h3{font-size:20px;letter-spacing:-.4px;display:flex;align-items:center;gap:9px;margin-bottom:9px;position:relative;z-index:1}
+.card p{font-size:13px;color:var(--muted);line-height:1.8;position:relative;z-index:1}
+.card .tag{display:inline-flex;align-self:flex-start;align-items:center;gap:5px;margin-top:14px;font-size:9.5px;color:var(--mint);border:1px solid rgba(94,234,212,.28);background:rgba(94,234,212,.06);padding:4px 8px;border-radius:6px}
+.ic{width:38px;height:38px;flex:0 0 38px;border-radius:11px;display:grid;place-items:center;background:rgba(94,234,212,.1);border:1px solid rgba(94,234,212,.24);color:var(--mint);margin-bottom:13px}
+.ic svg{width:19px;height:19px}
+.span7{grid-column:span 7}.span5{grid-column:span 5}.span4{grid-column:span 4}.span6{grid-column:span 6}.span12{grid-column:span 12}
+.card.hero-card{padding:30px}
+.card.hero-card h3{font-size:26px}
+.card.hero-card p{font-size:13.5px}
+.mini-spec{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px;position:relative;z-index:1}
+.mini-spec div{border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:rgba(255,255,255,.025)}
+.mini-spec b{display:block;font-size:11px;color:var(--ink)}
+.mini-spec span{display:block;font-size:8.5px;color:var(--dim);margin-top:2px}
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:16px;position:relative;z-index:1;font-size:9px;color:var(--dim)}
+.flow i{font-style:normal;color:var(--dim)}
+.flow b{font-weight:600;color:#c7dce3;border:1px solid var(--line);border-radius:6px;padding:4px 7px;background:rgba(255,255,255,.025)}
+
+.cap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.cap{border:1px solid var(--line);background:rgba(255,255,255,.024);border-radius:16px;padding:19px;display:flex;gap:12px;align-items:flex-start;transition:border-color .2s,background .2s,transform .2s}
+.cap:hover{border-color:var(--line2);background:rgba(255,255,255,.04);transform:translateY(-2px)}
+.cap .ic{width:34px;height:34px;flex-basis:34px;border-radius:9px;margin-bottom:0}
+.cap .ic svg{width:16px;height:16px}
+.cap b{font-size:13px;display:block;margin-bottom:2px}
+.cap span{font-size:10.5px;color:var(--muted);line-height:1.65;display:block}
+
+/* priority */
+.priority{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
+.priority .card{display:flex;flex-direction:column;justify-content:center}
+.priority h3{font-size:clamp(24px,2.6vw,34px);line-height:1.18}
+.priority p{font-size:12.5px}
+.codebox{background:rgba(0,0,0,.26);border:1px solid var(--line);border-radius:12px;padding:15px 16px;margin-top:16px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.8;color:#a9c1ca;overflow:auto;white-space:pre;position:relative;z-index:1}
+.codebox b{color:var(--mint);font-weight:600}
+.steps{display:flex;flex-direction:column;gap:10px;margin-top:16px;position:relative;z-index:1}
+.step{display:flex;gap:11px;align-items:flex-start}
+.step em{width:22px;height:22px;flex:0 0 22px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:9px;font-weight:800;color:var(--mint);border:1px solid rgba(94,234,212,.3);background:rgba(94,234,212,.06)}
+.step b{font-size:11.5px;display:block}
+.step span{font-size:10px;color:var(--muted);line-height:1.65;display:block}
+
+/* download */
+.download{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;border:1px solid var(--line2);border-radius:24px;padding:34px;background:radial-gradient(85% 130% at 0% 0%,rgba(94,234,212,.12),transparent 60%),linear-gradient(150deg,#0b1621,#070c14);box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+.download h2{font-size:clamp(28px,4vw,46px);letter-spacing:-1.2px;line-height:1.1}
+.download p{color:var(--muted);font-size:12.5px;margin-top:9px}
+.dl-list{display:flex;flex-direction:column;gap:9px}
+.dl-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.02);font-size:10.5px;color:var(--muted)}
+.dl-row b{color:var(--ink);font-size:11px;display:block}
+.dl-row a{color:var(--mint);font-size:9.5px;border:1px solid rgba(94,234,212,.3);padding:4px 8px;border-radius:6px;white-space:nowrap}
+.dl-row small{display:block;font-size:8.5px;color:var(--dim);margin-top:2px}
+.hash{margin-top:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:var(--dim);word-break:break-all;line-height:1.7}
+.hash b{color:var(--muted);font-weight:500}
+
+/* updates */
+.timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tl{border:1px solid var(--line);border-radius:16px;padding:20px;background:rgba(255,255,255,.022)}
+.tl .v{font-size:12px;font-weight:900;color:var(--mint);font-variant-numeric:tabular-nums;margin-bottom:6px}
+.tl h4{font-size:14px;margin-bottom:5px}
+.tl p{font-size:10.5px;color:var(--muted);line-height:1.7}
+.tl small{display:block;color:var(--dim);font-size:9px;margin-top:9px}
+
+/* faq */
+.faq{border-top:1px solid var(--line)}
+.faq details{border-bottom:1px solid var(--line);padding:17px 0}
+.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:14px;font-size:13.5px;font-weight:700}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--mint);font-size:18px;font-weight:400;line-height:1}
+.faq details[open] summary::after{content:"−"}
+.faq p{font-size:11.5px;color:var(--muted);line-height:1.8;margin-top:9px;max-width:860px}
+
+footer{margin-top:80px;border-top:1px solid var(--line);padding:24px 0 44px;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;color:var(--dim);font-size:10px}
+footer b{color:var(--muted);font-weight:600}
+.foot-links{display:flex;gap:16px;flex-wrap:wrap}
+.foot-links a:hover{color:var(--mint)}
+
+@media (max-width:1100px){.floating{display:none}}
+@media (max-width:980px){
+  .hero{grid-template-columns:1fr;gap:38px;padding:52px 0 38px}
+  .phone-stage{justify-content:flex-start;padding-left:8px}
+  .phone{width:min(330px,100%);height:660px;transform:none}
+  .floating{right:-8px;bottom:92px}
+  .links{display:none}
+  .span7,.span5{grid-column:span 12}
+  .span4{grid-column:span 6}
+  .cap-grid{grid-template-columns:repeat(2,1fr)}
+  .priority{grid-template-columns:1fr}
+  .download{grid-template-columns:1fr;padding:26px}
+  .timeline{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .wrap{padding:0 18px}
+  .nav{background:rgba(5,7,13,.96)}
+  .nav-in{padding:12px 18px;gap:10px}
+  .brand{font-size:13px}.brand small{font-size:8px;letter-spacing:1.6px}
+  .logo{width:34px;height:34px;flex-basis:34px}
+  .ver{display:none}
+  .dl-top{padding:8px 12px;font-size:11.5px}
+  h1{letter-spacing:-1.6px;margin-top:16px}
+  .lede{font-size:14px}
+  .hero{padding-top:38px}
+  .phone-stage{justify-content:center;padding-left:0}
+  .phone{height:640px;width:min(320px,100%)}
+  .floating{display:none}
+  .stats{grid-template-columns:1fr 1fr}
+  .stat{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:17px 15px}
+  .stat:nth-child(2n){border-right:0}
+  .stat:nth-child(n+3){border-bottom:0}
+  .stat b{font-size:25px}
+  section{padding-top:64px}
+  .sec-head{display:block}
+  .sec-num{display:none}
+  .bento{gap:10px}
+  .span4,.span6{grid-column:span 12}
+  .card{padding:20px;border-radius:18px}
+  .card.hero-card h3{font-size:22px}
+  .mini-spec{grid-template-columns:1fr 1fr}
+  .cap-grid{grid-template-columns:1fr}
+  .download{padding:21px;border-radius:18px}
+  .download h2{font-size:30px}
+  .timeline{gap:10px}
+  footer{display:block}.foot-links{margin-top:10px}
+}
+@media (max-width:380px){
+  .phone{height:600px;width:100%}
+  .status{padding-top:12px}
+  h1{font-size:39px}
+  .actions .btn{padding:12px 16px;font-size:12.5px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
-<nav><div class="nav">
-  <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round"><path d="M4 17V7h3v10M11 17V7h6v3h-4v2h3v2h-3v3"/></svg></div>
-  <div class="brand">IK工具箱<small>IK TOOLBOX</small></div>
-  <div class="navlinks"><a href="#ability">能力</a><a href="#models">本地 AI</a><a href="#download">下载</a><a href="#log">更新</a></div>
-  <span class="nav-ver">v5.0.22 · 265</span>
-  <a class="navdl" href="https://aka.doubaocdn.com/s/LRpVWhGzAG">下载 APK</a>
-</div></nav>
-<div class="wrap">
-  <section class="hero" style="padding-top:76px">
+
+<nav class="nav">
+  <div class="nav-in">
+    <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#5eead4" stroke-width="2" stroke-linecap="round"><path d="M4 17V7h3v10M11 17V7h6v3h-4v2h3v2h-3v3"/></svg></div>
+    <div class="brand">IK工具箱<small>IK TOOLBOX</small></div>
+    <div class="links"><a href="#core">核心</a><a href="#ability">能力</a><a href="#priority">安装</a><a href="#download">下载</a><a href="#log">更新</a></div>
+    <span class="ver">v5.0.23 · 266</span>
+    <a class="dl-top" href="https://aka.doubaocdn.com/s/JdTkDJyJNE">下载 APK</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <section class="hero">
     <div>
-      <div class="kicker">ANDROID TOOLBOX / 76 TOOLS</div>
-      <h1>把手机<br>变成一台<br><em>真正的工具</em>。</h1>
-      <p class="lede">78 项功能全部接真实实现：3D 枪战、本机实时视觉、离线大模型、真实 Telecom 来电、系统灵动岛。核心功能不联网，文件不上传。</p>
+      <div class="eyebrow">Android toolbox / 78 tools</div>
+      <h1>手机里<br>真正能用的<br><span>系统级工具</span></h1>
+      <p class="lede">不是网页套壳。Shizuku 无线调试、内置特权核心、图标隐身、本机 GGUF 大模型、3D 5V5、局域网互传，全部接真实系统能力。<b>核心功能离线运行，文件不上传。</b></p>
       <div class="actions">
-        <a class="btn-main" href="https://aka.doubaocdn.com/s/LRpVWhGzAG"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 19h16"/></svg>下载最新 APK</a>
-        <a class="btn-ghost" href="#ability">看看能做什么</a>
+        <a class="btn btn-main" href="https://aka.doubaocdn.com/s/JdTkDJyJNE"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 19h16"/></svg>下载最新 APK</a>
+        <a class="btn btn-ghost" href="#ability">看看能做什么</a>
       </div>
-      <div class="meta"><span><b>76</b> 项工具</span><span><b>4</b> 个本地模型</span><span><b>0</b> 广告</span><span><b>离线</b> 优先</span></div>
+      <div class="meta"><span><b>78</b>项工具</span><span><b>4</b>个本地模型</span><span><b>0</b>广告</span><span><b>Android 7+</b></span></div>
+      <div class="hero-note">覆盖安装保留数据 · 不用 root · Shizuku 授权后安装/更新走静默通道</div>
     </div>
-    <div class="phone">
-      <div class="island"><i class="d"></i><span id="islandTime">22:41</span><b>87%</b></div>
-      <div class="scr">
-        <div class="sh"><i class="dot"></i><h3>Qwen2.5 0.5B</h3><span class="sw">本地离线</span></div>
-        <div class="sug"><div>用三句话介绍你自己</div><div>帮我把这句话改得更正式</div><div>解释一下什么是量化</div><div>写一首关于秋天的五言绝句</div></div>
-        <div class="chat"><div class="b me">你好。</div><div class="b ai">你好，有什么可以帮你？<small>7 tok/s · 1.0s · 本机推理</small></div></div>
-        <div class="inp">问点什么…<span class="send">➤</span></div>
-        <div class="snav"><div>模型市场</div><div class="on">对话</div></div>
+
+    <div class="phone-stage" aria-hidden="true">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="status"><span>9:41</span><span class="r">5G <i></i></span></div>
+          <div class="app-head">
+            <div class="app-ic">IK</div>
+            <div class="app-title">IK工具箱<small>78 TOOLS · LOCAL FIRST</small></div>
+            <div class="live">在线</div>
+          </div>
+          <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>搜工具、包名或命令</div>
+          <div class="mini-grid">
+            <div class="mini"><div class="mi">◈</div><b>图标隐身</b><span>桌面入口已停用</span><div class="num">6</div></div>
+            <div class="mini blue"><div class="mi">⌁</div><b>无线调试</b><span>Shizuku v13 · 已授权</span><div class="num">OK</div></div>
+            <div class="mini"><div class="mi">AI</div><b>本机模型</b><span>Qwen2.5 0.5B</span><div class="num">4</div></div>
+            <div class="mini warn"><div class="mi">⇄</div><b>穿透隧道</b><span>cloudflared 待启动</span><div class="num">0</div></div>
+          </div>
+          <div class="recent">
+            <h4>最近使用 <span>全部</span></h4>
+            <div class="row"><div class="ri">◆</div><div><b>内置特权</b><small>核心 1.1 · shell 就绪</small></div><div class="go">打开</div></div>
+            <div class="row"><div class="ri">◉</div><div><b>看见 · LENS</b><small>本机视觉 / 网页版</small></div><div class="go">打开</div></div>
+            <div class="row"><div class="ri">▣</div><div><b>局域网互传</b><small>192.168.2.3:8080</small></div><div class="go">打开</div></div>
+          </div>
+          <div class="tabbar"><div><b>⌂</b>首页</div><div>工具</div><div>AI</div><div>我的</div></div>
+        </div>
       </div>
-      <div class="badge-float"><b>0 上传</b><br>画面与对话只在本机</div>
+      <div class="floating"><b>0 上传</b><br>画面、对话、文件只在本机<small>本地推理 · 本地传输</small></div>
     </div>
   </section>
 
   <div class="stats">
-    <div class="stat"><b>76<i>项</i></b><span>工具与玩法</span></div>
-    <div class="stat"><b>5<i>类</i></b><span>系统级能力</span></div>
+    <div class="stat"><b>78<i>项</i></b><span>工具与玩法</span></div>
+    <div class="stat"><b>13<i>版</i></b><span>Shizuku 协议对齐</span></div>
     <div class="stat"><b>4<i>个</i></b><span>可选 GGUF 模型</span></div>
-    <div class="stat"><b>1<i>秒</i></b><span>短答首响应目标</span></div>
+    <div class="stat"><b>0<i>次</i></b><span>核心功能上传</span></div>
   </div>
 
-  <section id="ability">
-    <div class="sec-head"><div><h2>不是壳，是系统能力</h2><p>能注册进系统的地方，就真的注册；能离线跑的，就不绕网页。</p></div><div class="sec-idx">01 / CAPABILITY</div></div>
-    <div class="cards">
-      <div class="card big c1"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="4"/><path d="M9 6h6"/></svg>真实 Telecom 模拟来电</h3><p>不是一张假截图。App 会注册 <b>PhoneAccount（self-managed）</b>，通过 TelecomManager 发起来电，接听、挂断走系统回调。铃声、震动、通话计时、内置人声都在本机完成，不拨真实号码。</p><span class="tag">无 SecurityException</span></div>
-      <div class="card c2"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="7" rx="3.5"/><path d="M8 8h2M15 8h1"/></svg>灵动岛 5/5 权限</h3><p>悬浮窗、通知监听、无障碍、电池白名单、通知权限逐项校验，缺一项不能启动。通知标题与正文上岛，横屏自动隐藏。</p><span class="tag">通知监听 · 非装饰</span></div>
-      <div class="card c3"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12c4-7 14-7 18 0-4 7-14 7-18 0z"/><circle cx="12" cy="12" r="3"/></svg>看见 · LENS 网页版</h3><p>按用户要求恢复为 youlongtool.com/shangdi.html 网页版，保留摄像头授权、页面权限与网页内后退；需要联网。上帝模式与物体识别仍走本机视觉。</p><span class="tag">网页版 · 需联网</span></div>
-      <div class="card c4"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="17" r="3"/></svg>局域网与网盘</h3><p>手机开网页，电脑浏览器直接互传；网盘链接在应用内解析直下，不跳外部浏览器。Broken pipe、断连、续传都已处理。</p></div>
-      <div class="card c5"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3"/><circle cx="12" cy="12" r="3.2"/></svg>3D 枪战</h3><p>Three.js 真 3D，三种兵种、爆头判定、受击方向、低血红屏、最高纪录与自适应分辨率，手机触屏直接玩。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v5.0.22：图标隐身 pm disable 被 shell 拒绝</h3><p><b>pm disable</b> 把组件设成 state 2，shell 会抛 <b>SecurityException: Shell cannot change component state</b>（exit 255）。已全部改成 shell 允许的 <b>pm disable-user --user 0</b>（state 3）。隐藏 IK 自己时先拉起非 alias 的 SplashActivity 再停 alias，不再被踢回桌面。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v5.0.21：Shizuku attachApplication 事务码写错</h3><p>官方 <b>IShizukuService.aidl</b> 里 <b>attachApplication = 17</b>，IK 硬编码成了 18。18 不存在，transact 静默失败，IK 从未注册成 Shizuku 客户端：应用管理开关能开、但已授权应用始终 0 个，服务端 <b>checkSelfPermission</b> 永远 denied。5.0.21 改为 17，已用 dexdump 核对。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v5.0.20：无线调试直接显示 ADB 能力</h3><p>页面新增 <b>ADB 授权能力：正常/受限</b>。显示受限时不是 IK 没申请，而是 Shizuku 的 shell 没有 <b>GRANT_RUNTIME_PERMISSIONS</b>，按提示开“USB 调试（安全设置）/仅充电允许 ADB”再重启 Shizuku。内置特权改用 ACTION_INSTALL_PACKAGE 直拉系统安装页，并先清理残留安装会话。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v5.0.19：Shizuku API 版本写错</h3><p><b>SERVER_VERSION</b> 从 3 改为官方 13，<b>BINDER_TRANSACTION_transact</b> 从 2 改为 1。服务端之前把 IK 当 pre-v13，binder 能连但权限永远 denied，应用管理开关也不生效。核心安装改成 FileProvider + ACTION_VIEW 直拉系统安装器。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v5.0.18：状态 -1 不是失败</h3><p><b>STATUS_PENDING_USER_ACTION = -1</b>，系统只是把安装确认页放进 <b>EXTRA_INTENT</b>。旧代码把它当失败，安装页根本没弹。5.0.19 正确拉起确认页，确认后继续收结果；授权检查失败再用 <b>id</b> 探测 shell，能执行就按已授权。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v5.0.17：安装与授权双修</h3><p><b>Files still open</b>：PackageInstaller 提交时写入流没关，系统拒绝安装；改为写完→fsync→关流→commit。Shizuku <b>permissionGranted</b> 缓存首次为 false，手动授权后不刷新；改为每次检测清缓存重查，2 秒内自动变已就绪。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v5.0.16：穿透内核资源过期</h3><p>旧内核 CDN 已 <b>403 expired</b>，下载中心卡「连接中」。已重打 14.31MB 内核包（cloudflared + frpc，arm64），新地址 <b>OpL4sb4ui0</b>，下载中心、自动补装、服务器页三处同步换新。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v5.0.15：内置特权打不开</h3><p><b>PrivilegeCoreActivity</b> 从 5.0.11 起就没写进 AndroidManifest，点「内置特权」直接返回失败，核心从未真正打开过。5.0.15 已补上 activity 声明；Shizuku 的 V3 标记继续保留。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v5.0.14：Shizuku 真根因</h3><p>Shizuku v13 应用管理枚举客户端时不只看 <b>API_V23</b> 权限，还要求 Application 里声明 <b>moe.shizuku.client.V3_SUPPORT=true</b>。之前只补了权限名，漏了这个 V3 标记，所以 IK 不出现在 Shizuku 应用管理、也收不到 binder，表现就是一直提示授权、点了没反应。5.0.14 已补上。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v5.0.13：无线调试页修复</h3><p>无线调试页构建加兜底，异常不再白屏/闪退，落到最小可用页；新增「打开系统无线调试」直达按钮，AOSP/各家 ROM 组件逐个尝试，找不到再回开发者选项；Shizuku 启动入口被隐藏或冻结时退回应用详情；图标隐身页「去无线调试」改安全跳转。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v5.0.12：图标隐身</h3><p>新增「图标隐身」：停用第三方应用的桌面入口，图标从桌面消失、数据全保留；在 IK 内部「已隐藏」列表直接打开，回到 IK 自动重新隐藏。也支持隐藏 IK 自己，留常驻通知，通知被清还能拨 <b>*#*#9527#*#*</b> 回来。启动时会临时恢复图标，这是 Android 不允许直接启动停用组件的限制。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v5.0.11：内置特权核心落地</h3><p>同时做两条路：<b>A.</b> IK 安装包内置 Stellar 1.1 官方 release，改名「IK 特权核心」并换 IK 图标，工具列表新增「内置特权」页，一键安装后由核心自己用无线调试 / 有线 ADB / Root 启动，不再依赖外部 Shizuku App；<b>B.</b> 外部 Shizuku 的权限名、自检、重启重绑全部保留。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v5.0.10：连不上时能自救</h3><p>诊断区新增<b>客户端权限自检</b>，直接读 APK 的 requestedPermissions，权限名写错会当场标红；未连接状态新增<b>「重启 IK 重新绑定」</b>，自动拉回本页并杀掉进程，让 Shizuku 服务端重新下发 binder；主按钮改为「打开 Shizuku 手动授权」，不再点注定失败的请求。权限名仍是 <b>moe.shizuku.manager.permission.API_V23</b>。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v5.0.9：无线调试真正的根因</h3><p>5.0.8 把权限名改成 <b>moe.shizuku.privileged.api.permission.API_V23</b>，仍然不是 Shizuku 客户端要声明的名字。对照 Shizuku 官方源码，第三方应用必须声明 <b>moe.shizuku.manager.permission.API_V23</b>；名字不对，Shizuku 服务端不会枚举 IK，也不会下发 binder，所以授权列表里永远没有 IK、页面永远“未连接”。5.0.9 已改对；安装后杀掉 IK 进程重开，或重启一次 Shizuku 服务，再请求授权。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v5.0.8：Shizuku 权限名仍写错</h3><p>真机上 Shizuku 一直“未激活”，5.0.8 把权限名改成 <b>moe.shizuku.privileged.api.permission.API_V23</b>，仍不是官方客户端权限，所以没有解决问题；同时补了 Provider 的 <b>&lt;queries&gt;</b>、修了次要按钮白字透明底、Android 12 无线调试关闭时误报 <b>5555</b>。权限名的最终修正见 5.0.9。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v5.0.7：第二轮全量 Bug 复审</h3><p>再次审计 76 项工具：服务器日志改主线程安全刷新并解除静态监听；隧道启动移后台线程，加防重入与代际取消；录屏空 Intent、root 超时、安装器大包复制不再 ANR；FPS / 宠物 / 灵动岛 / 旋转球提升为<b>前台服务</b>，切游戏不被回收；上传文件名拦 <b>../</b> 与 CR/LF，浏览器普通网页禁 <b>file://</b>，FRP 配置转义；更新包先写 <b>.part</b> 再校验重命名；无线调试 mDNS 按代际解析、本机地址遍历全部网卡；性能测试内存下调，网盘定时器改 <b>fixedDelay</b>。Android Lint <b>0 Error</b>。</p></div>
-      <div class="card" data-newfive style="grid-column:span 12;margin-top:0"><h3>v5.0.6：全量 Bug 审计，不只是无线调试</h3><p>无线调试 mDNS 解析改为<b>串行队列</b>，修掉部分 ROM 的 <b>FAILURE_ALREADY_ACTIVE</b> 扫描不到端口；扫描加 generation，旧回调不再污染新结果；本机 IP 改实时读取。全量修了全景拼接 OOM 与销毁回调、TFLite use-after-close、本地 AI 永久阻塞、录音/录屏/分贝仪资源泄漏、<b>ZIP Slip</b>、传文件端口冲突与路径穿越、浏览器 <b>file://</b> 与 JS 桥外泄、root 安装命令注入、Shizuku Provider 权限和多用户操作。Android Lint <b>0 Error</b>。</p></div></div>
+  <section id="core">
+    <div class="sec-head">
+      <div><div class="sec-k">CORE / 三条硬链路</div><h2>先看这三个，别的再说</h2><p>能拿到系统身份的，就真拿；能静默完成的，就不弹系统页。</p></div>
+      <div class="sec-num">01 / CORE</div>
+    </div>
+    <div class="bento">
+      <div class="card hero-card span7">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="4"/><path d="M8 7h8M8 11h5M8 15h7"/></svg></div>
+        <h3>无线调试授权优先，安装不再弹系统页</h3>
+        <p>只要 Shizuku 无线调试已连接并授权，安装或更新 APK 会优先走 shell 身份：<b>pm install -r -d -S</b> 直接把文件流进 shell，不依赖「未知来源」、不弹系统安装器。内置特权核心、IK 自身更新、安装器、备份恢复、下载中心统一走这条链路；没授权才自动退回系统安装页。</p>
+        <div class="flow"><b>APK</b><i>→</i><b>Shizuku shell</b><i>→</i><b>pm install -S</b><i>→</i><b>完成</b></div>
+        <div class="mini-spec">
+          <div><b>授权时</b><span>静默安装 / 更新</span></div>
+          <div><b>未授权</b><span>自动回退系统安装器</span></div>
+          <div><b>失败时</b><span>显示原始错误再回退</span></div>
+        </div>
+        <span class="tag">v5.0.23 新链路</span>
+      </div>
+
+      <div class="card span5">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12c4-7 14-7 18 0-4 7-14 7-18 0z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <h3>图标隐身，不是换个桌面</h3>
+        <p>用 shell 停用应用的 launcher 组件，包和数据都保留。5.0.23 继续用 <b>pm disable-user</b>，避开 shell 不允许的 state 2；隐藏 IK 自己先切到非 alias 页面，不再被踢回桌面或落到应用详情。</p>
+        <span class="tag">v5.0.22 修复 · 266 保留</span>
+      </div>
+
+      <div class="card span5">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="7" rx="3.5"/><path d="M7 8h3M15 8h2"/><rect x="3" y="13" width="18" height="7" rx="3.5"/></svg></div>
+        <h3>内置特权核心，不走外部壳</h3>
+        <p>IK 安装包里直接带 <b>roro.stellar.manager</b> 核心，签名同 IK。装一次，由它用无线调试 / 有线 ADB / Root 启动服务；IK 只做界面和调用，升级 IK 不掉服务。</p>
+        <span class="tag">核心 1.1 · 5.2 MB</span>
+      </div>
+
+      <div class="card span7">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="4"/></svg></div>
+        <h3>本机 AI，不是网页跳转</h3>
+        <p>Qwen2.5 0.5B / 1.5B、TinyLlama 1.1B、Llama 3.2 1B 四种 GGUF，模型市场下载后本地推理。短问题压到 160 tokens、1024 上下文、6 线程，目标 1 秒内开口；对话、文件、画面都不出手机。</p>
+        <div class="mini-spec">
+          <div><b>0.5B</b><span>491 MB · 最快</span></div>
+          <div><b>1.5B</b><span>约 1.1 GB · 更稳</span></div>
+          <div><b>Llama 3.2</b><span>约 800 MB · 通用</span></div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section id="models">
-    <div class="sec-head"><div><h2>本地 AI，不是一个模型凑数</h2><p>模型市场里选，下载完顶部直接切。短问题压到 160 tokens、1024 上下文、6 线程，目标 1 秒内开口。</p></div><div class="sec-idx">02 / ON-DEVICE AI</div></div>
-    <div class="models">
-      <div class="mrow"><b>Qwen2.5 0.5B</b><span>491 MB</span><em>最快 · 短答约 1 秒</em><span class="fast">推荐</span></div>
-      <div class="mrow"><b>Qwen2.5 1.5B</b><span>约 1.1 GB</span><em>更聪明 · 速度稍慢</em><span>可选</span></div>
-      <div class="mrow"><b>TinyLlama 1.1B</b><span>约 669 MB</span><em>轻量 · 中英对话</em><span>可选</span></div>
-      <div class="mrow"><b>Llama 3.2 1B</b><span>约 800 MB</span><em>通用 · 指令跟随</em><span>可选</span></div>
+  <section id="ability">
+    <div class="sec-head">
+      <div><div class="sec-k">CAPABILITY / 真实系统能力</div><h2>不是功能清单，是能跑起来的实现</h2><p>每一项都落到系统 API、前台服务或本地进程，不用截图冒充。</p></div>
+      <div class="sec-num">02 / ABILITY</div>
     </div>
-    <div class="models" style="margin-top:14px">
-      <div class="mrow"><b>模型切换</b><span>自动扫描</span><em>models 目录下的任意 .gguf</em><span class="fast">已支持</span></div>
-      <div class="mrow"><b>对话界面</b><span>白底绿</span><em>推荐问题卡 / 左右气泡 / 模型市场 · 对话底栏</em><span class="fast">已支持</span></div>
+    <div class="cap-grid">
+      <div class="cap"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg></div><div><b>真实 Telecom 模拟来电</b><span>注册 self-managed PhoneAccount，接听/挂断走系统回调；铃声、震动、计时、内置人声全在本机。</span></div></div>
+      <div class="cap"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="8" rx="4"/><path d="M7 10h2M15 10h2"/></svg></div><div><b>灵动岛 5/5 权限</b><span>悬浮窗、通知监听、无障碍、电池白名单、通知权限逐项校验，通知标题和正文真上岛。</span></div></div>
+      <div class="cap"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12c4-7 14-7 18 0-4 7-14 7-18 0z"/><circle cx="12" cy="12" r="3"/></svg></div><div><b>看见 · LENS</b><span>本机实时视觉与物体识别；网页版保留摄像头授权、页面权限和网页内后退。</span></div></div>
+      <div class="cap"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h11M4 17h7"/><circle cx="18" cy="17" r="3"/></svg></div><div><b>局域网与网盘</b><span>手机开网页，电脑浏览器直接互传；网盘链接应用内解析直下，断连、续传、Broken pipe 都处理。</span></div></div>
+      <div class="cap"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8V5h3M16 5h4v4M20 16v4h-4M8 20H4v-4"/><circle cx="12" cy="12" r="3.2"/></svg></div><div><b>3D 枪战 5V5</b><span>Three.js 真 3D，5V5 人机、爆头判定、受击方向、低血红屏、陀螺仪校准与灵敏度。</span></div></div>
+      <div class="cap"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="7"/></svg></div><div><b>穿透内核与服务器</b><span>cloudflared + frpc arm64 内核，下载中心、自动补装、服务器页共用同一份真实二进制。</span></div></div>
+      <div class="cap"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="M7 8h7M7 12h10M7 16h6"/></svg></div><div><b>应用备份与恢复</b><span>单 APK 走静默安装；拆分包 ZIP 解析 base + split，保留完整结构恢复。</span></div></div>
+      <div class="cap"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h18v14H3z"/><path d="M7 9h4M7 13h7"/></svg></div><div><b>录屏 / 录音 / 分贝仪</b><span>前台服务保活，切游戏不被回收；资源释放、空 Intent、超时都有兜底。</span></div></div>
+      <div class="cap"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l2.2 6.8H21l-5.5 4 2.1 6.7-5.6-4.1-5.6 4.1 2.1-6.7-5.5-4h6.8z"/></svg></div><div><b>图标 / 名称伪装</b><span>多套桌面 alias、应用名与图标切换；隐藏后通知栏和拨号 <b>*#*#9527#*#*</b> 都能回来。</span></div></div>
+    </div>
+  </section>
+
+  <section id="priority">
+    <div class="sec-head">
+      <div><div class="sec-k">INSTALL / 优先走无线调试</div><h2>授权一次，安装和更新都安静</h2><p>不用每次找「未知来源」，也不用盯着系统安装页点下一步。</p></div>
+      <div class="sec-num">03 / INSTALL</div>
+    </div>
+    <div class="priority">
+      <div class="card">
+        <h3>判断顺序写死在代码里</h3>
+        <p>所有安装入口共用同一个判断：Shizuku 已连接且已授权 → 静默安装；否则 → 系统安装器。安装失败不会假装成功，会把原始错误带回来再回退。</p>
+        <div class="codebox"><b>if</b> (Shizuku 已连接 &amp;&amp; 已授权) {
+  pm install -r -d --user 0 -S &lt;size&gt;
+} <b>else</b> {
+  系统安装器 / PackageInstaller
+}</div>
+        <span class="tag">内置核心 · IK 更新 · 安装器 · 备份 · 下载</span>
+      </div>
+      <div class="card">
+        <h3>三条路，按顺序来</h3>
+        <div class="steps">
+          <div class="step"><em>1</em><div><b>Shizuku 无线调试</b><span>已授权就直接静默装，不弹任何系统页。</span></div></div>
+          <div class="step"><em>2</em><div><b>内置特权核心</b><span>核心服务起来后，同样提供 shell 身份；外部 Shizuku 不通也能用。</span></div></div>
+          <div class="step"><em>3</em><div><b>系统安装器兜底</b><span>两条都没就绪时，才拉起系统安装页；不会卡死、不会假成功。</span></div></div>
+        </div>
+        <span class="tag">APK 文件从应用进程流进 shell，shell 不需要读私有目录</span>
+      </div>
     </div>
   </section>
 
   <section id="download">
-    <div class="dlbox">
-      <div><div class="kicker">DIRECT APK / ANDROID 7.0+</div><h2>下载 IK工具箱 v5.0.22</h2><p>78 项工具 · 265 · 38.3 MB · 覆盖安装保留数据</p><div class="hash">MD5 7b6846971cfbcbeeb5c94c0465896533</div></div>
-      <div class="dl-side"><a class="btn-main" href="https://aka.doubaocdn.com/s/LRpVWhGzAG">直接下载 APK</a><a class="btn-ghost" href="https://aka.doubaocdn.com/s/FIsyz0f72u">完整包 · 源码与记录</a><small>国内 CDN 直链 · 无跳转</small></div>
+    <div class="sec-head">
+      <div><div class="sec-k">DOWNLOAD / 266</div><h2>下载 IK工具箱 v5.0.23</h2><p>覆盖安装保留数据；装完先开无线调试授权，再装核心。</p></div>
+      <div class="sec-num">04 / DOWNLOAD</div>
+    </div>
+    <div class="download">
+      <div>
+        <h2>一个 APK，<br>78 项工具。</h2>
+        <p>Android 7.0 及以上 · targetSdk 29 · 38.3 MB · 不用 root。签名与内置核心一致，覆盖安装不会掉数据。</p>
+        <div class="actions">
+          <a class="btn btn-main" href="https://aka.doubaocdn.com/s/JdTkDJyJNE"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 19h16"/></svg>下载 APK</a>
+          <a class="btn btn-ghost" href="https://aka.doubaocdn.com/s/Sje0byPBwh">完整包（源码+APK+内核）</a>
+        </div>
+        <div class="hash"><b>MD5</b> 0354958ffba75496b495b4cf8c2a005e<br><b>签名 SHA-256</b> 4018e1d24e6b5b126f41150d1cf40451d04f48e84dc8ba6ead1cfce3699b2598</div>
+      </div>
+      <div class="dl-list">
+        <div class="dl-row"><div><b>APK 直链</b><small>38.3 MB · v5.0.23 / 266</small></div><a href="https://aka.doubaocdn.com/s/JdTkDJyJNE">下载</a></div>
+        <div class="dl-row"><div><b>完整包</b><small>APK + 源码 + 穿透内核</small></div><a href="https://aka.doubaocdn.com/s/Sje0byPBwh">下载</a></div>
+        <div class="dl-row"><div><b>穿透内核</b><small>cloudflared + frpc · arm64</small></div><a href="https://aka.doubaocdn.com/s/OpL4sb4ui0">下载</a></div>
+        <div class="dl-row"><div><b>更新说明</b><small>v5.0.23 改了什么</small></div><a href="https://aka.doubaocdn.com/s/oOeXAOaqI6">查看</a></div>
+      </div>
     </div>
   </section>
 
   <section id="log">
-    <div class="sec-head"><div><h2>最近更新</h2><p>每个版本都改版本号，不只改一行文案。</p></div><div class="sec-idx">03 / CHANGELOG</div></div>
-    <div class="tl">
-      <div class="item"><div class="v">v5.0.22 · 265</div><p><b>图标隐身</b>：<b>pm disable</b> 被 Android shell 拒绝（exit 255 / cannot change component state to 2），改为 <b>pm disable-user --user 0</b>；隐藏 IK 自己先切到非 alias 页面再停 alias，不再退出到桌面或最近任务变应用详情。</p></div>
-      <div class="item"><div class="v">v5.0.21 · 264</div><p>Shizuku 授权真根因：<b>attachApplication</b> 硬编码事务码 18，官方 AIDL 是 <b>17</b>。18 不存在，IK 一直没注册成客户端，所以开关能开、已授权应用 0 个、checkSelfPermission 永远 denied。已改 17 并核对编译产物。</p></div>
-      <div class="item"><div class="v">v5.0.20 · 263</div><p>无线调试页直接显示 <b>ADB 授权能力</b>，受限时给出系统设置路径；内置特权改 <b>ACTION_INSTALL_PACKAGE</b> 直拉系统安装页，并清理残留 PackageInstaller 会话。</p></div>
-      <div class="item"><div class="v">v5.0.19 · 262</div><p>Shizuku 授权根因：<b>SERVER_VERSION</b> 写成 3（官方 13）、<b>BINDER_TRANSACTION_transact</b> 写成 2（官方 1），服务端把 IK 当 pre-v13，binder 连通但权限永远 denied。已改正；核心安装改 FileProvider + ACTION_VIEW 直拉系统安装器。</p></div>
-      <div class="item"><div class="v">v5.0.18 · 261</div><p>修「没装成：状态 -1」：-1 是 <b>STATUS_PENDING_USER_ACTION</b>，必须拉起 EXTRA_INTENT 的系统安装确认页，旧代码当失败。授权检查失败后用 <b>id</b> 探测 shell，能执行即按已授权，10 秒缓存。</p></div>
-      <div class="item"><div class="v">v5.0.17 · 260</div><p>修「内置特权」安装：PackageInstaller 在写入流未关闭时 commit 会抛 <b>Files still open</b>；改为 fsync 后关闭输入/输出流再 commit。修 Shizuku 已授权仍「待授权」：API 缓存 permissionGranted，binder 首次未授权时缓存 false，手动开开关不刷新；每次检测前清缓存并向服务端重查。</p></div>
-      <div class="item"><div class="v">v5.0.16 · 259</div><p>穿透内核旧 CDN <b>403 expired</b>，下载中心卡「连接中」；已重打 14.31MB arm64 内核包（cloudflared 7622fc25bbe3 + frpc），下载中心、隧道自动补装、服务器页三处换新地址 <b>OpL4sb4ui0</b>。</p></div>
-      <div class="item"><div class="v">v5.0.15 · 258</div><p>修「内置特权」打不开：<b>PrivilegeCoreActivity</b> 从 5.0.11 起未写进 AndroidManifest，点入口直接返回失败，核心从未真正打开过；5.0.15 补上声明。Shizuku V3 标记、5.0.13 无线调试页兜底均保留。</p></div>
-      <div class="item"><div class="v">v5.0.14 · 257</div><p>Shizuku 真根因修复：v13 应用管理只枚举带 <b>moe.shizuku.client.V3_SUPPORT=true</b> meta-data 且声明 <b>API_V23</b> 权限的客户端。此前只补了权限名，漏了 V3 标记，所以 IK 不出现在 Shizuku 应用管理、收不到 binder；补上后可在应用管理里手动授权。5.0.13 无线调试页兜底与系统无线调试直达保留。</p></div>
-      <div class="item"><div class="v">v5.0.13 · 256</div><p>无线调试页专项修复：页面构建加兜底，异常落最小可用页；新增「打开系统无线调试」直达按钮，按 AOSP/ROM 组件逐个尝试，失败回开发者选项；Shizuku 启动入口被隐藏/冻结时退回应用详情；图标隐身页「去无线调试」改安全跳转。5.0.12 的图标隐身全功能保留；78 项功能。</p></div>
-      <div class="item"><div class="v">v5.0.12 · 255</div><p>新增「图标隐身」：停用第三方应用桌面入口，图标消失、数据保留，IK 内部一键打开并自动重新隐藏；支持隐藏 IK 自己，常驻通知 + 拨号 <b>*#*#9527#*#*</b> 双恢复入口；启动时临时恢复图标规避 Android 停用组件不能直接启动的限制；78 项功能。</p></div>
-      <div class="item"><div class="v">v5.0.11 · 254</div><p>内置特权核心落地：随 IK APK 分发 Stellar 1.1 官方 release（4.7 MB，改名 IK 特权核心 + IK 图标，服务逻辑未改），「内置特权」页一键安装，核心支持无线调试 / 有线 ADB / Root 启动；同时保留外部 Shizuku 权限修复与重启重绑。</p></div>
-      <div class="item"><div class="v">v5.0.10 · 253</div><p>无线调试自救优化：诊断区增加客户端权限自检，直接读本 APK 的 requestedPermissions，权限名错误会显示“缺失”；未连接状态增加「重启 IK 重新绑定」，AlarmManager 900ms 拉回本页并杀进程，强制 Shizuku 重新下发 binder；主按钮改为打开 Shizuku 手动授权；诊断文案明确“先重启重绑，再手动允许”。</p></div>
-      <div class="item"><div class="v">v5.0.9 · 252</div><p>无线调试真根因修复：5.0.8 的权限名 <b>moe.shizuku.privileged.api.permission.API_V23</b> 仍是错的，正确为 <b>moe.shizuku.manager.permission.API_V23</b>。Shizuku 服务端按此权限枚举应用，权限名不对就不会下发 binder，授权管理里也不会出现 IK。安装 5.0.9 后杀掉 IK 重开或重启 Shizuku 服务再请求授权。保留 5.0.8 的按钮可见性与 5555 误报修复。</p></div>
-      <div class="item"><div class="v">v5.0.8 · 251</div><p>真机修复：权限名由 <b>moe.shizuku.privileged.permission.API_V23</b> 误改为 <b>moe.shizuku.privileged.api.permission.API_V23</b>（仍错，最终由 5.0.9 改成 <b>moe.shizuku.manager.permission.API_V23</b>），补 Shizuku Provider 的 queries 可见性；状态改为“Shizuku 未连接”，请求授权先拉 binder 再弹窗；次要按钮改强调色文字；Android 12 无线调试关闭时不再误报 5555。</p></div>
-      <div class="item"><div class="v">v5.0.7 · 250</div><p>第二轮全量 Bug 复审：服务器日志线程安全 + 销毁解监听；Cloudflare/FRP 后台启动、防重入、代际取消、端口回收；录屏 START_NOT_STICKY 与空 Intent 守卫；root 检测 2 秒超时；安装器后台复制大包；FPS/宠物/灵动岛/旋转球改前台服务；上传名 basename 防路径穿越；浏览器普通标签禁 file://；FRP TOML 转义；更新下载 .part + 10MB 校验 + 原子重命名；无线调试 mDNS 代际校验与全网卡本机地址；性能测试内存下调；网盘 fixedDelay；媒体资源及时释放；Android Lint 0 Error。</p></div>
-      <div class="item"><div class="v">v5.0.6 · 249</div><p>全量 Bug 审计：无线调试 mDNS 解析串行化 + generation 隔离 + 实时本机 IP 过滤；全景 1440 宽采样、拼接去重复制、销毁后回收；TFLite 推理与 close 串行；本地 AI watchdog；分贝仪/录音/录屏 release 兜底；ZIP 解压防 Zip Slip、4GB/20 万文件上限；传文件端口 8088–8127 自动回退，webroot/下载路径 canonical 校验；浏览器禁任意 file://，管理 JS 桥只留本地 admin；root 安装路径转义；Shizuku Provider 加 INTERACT_ACROSS_USERS_FULL，停用/启用/卸载按当前用户；Android Lint 0 Error。</p></div>
-      <div class="item"><div class="v">v5.0.5 · 248</div><p>「无线调试」性能与可靠性优化：网络、端口、Shizuku、root 探测全部移出 UI 线程，文本差异更新；扫描申请 `MulticastLock`，只接受本机 IPv4 的 `_adb-tls-connect` / `_adb-tls-pairing`，忽略局域网其他 ADB 设备；Wi-Fi 切换/断网自动清空旧端口和命令；IP、端口、6 位配对码校验；显示 Shizuku App 版本与电池白名单，低于 v13 提示更新；修复 stderr 管道写满导致的假超时；识别 KernelSU / APatch / Magisk；扫描可中途停止，进入页面自动扫描一次。</p></div>
-      <div class="item"><div class="v">v5.0.4 · 247</div><p>「无线调试」从 Shizuku 引导页改成功能页：按 Android 7~10 / 11+ 分流，读取本机 IP、无线调试开关、`service.adb.tls.port` / `service.adb.tcp.port`；用 `NsdManager` 扫描 `_adb-tls-connect` / `_adb-tls-pairing` 拿动态端口；生成并复制 `adb pair` / `adb connect` 命令；补冻结、Sui、root、多用户、电池白名单、系统配对设备入口；`execPm` / `execShell` 加 10 秒超时与 8KB 输出上限，主动拉 binder 和主界面 Shizuku 检测移出 UI 线程，端口读取加缓存。</p></div>
-      <div class="item"><div class="v">v5.0.3 · 246</div><p>复检「无线调试」发现 Shizuku binder 主动拉取写错：`ContentResolver.call` 传 null extras 会被 ShizukuProvider 直接判空；返回 Bundle 的键名也应是 `moe.shizuku.privileged.api.intent.extra.BINDER`，不是 `container`。两处已改，Android 13+ 增加 typed getParcelable。Shizuku 已运行而工具箱后启动时，不再一直显示未激活；静默停用/卸载、深度设备信息同步恢复。</p></div>
-      <div class="item"><div class="v">v5.0.2 · 245</div><p>「无线调试」专项修复：页面改为 ScrollView，状态卡、分步引导、ADB 命令和授权按钮全部可滚动到；轮询只在 Shizuku 状态变化时重绘，间隔改 2 秒并在后台暂停，解决闪烁、点击丢失、滚动回弹；授权结果回调切主线程，监听在页面销毁时移除；移除 ShizukuManager 主线程 Thread.sleep(500)，点授权不再卡顿。</p></div>
-      <div class="item"><div class="v">v5.0.1 · 244</div><p>5.0.0 修复版：玻璃卡补真实底色，深色启动主题与深色导航栏，底栏高度改 76dp 不再裁字；全部工具切分类自动回顶，返回键先回首页；旧页底栏跟随主题并接回 Compose 页签；MainActivity 单实例；3D 陀螺仪左右反向修正，左右灵敏度上限 8.0，默认 3.0；首页补回 8 项全部服务。</p></div>
-      <div class="item"><div class="v">v4.5.61 · 242</div><p>首页按已确认的 M3E 四屏稿重做：深色蓝调液态玻璃主视觉、2×2 常用工具大卡、深色全部服务与折叠板块、深色悬浮底部导航；搜索框和状态栏同步适配。76 项功能、收藏页、游戏库入口全部保留，3D 枪战与看见不改。</p></div>
-      <div class="item"><div class="v">v4.5.60 · 241</div><p>3D 竞技场从「有边界」升级为「能打」：取消随机掩体，20 块固定掩体对称铺开，中心 7 米出生广场加圆环与 5V5 地标；雷达按真实位置画出全部掩体；AI 增加线段相交与绕障航点，不再卡集装箱、不再退到边界角，队友近身不再后撤。40 秒桩测试比分 3:1。</p></div>
-      <div class="item"><div class="v">v4.5.59 · 240</div><p>3D 枪战地图改为 88×88 封闭竞技场：四周新增 2.25 米实体边界墙，统一加入碰撞与遮挡，玩家、AI、子弹、视线都不能越界；边界墙加琥珀色顶灯和灯柱，雷达加黄色虚线地图边界；地面加硬化地坪和网格，出生、补给、复活均限制在场内。</p></div>
-      <div class="item"><div class="v">v4.5.58 · 239</div><p>3D 枪战陀螺仪左右方向修正，默认手机向右转视角向右；新增左右/上下独立灵敏度滑杆，左右默认 1.8、最高 3.0，上下默认 1.0。开始页与战斗中都加「校准归零」，按当前持机姿势设零点，不再把准星强行拉平。</p></div>
-      <div class="item"><div class="v">v4.5.57 · 238</div><p>3D 枪战改为 5V5 团队战：你 + 4 名 AI 队友对 5 名 AI 敌人。队友 AI 会追击最近敌人、保持枪线、隔墙不开火，阵亡后自动补位；敌方 AI 会在玩家和 4 名队友之间选择最近目标。先到 20 杀获胜，玩家阵亡 2.6 秒后带 1.4 秒保护复活；雷达新增队友蓝点。</p></div>
-      <div class="item"><div class="v">v4.5.56 · 237</div><p>3D 枪战跑帧优化：移动、敌人、子弹、视线检测复用向量与射线，不再每帧制造 GC 垃圾；雷达降到 30fps 绘制并缓存三角函数；高 DPR 手机关闭 MSAA，保留像素比上限与动态分辨率。</p></div>
-      <div class="item"><div class="v">v4.5.55 · 236</div><p>首页搜索改为 160ms 防抖，连续输入不再每个字符重绘全部结果；回车立即筛选；底部说明改为「核心能力本地运行 · 网页功能需联网」。看见网页版与其它功能不动。</p></div>
-      <div class="item"><div class="v">v4.5.54 · 235</div><p>按用户要求把「看见」恢复为以前的 youlongtool.com/shangdi.html 网页版，保留摄像头授权、页面权限、加载进度与网页内后退；需要联网。其它功能不动。</p></div>
-      <div class="item"><div class="v">v4.5.53 · 234</div><p>3D 枪战陀螺仪默认上下方向改为「抬头抬枪口」，不用先勾反转；保留反转与校准兜底。继续保留 4.5.52 的真实备份恢复、首页视差与卡片 3D 按压。</p></div>
-      <div class="item"><div class="v">v4.5.52 · 233</div><p>应用备份补真实恢复：单 APK 调系统安装器，拆分包 ZIP 解出 base + split 写入 PackageInstaller 会话，新增安装结果接收器；首页背景滚动视差，工具卡 3D 倾斜按压回弹；保留本机视觉、权限修复与陀螺仪翻转/校准。</p></div>
-      <div class="item"><div class="v">v4.5.51 · 232</div><p>看见改为本机 TensorFlow Lite 视觉，不再依赖远程网页；全景拍照、实时变声补运行时权限；本机自检新增修复入口；3D 枪战新增陀螺仪上下反转与校准；首页高光扫过、折叠面板淡入、底部导航渐变选中；修正口号文案。</p></div>
-      <div class="item"><div class="v">v4.5.50 · 231</div><p>修正 3D 枪战陀螺仪上下方向；计算器真实表达式解析；录音机运行时授权；LAN 上传流式落盘；应用备份进度与拆分包 ZIP；新增本机自检；全站动画重做。</p></div>
-      <div class="item"><div class="v">v4.5.49 · 230</div><p>3D 枪战新增原生陀螺仪瞄准，开始页可开关并记住设置；我的页补回「关于 / 检查更新」入口并显示当前版本；金属探测仪补全用途与适用边界说明；APK 上传改为固定长度流式 multipart，带进度，避免整包进内存。</p></div>
-      <div class="item"><div class="v">v4.5.48 · 228</div><p>AI 拍照修复人脸回调在相机线程直接改 TextView 导致的崩溃；补相机权限申请、后台释放与回前台自动重开；拍照保存和快门失败提示统一回主线程。</p></div>
-      <div class="item"><div class="v">v4.5.47 · 227</div><p>扫码页修复取景画面被 0 高度遮住，授权后自动重开相机；相机转后台立即释放；模型断点续传不再拼接损坏分片；官网不可达时兜底码修正为 227，不再误判最新。</p></div>
-      <div class="item"><div class="v">v4.5.45 · 225</div><p>3D 枪战第三轮：键鼠/触控双操控、得分连杀、弹药/医疗掉落、雷达、波次进度、掩体近战；修复重开后计时器串场与穿墙近战。上帝模式改本机视觉，不再跳官网。</p></div>
-      <div class="item"><div class="v">v4.5.44 · 224</div><p>修复 3D枪战/帧率监测重复 id、视频剪辑重名、游戏库 tab 无响应、强制竖横屏命名；广告拦截新增拦截计数；管理后台支持免 Token 导出公告。</p></div>
-      <div class="item"><div class="v">v4.5.37 · 217</div><p>灵动岛通用开关真正接线：通知/音乐/充电/音量/响铃/解锁/锁屏按开关决定是否上岛；非连锁屏和横屏隐藏生效；新增胶囊宽度、展开宽度滑杆。</p></div>
-      <div class="item"><div class="v">v4.5.36 · 216</div><p>新增广告拦截（内置浏览器请求级域名拦截）与手机变电脑（横屏桌面矩阵）；上帝模式曾与看见共用 LENS 页面（4.5.45 已改本机视觉）；工具总数 76。</p></div>
-      <div class="item"><div class="v">v4.5.35 · 215</div><p>官网全面重做：深色系统级视觉，能力按真实实现重排；本地 AI 模型对比、更新记录与下载区重写。</p></div>
-      <div class="item"><div class="v">v4.5.34 · 214</div><p>模拟通话改为真实注册 PhoneAccount，通过 Telecom 发起来电；灵动岛补齐 5/5 权限门禁与通知监听、无障碍、电池白名单；本地 AI 增加 4 个模型市场与切换，推理参数压缩首响应。</p></div>
-      <div class="item"><div class="v">v4.5.33 · 213</div><p>新增「看见」实时本机视觉、「模拟通话」、「灵动岛」；本地 AI 改为白底绿色对话界面。</p></div>
-      <div class="item"><div class="v">v4.5.32 · 212</div><p>3D 枪战三种兵种、敌人步态、受击方向、低血量红屏、最高纪录、换弹动作与射击散布。</p></div>
-      <div class="item"><div class="v">v4.5.30 · 210</div><p>全量文本排查，修正版本残留、工具数量、模型容量与隐私文案。</p></div>
+    <div class="sec-head">
+      <div><div class="sec-k">CHANGELOG / 最近三版</div><h2>每次只修真问题</h2><p>不写“优化体验”这种废话，写清楚是哪个调用、哪条命令、哪个状态错了。</p></div>
+      <div class="sec-num">05 / LOG</div>
+    </div>
+    <div class="timeline">
+      <div class="tl"><div class="v">v5.0.23 · 266</div><h4>安装/更新优先无线调试</h4><p>Shizuku 授权后，核心、IK 更新、安装器、备份恢复、下载 APK 全部优先 <b>pm install -S</b> 静默装；失败带原始错误回退系统安装器。图标隐身继续用 pm disable-user。</p><small>2026-11-28</small></div>
+      <div class="tl"><div class="v">v5.0.22 · 265</div><h4>图标隐身 exit 255</h4><p><b>pm disable</b> 被 shell 拒绝（state 2），改成 <b>pm disable-user</b>（state 3）；隐藏 IK 自己先切到非 alias 页面再停 alias，不再被踢回桌面。</p><small>2026-11-28</small></div>
+      <div class="tl"><div class="v">v5.0.21 · 264</div><h4>Shizuku attachApplication = 17</h4><p>官方 AIDL 是 17，旧代码写成 18，事务静默失败，IK 从未注册成客户端。已改 17，dexdump 核对。</p><small>2026-11-28</small></div>
     </div>
   </section>
 
   <section>
-    <div class="sec-head"><div><h2>常见问题</h2><p>先把最容易踩的坑说清楚。</p></div><div class="sec-idx">04 / FAQ</div></div>
+    <div class="sec-head"><div><div class="sec-k">FAQ / 先看这里</div><h2>常见卡点</h2></div><div class="sec-num">06 / FAQ</div></div>
     <div class="faq">
-      <details open><summary>模拟通话会被系统拦截吗？</summary><p>会真实注册 PhoneAccount（self-managed）并走 Telecom。若系统或厂商把该账户禁用，App 会显示失败原因并切到本机悬浮来电界面，不会直接崩溃。整个功能仅供娱乐，不拨真实号码。</p></details>
-      <details><summary>灵动岛为什么要 5 个权限？</summary><p>悬浮窗负责显示胶囊，通知监听负责把通知内容送上岛，无障碍负责前台应用识别，电池白名单避免后台被杀，通知权限保证系统通知可见。缺任何一项都会在设置页标红，不能启动。</p></details>
-      <details><summary>本地 AI 真能 1 秒回答吗？</summary><p>0.5B 模型 + 160 tokens 上限 + 1024 上下文 + 6 线程，短问题在主流 arm64 机型上可接近 1 秒；长回答、1.5B/1.1B 模型会明显更慢，这是本机算力决定的，不虚标。</p></details>
-      <details><summary>应用备份导出的包能恢复吗？</summary><p>能。v4.5.52 起备份页新增「从备份恢复」：单个 APK 直接交给系统安装器；拆分包 ZIP 会在本地解出 base.apk 与各 split，写入 PackageInstaller 会话整包安装，并由接收器回传成功或失败原因。恢复只读取 Download/IK工具箱/应用备份，不覆盖其他文件。</p></details>
-      <details><summary>看见还需要联网吗？</summary><p>需要。v4.5.54 起「看见」按你的要求恢复为 youlongtool.com/shangdi.html 网页版，必须联网并授予摄像头权限；页面内的识别由该网页完成。上帝模式与物体识别仍使用本机 TensorFlow Lite 视觉。</p></details>
+      <details open><summary>Shizuku 显示「已连接 · 待授权」怎么办？</summary><p>先在 Shizuku 应用管理里把 IK 的开关关掉再打开，回 IK 点「立即授权」。5.0.21 起已修正 attachApplication 事务码（18 → 17）；如果仍是待授权，把 Shizuku 停止再启动一次，服务端版本要和 App 一致。</p></details>
+      <details><summary>为什么安装没弹系统页？</summary><p>因为无线调试已授权，安装走了 Shizuku shell 的 <b>pm install -S</b>。这是预期行为。没授权或执行失败时才会回退系统安装器。</p></details>
+      <details><summary>隐藏 IK 后怎么回来？</summary><p>通知栏常驻的「IK工具箱图标已隐藏」点一下，或拨号盘输入 <b>*#*#9527#*#*</b>。旧桌面快捷方式如果还留着，点它会进应用详情，删掉那一个图标即可。</p></details>
+      <details><summary>会不会上传文件或对话？</summary><p>本机 AI、LENS 本机视觉、局域网互传都在设备内完成。只有你主动使用网页版、网盘解析或在线下载时才联网。</p></details>
+      <details><summary>支持哪些机型？</summary><p>Android 7.0+，arm64。Android 11+ 的无线调试、Shizuku 授权流程按各家 ROM 做了兜底；老旧电视浏览器请用完整包里的轻量页面。</p></details>
     </div>
   </section>
-  <footer><span><b>IK工具箱</b> · com.roomarchive.server · 永久免费 · 无广告</span><span>本页为官方发布页 · 只提供直链下载</span></footer>
-</div>
+</main>
+
+<footer class="wrap">
+  <div><b>IK工具箱</b> · 78 项安卓工具 · 核心功能离线</div>
+  <div class="foot-links"><a href="#core">核心</a><a href="#ability">能力</a><a href="#download">下载</a><a href="#log">更新</a><a href="https://github.com/3115703202/ik-tools">GitHub</a></div>
+</footer>
+
 <script>
-(function(){
-  function tick(){var d=new Date();var h=String(d.getHours()).padStart(2,'0'),m=String(d.getMinutes()).padStart(2,'0');var el=document.getElementById('islandTime');if(el)el.textContent=h+':'+m;}
-  tick();setInterval(tick,30000);
-})();
+document.querySelectorAll('a[href^="#"]').forEach(function(a){
+  a.addEventListener('click',function(e){
+    var id=a.getAttribute('href').slice(1);
+    var t=document.getElementById(id);
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}
+  });
+});
 </script>
 </body>
 </html>
