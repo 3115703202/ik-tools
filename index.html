@@ -443,7 +443,7 @@ footer b{color:var(--muted);font-weight:600}
           <a class="btn btn-main" href="https://aka.doubaocdn.com/s/Enfrszj9U8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 19h16"/></svg>下载 APK</a>
           <a class="btn btn-ghost" href="https://aka.doubaocdn.com/s/WVNh5JeVmr">完整包（源码+APK+内核）</a>
         </div>
-        <div class="hash"><b>MD5</b> 0354958ffba75496b495b4cf8c2a005e<br><b>签名 SHA-256</b> 4018e1d24e6b5b126f41150d1cf40451d04f48e84dc8ba6ead1cfce3699b2598</div>
+        <div class="hash"><b>MD5</b> 7589ee762b0b117b348b107b4445598a<br><b>签名 SHA-256</b> 4018e1d24e6b5b126f41150d1cf40451d04f48e84dc8ba6ead1cfce3699b2598</div>
       </div>
       <div class="dl-list">
         <div class="dl-row"><div><b>APK 直链</b><small>38.3 MB · v5.0.24 / 267</small></div><a href="https://aka.doubaocdn.com/s/Enfrszj9U8">下载</a></div>
@@ -460,9 +460,9 @@ footer b{color:var(--muted);font-weight:600}
       <div class="sec-num">05 / LOG</div>
     </div>
     <div class="timeline">
-      <div class="tl"><div class="v">v5.0.24 · 267</div><h4>安装/更新优先无线调试</h4><p>Shizuku 授权后，核心、IK 更新、安装器、备份恢复、下载 APK 全部优先 <b>pm install -S</b> 静默装；失败带原始错误回退系统安装器。图标隐身继续用 pm disable-user。</p><small>2026-11-28</small></div>
-      <div class="tl"><div class="v">v5.0.22 · 265</div><h4>图标隐身 exit 255</h4><p><b>pm disable</b> 被 shell 拒绝（state 2），改成 <b>pm disable-user</b>（state 3）；隐藏 IK 自己先切到非 alias 页面再停 alias，不再被踢回桌面。</p><small>2026-11-28</small></div>
-      <div class="tl"><div class="v">v5.0.21 · 264</div><h4>Shizuku attachApplication = 17</h4><p>官方 AIDL 是 17，旧代码写成 18，事务静默失败，IK 从未注册成客户端。已改 17，dexdump 核对。</p><small>2026-11-28</small></div>
+      <div class="tl"><div class="v">v5.0.24 · 267</div><h4>图标隐身重做，失败原因露出来</h4><p>第三方优先 <b>pm hide</b> 整包隐藏，桌面、设置列表、最近任务一起消失；ROM 拦截时退回整包停用/组件停用。隐藏失败弹完整异常，不再只给截断 Toast。隐藏 IK 自己先广播删旧快捷方式，避免点旧图标跳应用详情。</p><small>2026-11-28</small></div>
+      <div class="tl"><div class="v">v5.0.23 · 266</div><h4>安装/更新优先无线调试</h4><p>Shizuku 授权后，核心、IK 更新、安装器、备份恢复、下载 APK 优先 <b>pm install -S</b> 静默装；失败带原始错误回退系统安装器。</p><small>2026-11-28</small></div>
+      <div class="tl"><div class="v">v5.0.22 · 265</div><h4>图标隐身 exit 255</h4><p><b>pm disable</b> 被 shell 拒绝（state 2），改成 <b>pm disable-user</b>（state 3）；隐藏 IK 自己先切到非 alias 页面再停 alias。</p><small>2026-11-28</small></div>
     </div>
   </section>
 
