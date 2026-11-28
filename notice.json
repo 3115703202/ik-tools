@@ -1,6 +1,6 @@
 {
-  "id": 202611280009,
-  "title": "v5.0.19：Shizuku API 版本写错",
-  "content": "SERVER_VERSION 3→13、BINDER_TRANSACTION_transact 2→1；服务端不再把 IK 当 pre-v13，授权才能真正生效。核心安装改直拉系统安装器。",
-  "time": "2026-11-28 17:30"
+  "id": "202611280010",
+  "title": "v5.0.20：无线调试直接显示 ADB 能力",
+  "body": "无线调试页新增 ADB 授权能力诊断；内置特权改系统安装页直拉并清理残留安装会话。",
+  "url": "https://aka.doubaocdn.com/s/RDgAkfUt4d"
 }
