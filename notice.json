@@ -1,7 +1,7 @@
 {
-  "id": "202611280020",
-  "title": "v5.0.31：3D 枪战碰撞、陀螺仪与换弹修复",
-  "body": "3D 枪战专项：陀螺仪加死区，静止不再飘视角；玩家和 AI 补实体碰撞，不再穿身/卡掩体；敌人中距离拉枪线，队友会侧移；换弹改成游戏内计时，暂停/倒地不会偷偷补满；斜向移动不再加速；WebGL 丢失给提示；动态分辨率可回升；开始页可滚动、失焦清键、复活重置陀螺仪。内置更新兜底同步 v5.0.31。",
-  "url": "https://aka.doubaocdn.com/s/U1aREYcFUc",
+  "id": "202611280030",
+  "title": "v5.0.32：核心图标、房型库、Shizuku 状态修复",
+  "body": "核心升级到 1.3 并标记为可调试，Shizuku shell 才能改核心 activity-alias，伪装图标不再报 SecurityException；核心 MainActivity 改回 exported，点图标能拉起。修复房型库把 file:///android_asset/index.html 拼成 https://file///... 的 ERR_NAME_NOT_RESOLVED；Shizuku 关/开授权后重新 attach binder，不再误判未运行。",
+  "url": "https://aka.doubaocdn.com/s/PgZxWiolZf",
   "date": "2026-11-28"
 }
