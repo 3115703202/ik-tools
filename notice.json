@@ -1,6 +1,6 @@
 {
-  "id": 202611280007,
-  "title": "v5.0.17：安装失败与授权缓存",
-  "content": "修 PackageInstaller「Files still open」：写入流关闭后再 commit。修 Shizuku 已授权仍待授权：清掉 permissionGranted 缓存重新查询。",
-  "time": "2026-11-28 17:05"
+  "id": 202611280008,
+  "title": "v5.0.18：安装确认页与授权探测",
+  "content": "状态 -1 是 STATUS_PENDING_USER_ACTION，旧代码没拉起系统安装页。5.0.18 正确打开确认页。授权检查失败后用 id 探测 shell，能执行即视为已授权。",
+  "time": "2026-11-28 17:20"
 }
