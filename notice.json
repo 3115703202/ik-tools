@@ -1,6 +1,6 @@
 {
-  "id": "202611280011",
-  "title": "v5.0.21：Shizuku 授权事务码写错",
-  "body": "attachApplication 官方事务码是 17，之前写成 18，IK 从未注册成 Shizuku 客户端。已修正。",
-  "url": "https://aka.doubaocdn.com/s/kTovJSbY4u"
+  "id": "202611280012",
+  "title": "v5.0.22：图标隐身 exit 255 修复",
+  "body": "pm disable 被 shell 拒绝，改为 pm disable-user；隐藏 IK 自己不再被踢回桌面。",
+  "url": "https://aka.doubaocdn.com/s/LRpVWhGzAG"
 }
